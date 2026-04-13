@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Импорт из Excel — Генератор Договоров</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#222;min-height:100vh;padding-bottom:80px}
+
+    header{background:linear-gradient(135deg,#1a3a5c,#2d6aa0);color:white;padding:14px 28px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+    header .logo{font-size:28px}
+    header h1{font-size:17px;font-weight:700;flex:1}
+    header p{font-size:11px;opacity:.75}
+    .back-btn{padding:6px 15px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:white;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:5px;transition:background .15s}
+    .back-btn:hover{background:rgba(255,255,255,.25)}
+
+    .main{padding:22px 26px;max-width:1200px;margin:0 auto}
+
+    /* ── Upload zone ── */
+    .upload-zone{border:3px dashed #b0c4de;border-radius:14px;background:white;padding:64px 40px;text-align:center;cursor:pointer;transition:all .2s;user-select:none}
+    .upload-zone:hover,.upload-zone.dragover{border-color:#2d6aa0;background:#f0f6ff;transform:scale(1.005)}
+    .upload-icon{font-size:60px;margin-bottom:14px;opacity:.45}
+    .upload-zone h2{font-size:20px;color:#333;margin-bottom:8px}
+    .upload-zone p{font-size:13px;color:#999;margin-bottom:20px}
+    .upload-btn-big{padding:11px 30px;background:linear-gradient(135deg,#1a3a5c,#2d6aa0);color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 12px rgba(45,106,160,.35)}
+
+    /* ── Data view ── */
+    .data-view{display:none}
+    .file-info{background:white;border-radius:10px;padding:12px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+    .fi-icon{font-size:26px}
+    .fi-name{font-weight:700;font-size:14px;color:#2d6aa0}
+    .fi-org{font-size:12px;color:#666;margin-top:2px}
+    .change-file-btn{margin-left:auto;padding:6px 14px;background:#f0f6ff;border:1.5px solid #b0d0f0;border-radius:6px;color:#2d6aa0;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0}
+    .change-file-btn:hover{background:#ddeeff}
+
+    /* ── Tabs ── */
+    .tabs{display:flex;background:white;border-radius:10px 10px 0 0;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+    .tab-btn{padding:13px 22px;background:#f7f8fa;border:none;border-bottom:3px solid transparent;cursor:pointer;font-size:13.5px;font-weight:600;color:#777;transition:all .18s;display:flex;align-items:center;gap:7px;white-space:nowrap}
+    .tab-btn:hover{background:#edf3fb;color:#2d6aa0}
+    .tab-btn.active{background:white;color:#2d6aa0;border-bottom-color:#2d6aa0}
+    .tab-badge{background:#2d6aa0;color:white;border-radius:20px;padding:2px 8px;font-size:10.5px;font-weight:700;min-width:22px;text-align:center}
+
+    .tab-content{background:white;border-radius:0 0 10px 10px;padding:20px 22px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+
+    /* ── Общее cards ── */
+    .org-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .org-card{background:#f7f9fc;border:1.5px solid #d8e8f5;border-radius:10px;padding:15px 17px}
+    .org-card-title{font-size:11px;font-weight:700;text-transform:uppercase;color:#2d6aa0;letter-spacing:.7px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+    .kv-row{display:flex;align-items:baseline;margin-bottom:8px;font-size:12.5px;gap:6px}
+    .kv-label{color:#999;width:160px;min-width:160px;font-size:11.5px;flex-shrink:0}
+    .kv-value{font-weight:600;color:#222;word-break:break-all}
+
+    /* ── Search ── */
+    .search-bar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+    .search-input{flex:1;min-width:200px;padding:8px 12px;border:1.5px solid #d0d7e2;border-radius:7px;font-size:13px;font-family:inherit;background:#fafbfc}
+    .search-input:focus{outline:none;border-color:#2d6aa0;background:white}
+    .filter-sel{padding:7px 10px;border:1.5px solid #d0d7e2;border-radius:7px;font-size:12.5px;background:#fafbfc;font-family:inherit;cursor:pointer}
+    .filter-sel:focus{outline:none;border-color:#2d6aa0}
+
+    /* ── Tables ── */
+    .sel-table{width:100%;border-collapse:collapse;font-size:12.5px}
+    .sel-table th{background:#edf3fb;padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#2d6aa0;border-bottom:2px solid #c8d8ee;white-space:nowrap}
+    .sel-table td{padding:8px 10px;border-bottom:1px solid #edf1f7;vertical-align:middle;cursor:pointer}
+    .sel-table tr.data-row:hover td{background:#f4f9ff}
+    .sel-table tr.selected td{background:#ddeeff}
+    .sel-table tr.selected td:first-child{position:relative;padding-left:22px}
+    .sel-table tr.selected td:first-child::before{content:'✓';position:absolute;left:8px;color:#2d6aa0;font-weight:700}
+    .no-results{text-align:center;padding:40px 20px;color:#bbb;font-size:14px}
+    .hint-row{font-size:11.5px;color:#aaa;padding:8px 10px;font-style:italic}
+
+    /* ── Tags ── */
+    .ip-tag{display:inline-block;font-size:10px;background:#e8f5e9;color:#2e7d32;padding:1px 5px;border-radius:3px;font-weight:700;margin-left:4px;vertical-align:middle}
+    .ooo-tag{display:inline-block;font-size:10px;background:#e3f2fd;color:#1565c0;padding:1px 5px;border-radius:3px;font-weight:700;margin-left:4px;vertical-align:middle}
+    .dir-in{color:#27ae60;font-weight:700;font-size:12px}
+    .dir-out{color:#e74c3c;font-weight:700;font-size:12px}
+    .t-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:700}
+    .t1{background:#fff9c4;color:#7a5800}
+    .t2{background:#c8e6c9;color:#2e7d32}
+    .t3{background:#bbdefb;color:#1565c0}
+    .t4{background:#f8bbd0;color:#880e4f}
+
+    /* ── Role selector ── */
+    .role-box{margin-top:20px;background:linear-gradient(135deg,#f0f6ff,#fafbfc);border:2px solid #c8ddf5;border-radius:12px;padding:16px 18px}
+    .role-box-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#2d6aa0;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+    .role-btns{display:flex;gap:10px}
+    .role-btn{flex:1;padding:14px 8px;background:white;border:2px solid #d0d7e2;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;color:#666;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:5px;line-height:1.2}
+    .role-btn:hover{border-color:#2d6aa0;color:#2d6aa0;background:#f0f6ff;transform:translateY(-1px)}
+    .role-btn.active{border-color:#2d6aa0;background:#2d6aa0;color:white;box-shadow:0 3px 12px rgba(45,106,160,.3)}
+    .role-btn .rb-icon{font-size:24px}
+    .role-btn .rb-sub{font-size:10.5px;font-weight:400;opacity:.75;margin-top:2px}
+    .role-hint{margin-top:10px;font-size:11.5px;color:#999;font-style:italic;text-align:center}
+    .role-warn{margin-top:10px;font-size:12px;color:#c07010;background:#fff8f0;border:1px solid #f0c080;border-radius:6px;padding:6px 12px;display:none;text-align:center}
+
+    /* ── Counter picker (inline in Общее tab) ── */
+    .counter-picker{margin-top:20px;background:white;border:2px solid #c8ddf5;border-radius:12px;overflow:hidden}
+    .cp-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:linear-gradient(135deg,#f0f6ff,#fafbfc);border-bottom:1px solid #e0eaf5;flex-wrap:wrap;gap:8px}
+    .cp-title{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#2d6aa0;display:flex;align-items:center;gap:6px}
+    .cp-src-tabs{display:flex;border-radius:6px;overflow:hidden;border:1.5px solid #d0d7e2}
+    .cp-src-btn{padding:5px 15px;background:#f7f8fa;border:none;cursor:pointer;font-size:12px;font-weight:600;color:#666;transition:all .15s;white-space:nowrap}
+    .cp-src-btn:not(:last-child){border-right:1.5px solid #d0d7e2}
+    .cp-src-btn.active{background:#2d6aa0;color:white}
+    .cp-search-wrap{padding:10px 14px;border-bottom:1px solid #f0f4fa;background:#fafbfc}
+    .cp-search{width:100%;padding:8px 12px;border:1.5px solid #d0d7e2;border-radius:7px;font-size:13px;font-family:inherit;background:white}
+    .cp-search:focus{outline:none;border-color:#2d6aa0;box-shadow:0 0 0 3px rgba(45,106,160,.1)}
+    .cp-list{max-height:300px;overflow-y:auto}
+    .cp-item{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;border-bottom:1px solid #f0f4fa;transition:background .12s}
+    .cp-item:last-child{border-bottom:none}
+    .cp-item:hover{background:#f4f9ff}
+    .cp-item.selected{background:#e8f4ff}
+    .cp-check{width:24px;height:24px;border-radius:50%;border:2px solid #d0d7e2;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:transparent;background:transparent;flex-shrink:0;transition:all .15s}
+    .cp-item.selected .cp-check{background:#2d6aa0;border-color:#2d6aa0;color:white}
+    .cp-info{flex:1;min-width:0}
+    .cp-name{font-size:13px;font-weight:600;color:#222;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+    .cp-sub{font-size:11.5px;color:#888;margin-top:2px}
+    .cp-empty{padding:32px;text-align:center;color:#bbb;font-size:13.5px}
+
+    /* ── Next button ── */
+    .next-wrap{margin-top:18px}
+    .btn-next{width:100%;padding:15px;background:linear-gradient(135deg,#1a6b3c,#27ae60);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 18px rgba(39,174,96,.35);transition:opacity .15s,transform .12s}
+    .btn-next:hover{opacity:.92;transform:translateY(-1px)}
+    .btn-next-icon{font-size:20px}
+
+    /* ── Action bar ── */
+    .action-bar{position:fixed;bottom:0;left:0;right:0;background:white;border-top:2px solid #d0e3f5;padding:11px 26px;display:flex;align-items:center;gap:14px;box-shadow:0 -4px 18px rgba(0,0,0,.1);z-index:200}
+    .ab-group{display:flex;flex-direction:column;gap:2px;min-width:160px}
+    .ab-label{font-size:10px;font-weight:700;text-transform:uppercase;color:#aaa;letter-spacing:.5px}
+    .ab-val{font-size:12.5px;font-weight:600;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+    .ab-val.empty{color:#ccc;font-weight:400;font-style:italic}
+    .ab-sep{width:1px;height:38px;background:#e0e8f0;flex-shrink:0}
+    .ab-spacer{flex:1}
+    .btn-open{padding:10px 22px;background:linear-gradient(135deg,#1a3a5c,#2d6aa0);color:white;border:none;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 3px 12px rgba(45,106,160,.35);transition:opacity .15s,transform .12s;white-space:nowrap}
+    .btn-open:hover{opacity:.92;transform:translateY(-1px)}
+    .sel-count{font-size:11px;color:#777;white-space:nowrap}
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">📂</span>
+  <div style="flex:1">
+    <h1>Импорт данных из Excel</h1>
+    <p>Загрузите файл — выберите арендодателя и контрагента — откройте генератор с заполненными реквизитами</p>
+  </div>
+  <a href="dogovor_generator.html" class="back-btn">← Генератор</a>
+</header>
+
+<div class="main">
+
+  <!-- Upload zone -->
+  <div class="upload-zone" id="upload-zone"
+    onclick="document.getElementById('file-input').click()"
+    ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+    <div class="upload-icon">📊</div>
+    <h2>Перетащите файл Excel сюда</h2>
+    <p>Поддерживаются файлы .xlsx с вкладками «Общее», «Аренда», «Контрагенты»</p>
+    <button class="upload-btn-big" onclick="event.stopPropagation()">Выбрать файл</button>
+  </div>
+  <input type="file" id="file-input" accept=".xlsx,.xls" style="display:none" onchange="handleFile(this.files[0])"/>
+
+  <!-- Data view -->
+  <div class="data-view" id="data-view">
+
+    <div class="file-info">
+      <span class="fi-icon">📊</span>
+      <div>
+        <div class="fi-name" id="fi-name">—</div>
+        <div class="fi-org" id="fi-org">—</div>
+      </div>
+      <button class="change-file-btn" onclick="resetUpload()">↩ Другой файл</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('obshee',this)">🏢 Общее</button>
+      <button class="tab-btn" onclick="switchTab('arenda',this)">🏗️ Аренда&nbsp;<span class="tab-badge" id="badge-arenda">0</span></button>
+      <button class="tab-btn" onclick="switchTab('kontrag',this)">👥 Контрагенты&nbsp;<span class="tab-badge" id="badge-kontrag">0</span></button>
+    </div>
+
+    <div class="tab-content">
+      <div class="tab-panel active" id="tab-obshee"></div>
+
+      <div class="tab-panel" id="tab-arenda">
+        <div class="search-bar">
+          <input class="search-input" type="text" id="a-search" placeholder="🔍 Поиск по наименованию, ИНН, номеру договора…" oninput="renderArenda()"/>
+        </div>
+        <div id="arenda-tbl"></div>
+      </div>
+
+      <div class="tab-panel" id="tab-kontrag">
+        <div class="search-bar">
+          <input class="search-input" type="text" id="k-search" placeholder="🔍 Поиск по наименованию или ИЍ��…" oninput="renderKontrag()"/>
+          <select class="filter-sel" id="k-tier" onchange="renderKontrag()">
+            <option value="">Все Tier</option>
+            <option value="1">Tier 1</option>
+            <option value="2">Tier 2</option>
+            <option value="3">Tier 3</option>
+            <option value="4">Tier 4</option>
+          </select>
+          <select class="filter-sel" id="k-dir" onchange="renderKontrag()">
+            <option value="">Все направления</option>
+            <option value="входящий">↓ Входящие</option>
+            <option value="исходящий">↑ Исходящие</option>
+          </select>
+        </div>
+        <div id="kontrag-tbl"></div>
+      </div>
+    </div>
+
+  </div><!-- /data-view -->
+</div>
+
+<!-- Action bar -->
+<div class="action-bar" id="action-bar" style="display:none">
+  <div class="ab-group" style="min-width:140px">
+    <span class="ab-label">Наша организация</span>
+    <span class="ab-val" id="ab-org">—</span>
+  </div>
+  <div class="ab-sep"></div>
+  <div class="ab-group" style="min-width:130px">
+    <span class="ab-label">Роль в договоре</span>
+    <span class="ab-val empty" id="ab-role">не выбрано ⚠️</span>
+  </div>
+  <div class="ab-sep"></div>
+  <div class="ab-group" style="min-width:130px">
+    <span class="ab-label">Контрагент / Арендодател�</span>
+    <span class="ab-val empty" id="ab-counter">не выбрано</span>
+  </div>
+  <div class="ab-spacer"></div>
+  <span class="sel-count" id="ab-hint" style="color:#c07010"></span>
+  <button class="btn-open" onclick="openGenerator()">📄 Открыть генератор →</button>
+</div>
+
+<script>
+// ════════════════════════════════
+//  STATE
+// ════════════════════════════════
+let orgData = null;
+let arendaData = [];
+let kontragData = [];
+let selLease = null;       // index into arendaData
+let selContractor = null;  // index into kontragData
+let orgRole = null;        // 'supplier' | 'buyer' | 'tenant'
+let currentFile = '';
+
+// ════════════════════════════════
+//  FILE HANDLING
+// ════════════════════════════════
+function handleDragOver(e){ e.preventDefault(); document.getElementById('upload-zone').classList.add('dragover'); }
+function handleDragLeave(){ document.getElementById('upload-zone').classList.remove('dragover'); }
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if(f) handleFile(f);
+}
+function handleFile(file){
+  if(!file) return;
+  currentFile = file.name;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const wb = XLSX.read(ev.target.result, {type:'array', cellDates:true, dateNF:'yyyy-mm-dd'});
+      parseWorkbook(wb);
+      showDataView();
+    } catch(err) {
+      alert('Ошибка чтения файла: '+err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+function resetUpload(){
+  orgData=null; arendaData=[]; kontragData=[];
+  selLease=null; selContractor=null; orgRole=null;
+  document.getElementById('upload-zone').style.display='';
+  document.getElementById('data-view').style.display='none';
+  document.getElementById('action-bar').style.display='none';
+  document.getElementById('file-input').value='';
+}
+
+// ════════════════════════════════
+//  PARSE WORKBOOK
+// ════════════════════════════════
+function sheetToArr(wb, name){
+  const ws = wb.Sheets[name];
+  if(!ws) return [];
+  return XLSX.utils.sheet_to_json(ws, {header:1, raw:false, defval:null});
+}
+
+function parseWorkbook(wb){
+  // ── Общее ──
+  const oRows = sheetToArr(wb,'Общее');
+  orgData = {};
+  const lblMap = {
+    'Название организации':'name','ИНН':'inn','КПП':'kpp',
+    'Расчетный счет':'rs','СНО':'sno',
+    'Начальный баланс':'balance','Конечный остаток':'balance_end','Минимальный остаток':'balance_min',
+    'Ъорреспондентский счет':'ks','ИНН банка':'bank_inn','КПП банка':'bank_kpp',
+    'БИК банка':'bik','Название банка':'bank',
+    'Договор РКО':'rco_num','Дата договора РКО':'rco_date','Начальный номер ПП':'pp_start',
+    'Кол-во входящих платежей в день':'pay_in','Кол-во исходящих платежей в день':'pay_out',
+    'Макс. доля на одного контрагента (входящие)':'max_share_in',
+    'Макс. доля на одного контрагента (исходящие)':'max_share_out'
+  };
+  for(const row of oRows){
+    if(!row||!row[1]) continue;
+    const key = lblMap[String(row[1]).trim()];
+    if(key !== undefined) orgData[key] = (row[2]!==null && row[2]!==undefined) ? String(row[2]).trim() : null;
+  }
+  orgData.isIP = orgData.inn && cleanDigits(orgData.inn).length === 12;
+
+  // ── Аренда ──
+  const aRows = sheetToArr(wb,'Аренда');
+  const aHdr = (aRows[1]||[]).map(c => c ? String(c).trim() : null);
+  arendaData = [];
+  for(let i=2;i<aRows.length;i++){
+    const row = aRows[i];
+    if(!row) continue;
+    const obj = {};
+    for(let j=0;j<aHdr.length;j++) if(aHdr[j]) obj[aHdr[j]] = (row[j]!==null&&row[j]!==undefined)?String(row[j]).trim():null;
+    if(obj['ИНН'] && obj['ИНН']!=='null' && cleanDigits(obj['ИНН']).length >= 10){
+      obj.isIP = cleanDigits(obj['ИНН']).length === 12;
+      arendaData.push(obj);
+    }
+  }
+
+  // ── Контрагенты ──
+  const kRows = sheetToArr(wb,'Контрагенты');
+  const kHdr = (kRows[1]||[]).map(c => c ? String(c).trim() : null);
+  kontragData = [];
+  for(let i=2;i<kRows.length;i++){
+    const row = kRows[i];
+    if(!row) continue;
+    const obj = {};
+    for(let j=0;j<kHdr.length;j++) if(kHdr[j]) obj[kHdr[j]] = (row[j]!==null&&row[j]!==undefined)?String(row[j]).trim():null;
+    if(obj['ИНН'] && obj['ИНН']!=='null' && cleanDigits(obj['ИНН']).length >= 10){
+      obj.isIP = cleanDigits(obj['ИНН']).length === 12;
+      kontragData.push(obj);
+    }
+  }
+}
+
+// ════════════════════════════════
+//  SHOW DATA VIEW
+// ════════════════════════════════
+function showDataView(){
+  document.getElementById('upload-zone').style.display='none';
+  document.getElementById('data-view').style.display='block';
+  document.getElementById('action-bar').style.display='flex';
+  document.getElementById('fi-name').textContent = currentFile;
+  document.getElementById('fi-org').textContent = orgData.name || '—';
+  document.getElementById('ab-org').textContent = shortStr(orgData.name, 30);
+  document.getElementById('badge-arenda').textContent = arendaData.length;
+  document.getElementById('badge-kontrag').textContent = kontragData.length;
+  renderObshee();
+  renderArenda();
+  renderKontrag();
+}
+
+// ════════════════════════════════
+//  TABS
+// ════════════════════════════════
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ════════════════════════════════
+//  RENDER: ОБЩЕЕ
+// ════════════════════════════════
+function renderObshee(){
+  const o = orgData;
+  const typeTag = o.isIP ? '<span class="ip-tag">ИП</span>' : '<span class="ooo-tag">ООО/АО</span>';
+  const activeRole = orgRole;
+
+  document.getElementById('tab-obshee').innerHTML = `
+  <div class="org-cards">
+    <div class="org-card">
+      <div class="org-card-title">🏢 Реквизиты организации</div>
+      ${kv('Наименование', (esc(o.name||'—'))+typeTag)}
+      ${kv('ИНН', esc(o.inn||'—'))}
+      ${o.isIP?'':`${kv('КПП', esc(o.kpp||'—'))}`}
+      ${kv('Расчётный счёт', esc(o.rs||'—'))}
+      ${kv('СНО', esc(o.sno||'—'))}
+    </div>
+    <div class="org-card">
+      <div class="org-card-title">🏦 Банковские реквизиты</div>
+      ${kv('Банк', esc(o.bank||'—'))}
+      ${kv('БИК', esc(o.bik||'—'))}
+      ${kv('Ъорр. счёт', esc(o.ks||'—'))}
+      ${kv('ИНН банка', esc(o.bank_inn||'—'))}
+      ${kv('КПП банка', esc(o.bank_kpp||'—'))}
+    </div>
+    <div class="org-card">
+      <div class="org-card-title">⚙️ Настройки платежей</div>
+      ${kv('Входящих/день', esc(o.pay_in||'—'))}
+      ${kv('Исходящих/день', esc(o.pay_out||'—'))}
+      ${kv('Макс. доля (вх.)', o.max_share_in ? Math.round(parseFloat(o.max_share_in)*100)+'%' : '—')}
+      ${kv('Макс. доля (исх.)', o.max_share_out ? Math.round(parseFloat(o.max_share_out)*100)+'%' : '—')}
+      ${kv('Нач. номер ПП', esc(o.pp_start||'—'))}
+    </div>
+    <div class="org-card">
+      <div class="org-card-title">📄 РКО и балансы</div>
+      ${kv('Договор РКО', esc(o.rco_num||'—'))}
+      ${kv('Дата РКО', esc(fmtDate(o.rco_date)))}
+      ${kv('Нач. баланс', o.balance ? fmtRub(o.balance) : '—')}
+      ${kv('Кон. остаток', o.balance_end ? fmtRub(o.balance_end) : '—')}
+      ${kv('Мин. остаток', o.balance_min ? fmtRub(o.balance_min) : '—')}
+    </div>
+  </div>
+
+  <!-- ВЫБОР РОЛИ -->
+  <div class="role-box">
+    <div class="role-box-title">📌 Кем выступает эта организация в договоре?</div>
+    <div class="role-btns">
+      <button id="role-btn-supplier" class="role-btn ${activeRole==='supplier'?'active':''}" onclick="setOrgRole('supplier')">
+        <span class="rb-icon">📦</span>
+        <span>Поставщик</span>
+        <span class="rb-sub">Договор поставки</span>
+      </button>
+      <button id="role-btn-buyer" class="role-btn ${activeRole==='buyer'?'active':''}" onclick="setOrgRole('buyer')">
+        <span class="rb-icon">🛒</span>
+        <span>Покупатель</span>
+        <span class="rb-sub">Договор поставки</span>
+      </button>
+      <button id="role-btn-tenant" class="role-btn ${activeRole==='tenant'?'active':''}" onclick="setOrgRole('tenant')">
+        <span class="rb-icon">🏢</span>
+        <span>Арендатор</span>
+        <span class="rb-sub">Договор аренды</span>
+      </button>
+    </div>
+    <div class="role-hint" id="role-hint">${activeRole ? getRoleHint(activeRole) : 'Выберите роль — это определит тип договора и расстановку сторон'}</div>
+    <div class="role-warn" id="role-warn">⚠️ Выберите роль перед открытием генератора</div>
+  </div>
+
+  <!-- ── Пикер контрагента ── -->
+  <div class="counter-picker" id="counter-picker" style="${activeRole?'':'display:none'}">
+    <div class="cp-header">
+      <span class="cp-title">👤 Выберите контрагента</span>
+      <div class="cp-src-tabs">
+        <button class="cp-src-btn ${cpSrc==='arenda'?'active':''}" id="cp-src-arenda" onclick="switchCpSrc('arenda')">🏗️ Аренда&nbsp;(${arendaData.length})</button>
+        <button class="cp-src-btn ${cpSrc==='kontrag'?'active':''}" id="cp-src-kontrag" onclick="switchCpSrc('kontrag')">👥 Контрагенты&nbsp;(${kontragData.length})</button>
+      </div>
+    </div>
+    <div class="cp-search-wrap">
+      <input class="cp-search" id="cp-search" type="text" placeholder="🔍 Поиск по наименованию, ИНН…" oninput="renderCpList()"/>
+    </div>
+    <div id="cp-list"><div class="cp-empty">Загрузка…</div></div>
+  </div>
+
+  <!-- ── Кнопка «Далее» ── -->
+  <div class="next-wrap" id="next-wrap" style="${(selLease!==null||selContractor!==null)?'':'display:none'}">
+    <button class="btn-next" onclick="openGenerator()">
+      <span class="btn-next-icon">▶</span>
+      Далее — Сформировать договор
+    </button>
+  </div>`;
+
+  // Если роль уже выбрана — инициализируем список контрагентов
+  if(activeRole) setTimeout(renderCpList, 0);
+}
+
+function kv(label, html){
+  return `<div class="kv-row"><span class="kv-label">${label}</spam><span class="kv-value">${html}</span></div>`;
+}
+
+// ════════════════════════════════
+//  RENDER: АРЕНДА
+// ════════════════════════════════
+function renderArenda(){
+  const q = (document.getElementById('a-search').value||'').toLowerCase();
+  const list = arendaData.filter(r=>{
+    if(!q) return true;
+    return (r['Владелец счета']||'').toLowerCase().includes(q)||
+           (r['ИНН']||'').includes(q)||
+           (r['Номер договора']||'').toLowerCase().includes(q);
+  });
+
+  if(!list.length){
+    document.getElementById('arenda-tbl').innerHTML='<div class="no-results">🔍 Ничего не найдено</div>';
+    return;
+  }
+  const rows = list.map(r=>{
+    const idx = arendaData.indexOf(r);
+    const sel = selLease===idx?'selected':'';
+    const dir = (r['Направление']||'').toLowerCase();
+    const dirCls = dir.includes('исход')?'dir-out':'dir-in';
+    const dirLabel = dir.includes('исход')?'↑ Исходящая':'↓ Входящая';
+    const ipTag = r.isIP?'<span class="ip-tag">ИП</span>':'<span class="ooo-tag">ООО</span>';
+    const amt = r['Сумма в месяц'] ? Number(r['Сумма в месяц']).toLocaleString('ru-RU')+'&nbsp;₽' : '—';
+    return `<tr class="data-row ${sel}" onclick="toggleLease(${idx})">
+      <td>${esc(r['Владелец счета']||'—')}${ipTag}</td>
+      <td>${esc(r['ИНН']||'—')}</td>
+      <td><span class="${dirCls}">${dirLabel}</span></td>
+      <td>${amt}</td>
+      <td>${esc(r['Номер договора']||'—')}</td>
+      <td>${fmtDate(r['Дата договора'])}</td>
+      <td>${r['Дата окончания']?fmtDate(r['Дата окончания']):'<span style="color:#aaa">бессрочно</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('arenda-tbl').innerHTML = `
+  <table class="sel-table">
+    <thead><tr>
+      <th>Арендодатель</th><th>ИНН</th><th>Направление</th>
+      <th>Сумма/мес</th><th>№ договора</th><th>Дата дог.</th><th>Окончание</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <p class="hint-row">Нажмите на строку для выбора арендодателя (можно снять сыбор повторным кликом)</p>`;
+}
+
+// ════════════════════════════════
+//  COUNTER PICKER (inline in Общее)
+// ════════════════════════════════
+let cpSrc = 'arenda';  // 'arenda' | 'kontrag'
+
+function switchCpSrc(src){
+  cpSrc = src;
+  document.querySelectorAll('.cp-src-btn').forEach(b=>b.classList.remove('active'));
+  const btn = document.getElementById('cp-src-'+src);
+  if(btn) btn.classList.add('active');
+  const searchEl = document.getElementById('cp-search');
+  if(searchEl) searchEl.value='';
+  renderCpList();
+}
+
+// Возвращает ключевое слово направления, которое нужно искать в данных
+// Поставщик → нам платят → входящие; Покупатель/Арендатор → мы платим → исходящие
+function getDirFilter(){
+  return orgRole==='supplier' ? 'вход' : 'исход';
+}
+
+// Считает отфильтрованное кол-во для бейджей в пикере
+function cpCounts(){
+  const df = getDirFilter();
+  const a = arendaData.filter(r=>(r['Направление']||'').toLowerCase().includes(df)).length;
+  const k = kontragData.filter(r=>(r['Направление']||'').toLowerCase().includes(df)).length;
+  return {a, k};
+}
+
+function renderCpList(){
+  const q = ((document.getElementById('cp-search')||{}).value||'').toLowerCase();
+  const container = document.getElementById('cp-list');
+  if(!container) return;
+
+  const df = getDirFilter();  // 'вход' или 'исход'
+
+  if(cpSrc==='arenda'){
+    const list = arendaData.filter(r=>{
+      // Фильтр по направлению (если направление есть в данных)
+      const d = (r['Направление']||'').toLowerCase();
+      if(d && !d.includes(df)) return false;
+      // Текстовый поиск
+      if(!q) return true;
+      return (r['Владелец счета']||'').toLowerCase().includes(q)||
+             (r['ИНН']||'').includes(q)||
+             (r['Номер договора']||'').toLowerCase().includes(q);
+    });
+
+    if(!list.length){
+      const dirWord = df==='вход' ? 'входящих' : 'исходящих';
+      container.innerHTML=`<div class="cp-empty">Нет ${dirWord} записей${q?' по запросу «'+esc(q)+'»':''}</div>`;
+      return;
+    }
+    container.innerHTML = list.map(r=>{
+      const idx = arendaData.indexOf(r);
+      const sel = selLease===idx;
+      const ipTag = r.isIP?'<span class="ip-tag">ИП</span>':'<span class="ooo-tag">ООО</span>';
+      const amt = r['Сумма в месяц'] ? Number(r['Сумма в месяц']).toLocaleString('ru-RU')+' ₽/мес' : '';
+      const num = r['Номер договора'] ? '· дог. №'+r['Номер договора'] : '';
+      const dt  = r['Дата договора']  ? '· '+fmtDate(r['Дата договора']) : '';
+      return `<div class="cp-item${sel?' selected':''}" onclick="toggleLease(${idx})">
+        <div class="cp-check">${sel?'✓':''}</div>
+        <div class="cp-info">
+          <div class="cp-name">${esc(r['Владелец счета']||'—')}${ipTag}</div>
+          <div class="cp-sub">ИНН&nbsp;${esc(r['ИНН']||'—')}${amt?' · '+amt:''}${num?' '+num:''}${dt?' '+dt:''}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+  } else {
+    const list = kontragData.filter(r=>{
+      // Фильтр по направлению
+      const d = (r['Направление']||'').toLowerCase();
+      if(d && !d.includes(df)) return false;
+      // Текстовый поиск
+      if(!q) return true;
+      return (r['Наименование']||'').toLowerCase().includes(q)||
+             (r['ИНН']||'').includes(q);
+    });
+
+    if(!list.length){
+      const dirWord = df==='вход' ? 'входящих' : 'исходящих';
+      container.innerHTML=`<div class="cp-empty">Нет ${dirWord} контрагентов${q?' по запросу «'+esc(q)+'»':''}</div>`;
+      return;
+    }
+    // Сортируем: сначала Tier 1, потом 2, 3, 4, без тира — в конец
+    list.sort((a,b)=>{
+      const ta = parseInt(a['Tier'])||99;
+      const tb = parseInt(b['Tier'])||99;
+      return ta-tb;
+    });
+    container.innerHTML = list.map(r=>{
+      const idx = kontragData.indexOf(r);
+      const sel = selContractor===idx;
+      const ipTag = r.isIP?'<span class="ip-tag">ИП</span>':'<span class="ooo-tag">ООО</span>';
+      const t = r['Tier']||'';
+      const tCls = {1:'t1',2:'t2',3:'t3',4:'t4'}[t]||'';
+      const tierBadge = t ? `<span class="t-badge ${tCls}" style="font-size:10px;padding:1px 6px">Tier&nbsp;${esc(t)}</span>` : '';
+      return `<div class="cp-item${sel?' selected':''}" onclick="toggleContractor(${idx})">
+        <div class="cp-check">${sel?'✓':''}</div>
+        <div class="cp-info">
+          <div class="cp-name">${esc(r['Наименование']||'—')}${ipTag}${tierBadge}</div>
+          <div class="cp-sub">ИНН&nbsp;${esc(r['ИНН']||'—')}${r['Банк']?' · '+esc(r['Банл']):''}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function updateNextBtn(){
+  const has = selLease!==null || selContractor!==null;
+  const wrap = document.getElementById('next-wrap');
+  if(wrap) wrap.style.display = has ? '' : 'none';
+}
+
+// ════════════════════════════════
+//  ROLE SELECTION
+// ════════════════════════════════
+function setOrgRole(role){
+  orgRole = role;
+  // Кнопки роли
+  ['supplier','buyer','tenant'].forEach(r=>{
+    const b=document.getElementById('role-btn-'+r);
+    if(b) b.classList.toggle('active', r===role);
+  });
+  // Подсказка и предупреждение
+  const hint = document.getElementById('role-hint');
+  if(hint) hint.textContent = getRoleHint(role);
+  const warn = document.getElementById('role-warn');
+  if(warn) warn.style.display='none';
+  // Action bar
+  const labels = {supplier:'📦 Поставщик', buyer:'🛒 Покупатель', tenant:'🏢 Арендатор'};
+  const el = document.getElementById('ab-role');
+  if(el){ el.textContent = labels[role]; el.classList.remove('empty'); }
+  updateHint();
+
+  // ── Показываем пикер контрагента ──
+  const picker = document.getElementById('counter-picker');
+  if(picker){
+    picker.style.display = '';
+    // Источник по умолчанию: для арендатора — Аренда, иначе — Контрагенты
+    cpSrc = role==='tenant' ? 'arenda' : 'kontrag';
+    // Обновляем заголовки вкладка с отфильтрованным количеством
+    const {a: cntA, k: cntK} = cpCounts();
+    const dirLabel = role==='supplier' ? 'вход.' : 'исход.';
+    const btnA = document.getElementById('cp-src-arenda');
+    const btnK = document.getElementById('cp-src-kontrag');
+    if(btnA) btnA.innerHTML = `🏗️&nbsp;Аренда&nbsp;<span style="opacity:.75;font-weight:400">(${cntA}&nbsp;${dirLabel})</span>`;
+    if(btnK) btnK.innerHTML = `👥&nbsp;Контрагенты&nbsp;<span style="opacity:.75;font-weight:400">(${cntK}&nbsp;${dirLabel})</span>`;
+    // Активная вкладка
+    document.querySelectorAll('.cp-src-btn').forEach(b=>b.classList.remove('active'));
+    const activeBtn = document.getElementById('cp-src-'+cpSrc);
+    if(activeBtn) activeBtn.classList.add('active');
+    // Сброс поиска
+    const srch = document.getElementById('cp-search');
+    if(srch) srch.value='';
+    // Рендерим список
+    renderCpList();
+    // Прокручиваем к пикеру
+    setTimeout(()=>picker.scrollIntoView({behavior:'smooth',block:'nearest'}), 80);
+  }
+}
+
+function getRoleHint(role){
+  const map = {
+    supplier: '📦 Вы — Поставщик. Показаны входящие контрагенты (покупатели, которые вам платят). Договор поставки.',
+    buyer:    '🛒 Вы — Покупатель. Показаны исходящие контрагенты (поставщики, которым вы платите). Договор поставки.',
+    tenant:   '🏢 Вы — Арендатор. Показаны исходящие записи аренды (арендодатели, которым вы платите). Договор аренды.'
+  };
+  return map[role]||'';
+}
+
+function toggleLease(idx){
+  selLease = selLease===idx ? null : idx;
+  selContractor = null;
+  const r = selLease!==null ? arendaData[selLease] : null;
+  const el = document.getElementById('ab-counter');
+  if(el){
+    if(r){ el.textContent = '🏗️ '+shortStr(r['Владелец счета'],22); el.classList.remove('empty'); }
+    else { el.textContent = 'не выбрано'; el.classList.add('empty'); }
+  }
+  updateHint();
+  renderArenda();
+  renderKontrag();
+  renderCpList();
+  updateNextBtn();
+}
+
+// ════════════════════════════════
+//  RENDER: КОНТРАГЕНТЫ
+// ════════════════════════════════
+function renderKontrag(){
+  const q = (document.getElementById('k-search').value||'').toLowerCase();
+  const tier = document.getElementById('k-tier').value;
+  const dir = document.getElementById('k-dir').value.toLowerCase();
+
+  const list = kontragData.filter(r=>{
+    if(tier && String(r['Tier']||'') !== tier) return false;
+    if(dir && (r['Направление']||'').toLowerCase() !== dir) return false;
+    if(q) return (r['Наименование']||'').toLowerCase().includes(q)||(r['ИНН']||'').includes(q);
+    return true;
+  });
+
+  if(!list.length){
+    document.getElementById('kontrag-tbl').innerHTML='<div class="no-results">🔍 Ничего не найдено</div>';
+    return;
+  }
+  const tCls = {1:'t1',2:'t2',3:'t3',4:'t4'};
+  const rows = list.map(r=>{
+    const idx = kontragData.indexOf(r);
+    const sel = selContractor===idx?'selected':'';
+    const d = (r['Направление']||'').toLowerCase();
+    const dirCls = d.includes('вход')?'dir-in':'dir-out';
+    const dirLabel = d.includes('вход')?'↓ Входящий':'↑ Исходящий';
+    const ipTag = r.isIP?'<span class="ip-tag">ИП</span>':'<span class="ooo-tag">ООО</span>';
+    const t = r['Tier']||'';
+    const lim = r['Лимит'] ? Number(r['Лимит']).toLocaleString('ru-RU')+'&nbsp;₽' : '—';
+    return `<tr class="data-row ${sel}" onclick="toggleContractor(${idx})">
+      <td>${esc(r['Наименование']||'—')}${ipTag}</td>
+      <td>${esc(r['ИНН']||'—')}</td>
+      <td><span class="t-badge ${tCls[t]||''}">Tier&nbsp;${esc(t||'—')}</span></td>
+      <td><span class="${dirCls}">${dirLabel}</span></td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowraw">${esc(r['Банк']||'—')}</td>
+      <td>${lim}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('kontrag-tbl').innerHTML = `
+  <table class="sel-table">
+    <thead><tr>
+      <th>Наименование</th><th>ИНН</th><th>Tier</th>
+      <th>Направление</th><th>Банк</th><th>Лимит</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <p class="hint-row">Нажмите на строку для выбора контрагента (можно снять выбор повторным кликом)</p>`;
+}
+
+function toggleContractor(idx){
+  selContractor = selContractor===idx ? null : idx;
+  selLease = null;
+  const r = selContractor!==null ? kontragData[selContractor] : null;
+  const el = document.getElementById('ab-counter');
+  if(el){
+    if(r){ el.textContent = '👥 '+shortStr(r['Наименование'],22); el.classList.remove('empty'); }
+    else { el.textContent = 'не выбрано'; el.classList.add('empty'); }
+  }
+  updateHint();
+  renderKontrag();
+  renderArenda();
+  renderCpList();
+  updateNextBtn();
+}
+
+function updateHint(){
+  const hint = document.getElementById('ab-hint');
+  if(!orgRole){
+    hint.textContent = '⚠️ Выберите роль организации во вкладке «Общее»';
+    hint.style.color='#c07010';
+    return;
+  }
+  const hasCounter = selLease!==null || selContractor!==null;
+  if(!hasCounter){
+    const tabHint = orgRole==='tenant' ? '«Аренда»' : '«Контрагенты»';
+    hint.textContent = `Выберите контрагента из вкладки ${tabHint}`;
+    hint.style.color='#888';
+  } else {
+    hint.textContent = '';
+  }
+}
+
+// ════════════════════════════════
+//  OPEN GENERATOR
+// ════════════════════════════════
+function openGenerator(){
+  // Валидация роли
+  if(!orgRole){
+    const warn = document.getElementById('role-warn');
+    if(warn) warn.style.display='block';
+    // Переключить на вкладку Общее
+    switchTab('obshee', document.querySelector('.tab-btn'));
+    return;
+  }
+  // Валидация контрагента
+  const lease = selLease!==null ? arendaData[selLease] : null;
+  const contr = selContractor!==null ? kontragData[selContractor] : null;
+  if(!lease && !contr){
+    const tabHint = orgRole==='tenant' ? 'вкладке «Аренда»' : 'вкладке «Контрагенты»';
+    alert(`Выберите контрагента в ${tabHint}`);
+    return;
+  }
+
+  // Формируем данные контрагента (из аренды или контрагентов)
+  const counterParty = lease ? {
+    name:    lease['Владелец счета'],
+    inn:     lease['ИНН'],
+    kpp:     lease['КПП'],
+    rs:      lease['Расч. счёт'],
+    ks:      lease['Корр. счёт'],
+    bik:     lease['БИК банка'],
+    bank:    lease['Название банка'],
+    amount:  lease['Сумма в месяц'],
+    num_agr: lease['Номер договора'],
+    date_agr:lease['Дата договора'],
+    date_end:lease['Дата окончания'],
+    isIP:    lease.isIP,
+    source:  'arenda'
+  } : {
+    name:      contr['Наименование'],
+    inn:       contr['ИНН'],
+    kpp:       contr['КПП'],
+    rs:        contr['Расч. счёт'],
+    ks:        contr['Корр. счёт'],
+    bik:       contr['БИК'],
+    bank:      contr['Банк'],
+    direction: contr['Направление'],
+    tier:      contr['Tier'],
+    isIP:      contr.isIP,
+    source:    'kontrag'
+  };
+
+  const prefill = {
+    orgRole,           // 'supplier' | 'buyer' | 'tenant'
+    org: {
+      name: orgData.name, inn: orgData.inn, kpp: orgData.kpp,
+      rs: orgData.rs, bank: orgData.bank, bik: orgData.bik,
+      ks: orgData.ks, sno: orgData.sno, isIP: orgData.isIP
+    },
+    counter: counterParty
+  };
+
+  localStorage.setItem('dogovor_prefill', JSON.stringify(prefill));
+  window.open('dogovor_generator.html', '_blank');
+}
+
+// ════════════════════════════════
+//  UTILS
+// ════════════════════════════════
+function esc(s){ if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function cleanDigits(s){ return String(s||'').replace(/\D/g,''); }
+function shortStr(s, n){ if(!s)return'—'; s=String(s); return s.length>n?s.slice(0,n)+'…':s; }
+function fmtDate(d){
+  if(!d||d==='null') return '—';
+  try{
+    const s=String(d).trim();
+    if(/^\d{4}-\d{2}-\d{2}/.test(s)){const p=s.split('-');return`${p[2].slice(0,2)}.${p[1]}.${p[0]}`;}
+    return s;
+  }catch{return String(d);}
+}
+function fmtRub(v){ try{return Number(v).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽';}catch{return v+' ₽';} }
+</script>
+</body>
+</html>
