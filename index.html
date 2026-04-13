@@ -56,6 +56,7 @@
       .hero h2{font-size:20px}
     }
 
+    /* ── Pulse animation on load ── */
     @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
     .hero{animation:fadeUp .5s ease both}
     .card:nth-child(1){animation:fadeUp .5s .15s ease both}
@@ -80,30 +81,44 @@
 </div>
 
 <div class="cards">
+
+  <!-- Карточка: Excel -->
   <a href="import.html" class="card card-excel">
     <span class="card-icon">📊</span>
     <h3>Загрузить из Excel</h3>
     <p class="card-desc">Загрузите файл с реквизитами — данные организации, арендодателей и контрагентов подтянутся автоматически</p>
     <ul class="card-features">
       <li>Реквизиты из вкладки «Общее» заполняются одним кликом</li>
-      <li>Выбор контрагента с фильтрацией по направлению</li>
-      <li>Сортировка по Tier, автоопределение ИП/ООО</li>
-      <li>Передача данных в генератор одним кликом</li>
+      <li>Выбор арендодателя из списка вкладки «Аренда»</li>
+      <li>Поиск и фильтрация контрагентов по Tier и направлению</li>
+      <li>Автоопределение ИП или ООО по ИНН</li>
     </ul>
-    <div class="card-btn"><span>Выбрать файл</span><span class="card-btn-arrow">→</span></div>
+    <div class="card-btn">
+      <span>Выбрать файл</span>
+      <span class="card-btn-arrow">→</span>
+    </div>
   </a>
+
+  <!-- Разделитель -->
+  <div class="or-divider" style="display:none"></div>
+
+  <!-- Карточка: Вручную -->
   <a href="dogovor_generator.html" class="card card-manual">
     <span class="card-icon">✏️</span>
     <h3>Заполнить вручную</h3>
-    <p class="card-desc">Введите реквизиты сторон напрямую в форму и сразу получите готовый договор</p>
+    <p class="card-desc">Введите реквизиты сторон напрямую в форму и сразу получите готовый договор для печати</p>
     <ul class="card-features">
       <li>Договор поставки или аренды помещения</li>
-      <li>8 цветовых тем, 5 шрифтов, 4 стиля шапки</li>
-      <li>Уникальные формулировки при каждом формировании</li>
-      <li>Экспорт в PDF и Word (.doc)</li>
+      <li>Поддержка ООО, АО и ИП для всех сторон</li>
+      <li>5 цветовых тем, уникальные номера и формулировки</li>
+      <li>Печать / сохранение в PDF прямо из браузера</li>
     </ul>
-    <div class="card-btn"><span>Открыть форму</span><span class="card-btn-arrow">→</span></div>
+    <div class="card-btn">
+      <span>Открыть форму</span>
+      <span class="card-btn-arrow">→</span>
+    </div>
   </a>
+
 </div>
 
 <footer>Генератор работает полностью в браузере — никакие данные не передаются на сервер</footer>

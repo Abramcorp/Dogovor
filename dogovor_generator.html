@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Генератор Договоров</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#222;min-height:100vh}
+    header{background:var(--hdr1,linear-gradient(135deg,#1a3a5c,#2d6aa0));color:white;padding:14px 28px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+    header .logo{font-size:30px}
+    header h1{font-size:18px;font-weight:700}
+    header p{font-size:11px;opacity:.8;margin-top:1px}
+    .app-wrapper{display:flex;min-height:calc(100vh - 62px)}
+
+    /* ФОРМА */
+    .form-panel{width:500px;min-width:500px;background:white;padding:16px 20px 40px;overflow-y:auto;border-right:2px solid #e0e6ef}
+    .sec-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--accent,#2d6aa0);margin:18px 0 8px;padding-bottom:4px;border-bottom:2px solid var(--accent-light,#d0e3f5);display:flex;align-items:center;gap:6px}
+    .sec-title:first-child{margin-top:0}
+    label{display:block;font-size:10.5px;font-weight:600;color:#555;margin:8px 0 2px}
+    input[type=text],input[type=date],input[type=number],textarea,select{width:100%;padding:7px 10px;border:1.5px solid #d0d7e2;border-radius:6px;font-size:12.5px;color:#222;background:#fafbfc;transition:border-color .2s,box-shadow .2s;font-family:inherit}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent,#2d6aa0);box-shadow:0 0 0 3px var(--accent-shadow,rgba(45,106,160,.12));background:#fff}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+    /* ВЫБОР ТИПА ДОГОВОРА */
+    .type-selector{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:9px;overflow:hidden;border:2px solid #d0d7e2;margin-bottom:2px}
+    .type-btn{padding:11px 8px;background:#f7f8fa;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#666;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
+    .type-btn .tb-icon{font-size:22px}
+    .type-btn .tb-label{font-size:11.5px}
+    .type-btn:first-child{border-right:2px solid #d0d7e2}
+    .type-btn.active{background:var(--accent-grad,linear-gradient(135deg,#1a3a5c,#2d6aa0));color:white}
+
+    /* УНИКАЛЬНОСТЬ */
+    .unique-box{background:linear-gradient(135deg,#f8f4ff,#eff6ff);border:1.5px solid #c9b8f0;border-radius:8px;padding:11px 13px;margin-bottom:4px}
+    .ub-title{font-size:11px;font-weight:700;color:#6a3fa0;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .ub-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:5px}
+    .ub-row input[type=checkbox]{width:14px;height:14px;accent-color:#6a3fa0;flex-shrink:0;margin-top:1px}
+    .ub-label{font-size:11px;color:#333;font-weight:600}
+    .ub-desc{font-size:10px;color:#999;margin-left:21px;margin-top:-3px;margin-bottom:1px}
+    .theme-row{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+    .theme-btn{width:26px;height:26px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:transform .15s}
+    .theme-btn:hover{transform:scale(1.15)}
+    .theme-btn.active{border-color:#333 !important}
+
+    /* ТАБЛИЦЫ */
+    .edit-tbl{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:5px}
+    .edit-tbl th{background:#edf3fb;padding:5px 5px;text-align:left;font-size:10px;font-weight:700;color:var(--accent,#2d6aa0);border:1px solid #c8d8ee}
+    .edit-tbl td{padding:2px 2px;border:1px solid #e0e8f4;vertical-align:middle}
+    .edit-tbl input,.edit-tbl select{border:none;background:transparent;padding:4px 4px;font-size:11.5px;width:100%;border-radius:0}
+    .edit-tbl input:focus{background:#f0f8ff}
+    .btn-add{margin-top:5px;padding:4px 11px;background:#edf3fb;border:1.5px dashed var(--accent,#2d6aa0);border-radius:5px;color:var(--accent,#2d6aa0);font-size:11.5px;font-weight:600;cursor:pointer}
+    .btn-add:hover{background:#d8eaf8}
+    .btn-del{background:none;border:none;color:#c0392b;cursor:pointer;font-size:13px;padding:0 2px}
+
+    /* ИП / ООО ПЕРЕКЛЮЧАТЕЛЬ */
+    .pt-wrap{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    .pt-toggle{display:flex;border-radius:5px;overflow:hidden;border:1.5px solid #d0d7e2;flex-shrink:0}
+    .pt-btn{padding:3px 11px;background:#f7f8fa;border:none;cursor:pointer;font-size:10.5px;font-weight:700;color:#666;transition:all .15s;letter-spacing:.2px}
+    .pt-btn:not(:last-child){border-right:1.5px solid #d0d7e2}
+    .pt-btn.active{background:var(--accent,#2d6aa0);color:white}
+    .pt-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--accent,#2d6aa0)}
+
+    /* ЭТАПЫ/ОПЛАТА */
+    .stages-warn{display:none;margin-top:5px;font-size:10.5px;color:#c07010;background:#fff8f0;padding:4px 8px;border-radius:4px;border:1px solid #f0c080}
+
+    /* КАЛЬКУЛЯТОР ПЕНИ */
+    .penalty-calc{background:#fff8f0;border:1.5px solid #f0c080;border-radius:8px;padding:11px 13px;margin-top:5px}
+    .pc-title{font-size:11px;font-weight:700;color:#c07010;margin-bottom:8px;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+    .pc-title .toggle{margin-left:auto;font-size:12px;transition:transform .2s}
+    .pc-body{display:none}
+    .pc-body.open{display:block}
+    .btn-calc{width:100%;margin-top:8px;padding:7px;background:linear-gradient(135deg,#c07010,#f0940a);color:white;border:none;border-radius:6px;font-size:12.5px;font-weight:700;cursor:pointer}
+    .btn-calc:hover{opacity:.9}
+    .calc-result{margin-top:8px;padding:9px 12px;background:#fff3e0;border-left:4px solid #f0940a;border-radius:0 6px 6px 0;font-size:12.5px;display:none}
+    .calc-result.show{display:block}
+    .cr-row{display:flex;justify-content:space-between;margin-bottom:3px;font-size:12px}
+    .cr-total{font-weight:700;font-size:13px;color:#c05000;border-top:1px solid #f0c080;padding-top:5px;margin-top:3px}
+
+    /* ИМПОРТ БАННЕР */
+    .import-banner{background:linear-gradient(135deg,#e8f5e9,#f0fff4);border:1.5px solid #a5d6a7;border-radius:9px;padding:11px 14px;margin-bottom:12px}
+    .ib-head{font-size:11.5px;font-weight:700;color:#2e7d32;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+    .ib-org{font-size:11.5px;color:#444;margin-bottom:8px;line-height:1.4}
+    .ib-btns{display:flex;gap:6px;flex-wrap:wrap}
+    .ib-btn{padding:5px 12px;border:1.5px solid;border-radius:5px;font-size:11.5px;font-weight:700;cursor:pointer;transition:all .15s}
+    .ib-btn-lease{background:#e3f2fd;border-color:#90caf9;color:#1565c0}
+    .ib-btn-lease:hover{background:#bbdefb}
+    .ib-btn-supply{background:#e8f5e9;border-color:#a5d6a7;color:#2e7d32}
+    .ib-btn-supply:hover{background:#c8e6c9}
+    .ib-btn-close{background:#f5f5f5;border-color:#ddd;color:#888;margin-left:auto}
+    .ib-btn-close:hover{background:#eee}
+
+    .btn-gen{width:100%;margin-top:18px;padding:11px;background:var(--accent-grad,linear-gradient(135deg,#1a3a5c,#2d6aa0));color:white;border:none;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .15s;box-shadow:0 4px 15px var(--accent-shadow2,rgba(45,106,160,.35))}
+    .btn-gen:hover{opacity:.92;transform:translateY(-1px)}
+
+    /* ПРЕДПРОСМОТР */
+    .preview-panel{flex:1;background:#e8ecf2;display:flex;flex-direction:column;align-items:center;padding:22px 14px;overflow-y:auto}
+    .preview-toolbar{display:flex;gap:8px;margin-bottom:14px;align-items:center;width:100%;max-width:820px}
+    .preview-toolbar span{flex:1;font-size:12.5px;font-weight:600;color:#555}
+    .btn-print{padding:7px 16px;background:#27ae60;color:white;border:none;border-radius:6px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s;box-shadow:0 2px 8px rgba(39,174,96,.3)}
+    .btn-print:hover{background:#219a52}
+    .btn-print:disabled{background:#aaa;cursor:not-allowed;box-shadow:none}
+    .btn-word{padding:7px 16px;background:#1565c0;color:white;border:none;border-radius:6px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s;box-shadow:0 2px 8px rgba(21,101,192,.3)}
+    .btn-word:hover{background:#0d47a1}
+    .btn-word:disabled{background:#aaa;cursor:not-allowed;box-shadow:none}
+    .uniq-badge{padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;background:linear-gradient(135deg,#6a3fa0,#2d6aa0);color:white;display:none;align-items:center;gap:4px}
+    .uniq-badge.show{display:flex}
+    #contract-preview{width:100%;max-width:820px;background:white;box-shadow:0 4px 30px rgba(0,0,0,.14);border-radius:3px;min-height:500px}
+    .placeholder-msg{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;color:#aaa;font-size:14px;gap:9px}
+    .placeholder-msg .big-icon{font-size:54px;opacity:.4}
+
+    /* ДОГОВОР (общие стили) */
+    .doc-header-bar{height:5px;background:var(--theme-grad,linear-gradient(90deg,#1a3a5c,#2d6aa0));border-radius:2px 2px 0 0}
+    .doc-header-inner{padding:14px 50px 10px;background:var(--theme-bg,#f0f6ff);border-bottom:1px solid var(--theme-border,#c0d8f5)}
+    .dhi-num{font-size:10px;color:var(--theme-color,#2d6aa0);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+    .dhi-title{font-size:18px;font-weight:bold;color:#111;letter-spacing:.3px}
+    .dhi-meta{font-size:11px;color:#555;margin-top:2px}
+    .dhi-fp{font-size:9px;color:#bbb;margin-top:2px;font-family:monospace}
+    .contract-doc{padding:40px 50px;font-family:'Times New Roman',serif;font-size:13px;line-height:1.65;color:#111;position:relative}
+    .c-section{font-size:13px;font-weight:bold;margin-top:16px;margin-bottom:5px;text-transform:uppercase}
+    .c-clause{margin-bottom:5px;text-align:justify;font-size:12.5px}
+    .c-clause-num{font-weight:bold;margin-right:4px}
+    hr.c-div{border:none;border-top:1px solid #ccc;margin:13px 0}
+    .contract-doc table.ct{width:100%;border-collapse:collapse;font-size:12px;margin:7px 0}
+    .contract-doc table.ct th{background:#f0f0f0;border:1px solid #999;padding:5px 7px;text-align:center;font-weight:bold}
+    .contract-doc table.ct td{border:1px solid #bbb;padding:4px 7px}
+    .contract-doc table.ct td.c{text-align:center}
+    .contract-doc table.ct td.r{text-align:right}
+    .contract-doc table.ct-pay th{background:#e8f4e8;border:1px solid #88bb88}
+    .contract-doc table.ct-pay td{border:1px solid #a8cca8}
+    .contract-doc table.ct-rent th{background:#e8f0f8;border:1px solid #88aad0}
+    .contract-doc table.ct-rent td{border:1px solid #a8c0da}
+    .c-total-words{font-style:italic;font-size:11.5px;margin-bottom:8px}
+    .c-sigs{margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .sig-block{font-size:11.5px}
+    .sig-title{font-weight:bold;font-size:12.5px;margin-bottom:5px;border-bottom:2px solid var(--theme-color,#2d6aa0);padding-bottom:4px;color:var(--theme-color,#2d6aa0)}
+    .sig-line{margin-top:24px;border-bottom:1px solid #333;width:65%}
+    .sig-caption{font-size:9.5px;color:#666;margin-top:2px}
+    .uniq-corner{position:absolute;top:0;right:0;width:70px;height:70px;overflow:hidden;pointer-events:none}
+    .uniq-corner span{position:absolute;top:14px;right:-18px;transform:rotate(45deg);background:var(--theme-color,#2d6aa0);color:white;font-size:7.5px;font-weight:700;letter-spacing:.4px;padding:2px 22px;text-transform:uppercase;opacity:.75}
+    .doc-wrapper{position:relative}
+
+    /* ══ СТИЛИ ШАПКИ ══ */
+    /* hdr-band (default — уже существует) */
+    /* hdr-minimal: тонкая цветная полоса слева */
+    .hdr-minimal .doc-header-bar{display:none}
+    .hdr-minimal .doc-header-inner{background:white;border-left:5px solid var(--theme-color,#2d6aa0);border-bottom:1px solid var(--theme-border,#c0d8f5);padding:12px 50px 10px 20px}
+    .hdr-minimal .dhi-title{font-size:16px}
+    /* hdr-solid: полная заливка фоном темы, белый текст */
+    .hdr-solid .doc-header-bar{display:none}
+    .hdr-solid .doc-header-inner{background:var(--theme-grad,linear-gradient(90deg,#1a3a5c,#2d6aa0));border-bottom:none;padding:18px 50px 14px}
+    .hdr-solid .dhi-num,.hdr-solid .dhi-title,.hdr-solid .dhi-meta{color:white}
+    .hdr-solid .dhi-meta{opacity:.85}
+    /* hdr-frame: рамка вокруг шапки */
+    .hdr-frame .doc-header-bar{display:none}
+    .hdr-frame .doc-header-inner{background:white;border:2.5px solid var(--theme-color,#2d6aa0);margin:14px 40px 0;border-radius:6px;text-align:center;padding:14px 30px 12px}
+    .hdr-frame .dhi-meta{justify-content:center;text-align:center}
+    .hdr-frame .dhi-num{color:var(--theme-color,#2d6aa0)}
+
+    /* ══ СТИЛИ РАЗДЕЛОВ ══ */
+    /* sst-classic (default — уже существует) */
+    /* sst-leftbar: цветная вертикальная полоса слева */
+    .sst-leftbar .c-section{border-left:4px solid var(--theme-color,#2d6aa0);padding-left:9px;color:var(--theme-color,#2d6aa0);background:transparent;margin-top:14px}
+    .sst-leftbar hr.c-div{display:none}
+    /* sst-filled: закрашенный заголовок раздела */
+    .sst-filled .c-section{background:var(--theme-grad,linear-gradient(90deg,#1a3a5c,#2d6aa0));color:white;padding:4px 12px;border-radius:4px;margin-top:14px;margin-left:-6px;margin-right:-6px}
+    .sst-filled hr.c-div{display:none}
+    /* sst-underline: подчёркнутые разделы */
+    .sst-underline .c-section{border-bottom:2px solid var(--theme-color,#2d6aa0);padding-bottom:3px;color:var(--theme-color,#2d6aa0);margin-top:14px}
+    .sst-underline hr.c-div{border-top:1px dashed #ddd;margin:8px 0}
+
+    /* ══ ШРИФТЫ ══ */
+    .font-times .contract-doc{font-family:'Times New Roman',Times,serif;font-size:13px}
+    .font-calibri .contract-doc{font-family:Calibri,'Trebuchet MS',Arial,sans-serif;font-size:13px;line-height:1.6}
+    .font-georgia .contract-doc{font-family:Georgia,'Book Antiqua',serif;font-size:12.5px;line-height:1.7}
+    .font-arial .contract-doc{font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6}
+    .font-pt .contract-doc{font-family:'PT Serif','Palatino Linotype',serif;font-size:13px;line-height:1.65}
+
+    /* ══ СТИЛЬ КОНТРОЛ UI ══ */
+    .style-box{background:linear-gradient(135deg,#f8f4ff,#eff6ff);border:1.5px solid #c9b8f0;border-radius:8px;padding:11px 13px;margin-bottom:4px}
+    .sb-row{margin-bottom:9px}
+    .sb-row:last-child{margin-bottom:0}
+    .sb-label{font-size:10px;font-weight:700;text-transform:uppercase;color:#6a3fa0;letter-spacing:.5px;margin-bottom:5px}
+    .pill-row{display:flex;gap:4px;flex-wrap:wrap}
+    .pill-btn{padding:3px 10px;border-radius:20px;border:1.5px solid #d0b8f0;background:#f0e8ff;color:#6a3fa0;font-size:10.5px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .pill-btn:hover{border-color:#9b6ad0;background:#e8d8ff}
+    .pill-btn.active{background:#6a3fa0;border-color:#6a3fa0;color:white}
+    .theme-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px}
+    .theme-btn{width:22px;height:22px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:transform .15s,border-color .12s;flex-shrink:0}
+    .theme-btn:hover{transform:scale(1.18)}
+    .theme-btn.active{border-color:#333 !important;transform:scale(1.1)}
+
+    @media print{
+      body{background:white}
+      .form-panel,.preview-toolbar,header{display:none !important}
+      .preview-panel{background:white;padding:0;display:block}
+      #contract-preview{box-shadow:none;max-width:100%;border-radius:0}
+      .contract-doc{padding:10mm 16mm}
+      .doc-header-inner{padding:7px 16mm}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">📄</div>
+  <div>
+    <h1>Генератор Договоров</h1>
+    <p>Договор поставки · Договор аренды помещения</p>
+  </div>
+</header>
+
+<div class="app-wrapper">
+<div class="form-panel">
+
+  <!-- БАННЕР ИМПОРТА -->
+  <div class="import-banner" id="import-banner" style="display:none">
+    <div class="ib-head">📂 Данные загружены из Excel</div>
+    <div class="ib-org" id="ib-org-info"></div>
+    <div class="ib-btns" id="ib-btns">
+      <button class="ib-btn" id="ib-main-btn" onclick="applyPrefill()">✅ Заполнить форму</button>
+      <button class="ib-btn ib-btn-close" onclick="dismissImport()">✕ Закрыть</button>
+    </div>
+  </div>
+
+  <!-- ТИП ДОГОВОРА -->
+  <div class="sec-title">📌 Тип договора</div>
+  <div class="type-selector">
+    <button class="type-btn active" data-type="supply" onclick="switchType('supply')">
+      <span class="tb-icon">📦</span>
+      <span class="tb-label">Договор поставки</span>
+    </button>
+    <button class="type-btn" data-type="lease" onclick="switchType('lease')">
+      <span class="tb-icon">🏠</span>
+      <span class="tb-label">Договор аренды</span>
+    </button>
+  </div>
+
+  <!-- УНИКАЛИЗАЦИЯ + СТИЛИСТИКА -->
+  <div class="sec-title">✨ Уникализация и стиль</div>
+  <div class="style-box">
+
+    <!-- Уникализация -->
+    <div class="sb-row">
+      <div class="sb-label">⚙ Генерация</div>
+      <div class="ub-row"><input type="checkbox" id="opt-num" checked/>
+        <div><div class="ub-label">Автономер договора</div><div class="ub-desc">Уникальный номер при каждом формировании</div></div></div>
+      <div class="ub-row" style="margin-top:5px"><input type="checkbox" id="opt-rnd" checked/>
+        <div><div class="ub-label">Рандомизация формулировок и стиля</div><div class="ub-desc">Уникальный текст + визуал при каждом нажатии</div></div></div>
+    </div>
+
+    <!-- Цветовая тема -->
+    <div class="sb-row">
+      <div class="sb-label">🎨 Цветовая тема</div>
+      <div class="theme-row" id="theme-row">
+        <div class="theme-btn active" data-theme="blue"   style="background:linear-gradient(135deg,#1a3a5c,#2d6aa0)" title="Синий классик"></div>
+        <div class="theme-btn"        data-theme="green"  style="background:linear-gradient(135deg,#1a5c3a,#27ae60)" title="Зелёный"></div>
+        <div class="theme-btn"        data-theme="wine"   style="background:linear-gradient(135deg,#5c1a2a,#a02d4a)" title="Бордовый"></div>
+        <div class="theme-btn"        data-theme="dark"   style="background:linear-gradient(135deg,#1c1c2e,#4a4a6a)" title="Тёмно-серый"></div>
+        <div class="theme-btn"        data-theme="gold"   style="background:linear-gradient(135deg,#5c4a1a,#c8940a)" title="Золотой"></div>
+        <div class="theme-btn"        data-theme="teal"   style="background:linear-gradient(135deg,#0d4040,#0d8080)" title="Бирюзовый"></div>
+        <div class="theme-btn"        data-theme="purple" style="background:linear-gradient(135deg,#2d1a5c,#7a3fa0)" title="Пурпурный"></div>
+        <div class="theme-btn"        data-theme="slate"  style="background:linear-gradient(135deg,#2a3545,#546e8a)" title="Стальной"></div>
+      </div>
+    </div>
+
+    <!-- Шрифт -->
+    <div class="sb-row">
+      <div class="sb-label">🔤 Шрифт</div>
+      <div class="pill-row" id="font-row">
+        <button class="pill-btn active" data-font="times">Times (классика)</button>
+        <button class="pill-btn" data-font="calibri">Calibri (современный)</button>
+        <button class="pill-btn" data-font="georgia">Georgia (элегантный)</button>
+        <button class="pill-btn" data-font="arial">Arial (деловой)</button>
+        <button class="pill-btn" data-font="pt">PT Serif (строгий)</button>
+      </div>
+    </div>
+
+    <!-- Стиль шапки -->
+    <div class="sb-row">
+      <div class="sb-label">🏷 Шапка договора</div>
+      <div class="pill-row" id="hdr-row">
+        <button class="pill-btn active" data-hdr="band">Полоса + фон</button>
+        <button class="pill-btn" data-hdr="minimal">Минимал</button>
+        <button class="pill-btn" data-hdr="solid">Полная заливка</button>
+        <button class="pill-btn" data-hdr="frame">Рамка</button>
+      </div>
+    </div>
+
+    <!-- Стиль разделов -->
+    <div class="sb-row">
+      <div class="sb-label">📐 Оформление разделов</div>
+      <div class="pill-row" id="sst-row">
+        <button class="pill-btn active" data-sst="classic">Классика</button>
+        <button class="pill-btn" data-sst="leftbar">Боковая полоса</button>
+        <button class="pill-btn" data-sst="filled">Закрашенные</button>
+        <button class="pill-btn" data-sst="underline">Подчёркнутые</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ОБЩЕЕ (для обоих типов) -->
+  <div class="sec-title">📋 Общая информация</div>
+  <label>Номер договора</label>
+  <input type="text" id="f-number" placeholder="Автогенерация ✓"/>
+  <div class="row2">
+    <div><label>Место заключения</label><input type="text" id="f-city" placeholder="г. Москва"/></div>
+    <div><label>Дата</label><input type="date" id="f-date"/></div>
+  </div>
+
+  <!-- ══════════ ПОСТАВКА ══════════ -->
+  <div id="supply-form">
+
+    <!-- ПОСТАВЩИК -->
+    <div class="pt-wrap">
+      <div class="sec-title" style="border:none;margin:18px 0 0;padding:0">🏭 Поставщик</div>
+      <div class="pt-toggle">
+        <button class="pt-btn active" onclick="setPartyType('s','ooo',this)">ООО / АО</button>
+        <button class="pt-btn" onclick="setPartyType('s','ip',this)">ИП</button>
+      </div>
+    </div>
+    <div style="border-bottom:2px solid var(--accent-light,#d0e3f5);margin-bottom:8px"></div>
+    <label id="s-name-label">Наименование организации</label>
+    <input type="text" id="s-name" placeholder='ООО "Альфа Поставки"'/>
+    <div id="s-rep-row">
+      <label>В лице</label><input type="text" id="s-rep" placeholder="Генерального директора Иванова И.И."/>
+      <label>Основание</label><input type="text" id="s-base" placeholder="Устава"/>
+    </div>
+    <div class="row2">
+      <div><label>ИНН</label><input type="text" id="s-inn" placeholder="7701234567"/></div>
+      <div id="s-kpp-wrap"><label>КПП</label><input type="text" id="s-kpp" placeholder="770101001"/></div>
+    </div>
+    <label id="s-ogrn-label">ОГРН</label><input type="text" id="s-ogrn" placeholder="1234567890123"/>
+    <label id="s-addr-label">Юр. адрес</label><input type="text" id="s-addr" placeholder="123456, г. Москва, ул. Примерная, д. 1"/>
+    <label>Расчётный счёт</label><input type="text" id="s-rs" placeholder="40702810000000000001"/>
+    <div class="row2">
+      <div><label>Банк</label><input type="text" id="s-bank" placeholder='АО "Банк"'/></div>
+      <div><label>БИК</label><input type="text" id="s-bik" placeholder="044525999"/></div>
+    </div>
+    <label>К/с</label><input type="text" id="s-ks" placeholder="30101810000000000999"/>
+    <div class="row2">
+      <div><label>Телефон</label><input type="text" id="s-phone" placeholder="+7 (495) 000-00-00"/></div>
+      <div><label>Email</label><input type="text" id="s-email" placeholder="info@alpha.ru"/></div>
+    </div>
+
+    <!-- ПОКУПАТЕЛЬ -->
+    <div class="pt-wrap">
+      <div class="sec-title" style="border:none;margin:18px 0 0;padding:0">🏢 Покупатель</div>
+      <div class="pt-toggle">
+        <button class="pt-btn active" onclick="setPartyType('b','ooo',this)">ООО / АО</button>
+        <button class="pt-btn" onclick="setPartyType('b','ip',this)">ИП</button>
+      </div>
+    </div>
+    <div style="border-bottom:2px solid var(--accent-light,#d0e3f5);margin-bottom:8px"></div>
+    <label id="b-name-label">Наименование организации</label>
+    <input type="text" id="b-name" placeholder='ООО "Бета Торг"'/>
+    <div id="b-rep-row">
+      <label>В лице</label><input type="text" id="b-rep" placeholder="Генерального директора Петрова П.П."/>
+      <label>Основание</label><input type="text" id="b-base" placeholder="Устава"/>
+    </div>
+    <div class="row2">
+      <div><label>ИНН</label><input type="text" id="b-inn" placeholder="7709876543"/></div>
+      <div id="b-kpp-wrap"><label>КПП</label><input type="text" id="b-kpp" placeholder="770901001"/></div>
+    </div>
+    <label id="b-ogrn-label">ОГРН</label><input type="text" id="b-ogrn" placeholder="3210987654321"/>
+    <label id="b-addr-label">Юр. адрес</label><input type="text" id="b-addr" placeholder="654321, г. СПб, пр-т Пример, д. 5"/>
+    <label>Расчётный счёт</label><input type="text" id="b-rs" placeholder="40702810000000000002"/>
+    <div class="row2">
+      <div><label>Банк</label><input type="text" id="b-bank" placeholder='АО "Горбанк"'/></div>
+      <div><label>БИК</label><input type="text" id="b-bik" placeholder="044030000"/></div>
+    </div>
+    <label>К/с</label><input type="text" id="b-ks" placeholder="30101810000000000000"/>
+    <div class="row2">
+      <div><label>Телефон</label><input type="text" id="b-phone" placeholder="+7 (812) 000-00-00"/></div>
+      <div><label>Email</label><input type="text" id="b-email" placeholder="info@beta.ru"/></div>
+    </div>
+
+    <div class="sec-title">📦 Товар</div>
+    <table class="edit-tbl">
+      <thead><tr><th style="width:36%">Наименование</th><th style="width:13%">Кол-во</th><th style="width:14%">Ед.изм.</th><th style="width:17%">Цена,руб.</th><th style="width:8%"></th></tr></thead>
+      <tbody id="goods-body">
+        <tr>
+          <td><input type="text" placeholder="Товар"/></td>
+          <td><input type="number" placeholder="1" min="0" oninput="syncPayStages()"/></td>
+          <td><input type="text" placeholder="шт."/></td>
+          <td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="syncPayStages()"/></td>
+          <td><button class="btn-del" onclick="delRow(this,'goods-body')">✕</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button class="btn-add" onclick="addGoodsRow()">+ Строка товара</button>
+    <label style="margin-top:10px">НДС</label>
+    <select id="f-nds" onchange="syncPayStages()">
+      <option value="no">Без НДС</option><option value="20">НДС 20%</option><option value="10">НДС 10%</option>
+    </select>
+
+    <div class="sec-title">💳 Логика оплаты поставщику</div>
+    <label>Вид оплаты</label>
+    <select id="f-pmode" onchange="onPayModeChange()">
+      <option value="simple">Простая оплата (одним платежом)</option>
+      <option value="stages">Поэтапная оплата</option>
+      <option value="schedule">График платежей с датами</option>
+    </select>
+    <div id="pay-simple">
+      <label>Условие</label>
+      <select id="f-ptype"><option value="после поставки Товара">Постоплата</option><option value="в виде 100% предоплаты до отгрузки">Предоплата 100%</option></select>
+      <label>Срок оплаты</label><input type="text" id="f-pterm" placeholder="5 банковских дней"/>
+    </div>
+    <div id="pay-stages" style="display:none">
+      <table class="edit-tbl" id="stages-tbl">
+        <thead><tr><th style="width:27%">Этап</th><th style="width:15%">%</th><th style="width:20%">Сумма,руб.</th><th style="width:30%">Условие</th><th style="width:8%"></th></tr></thead>
+        <tbody id="stages-body">
+          <tr><td><input type="text" value="Аванс"/></td><td><input type="number" value="30" min="0" max="100" step="1" oninput="syncPayStages()"/></td><td><input type="number" readonly style="color:#777"/></td><td><input type="text" value="До поставки"/></td><td><button class="btn-del" onclick="delRow(this,'stages-body')">✕</button></td></tr>
+          <tr><td><input type="text" value="Окончательный расчёт"/></td><td><input type="number" value="70" min="0" max="100" step="1" oninput="syncPayStages()"/></td><td><input type="number" readonly style="color:#777"/></td><td><input type="text" value="После поставки и накладной"/></td><td><button class="btn-del" onclick="delRow(this,'stages-body')">✕</button></td></tr>
+        </tbody>
+      </table>
+      <button class="btn-add" onclick="addStageRow()">+ Этап</button>
+      <div class="stages-warn" id="stages-warn">⚠ Сумма % не равна 100%</div>
+      <label style="margin-top:8px">Срок каждого платежа</label>
+      <input type="text" id="f-stage-term" placeholder="5 банковских дней с выставления счёта"/>
+    </div>
+    <div id="pay-sched" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:7px 0 4px">
+        <span style="font-size:11px;font-weight:600;color:#555">График платежей</span>
+        <button class="btn-add" style="margin-top:0;padding:3px 9px;font-size:10.5px" onclick="distributeEvenly()">⚡ Поровну</button>
+      </div>
+      <table class="edit-tbl">
+        <thead><tr><th style="width:22%">Дата</th><th style="width:22%">Сумма,руб.</th><th style="width:8%">%</th><th style="width:40%">Назначение</th><th style="width:8%"></th></tr></thead>
+        <tbody id="sched-body">
+          <tr><td><input type="date"/></td><td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="recalcSchedPct()"/></td><td><input type="number" readonly style="color:#777"/></td><td><input type="text" placeholder="Авансовый платёж"/></td><td><button class="btn-del" onclick="delRow(this,'sched-body')">✕</button></td></tr>
+          <tr><td><input type="date"/></td><td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="recalcSchedPct()"/></td><td><input type="number" readonly style="color:#777"/></td><td><input type="text" placeholder="Окончательный расчёт"/></td><td><button class="btn-del" onclick="delRow(this,'sched-body')">✕</button></td></tr>
+        </tbody>
+      </table>
+      <button class="btn-add" onclick="addSchedRow()">+ Платёж</button>
+      <div style="margin-top:5px;font-size:11px;padding:4px 8px;border-radius:4px;background:#f5f5f5;color:#555">
+        Итого: <b id="sched-sum">0.00</b> руб. | Остаток: <b id="sched-rem">—</b>
+      </div>
+    </div>
+
+    <div class="sec-title">📅 Доставка и сроки</div>
+    <div class="row2">
+      <div><label>Срок поставки</label><input type="text" id="f-dterm" placeholder="30 кал. дней"/></div>
+      <div><label>Условия доставки</label>
+        <select id="f-dtype"><option value="Поставщиком до склада Покупателя">Доставка на склад</option><option value="самовывозом со склада Поставщика">Самовывоз</option><option value="через ТК за счёт Поставщика">ТК (поставщик)</option><option value="через ТК за счёт Покупателя">ТК (покупатель)</option></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div><label>Действует с</label><input type="date" id="f-vfrom"/></div>
+      <div><label>Действует до</label><input type="date" id="f-vto"/></div>
+    </div>
+
+    <div class="sec-title">⚖️ Ответственность</div>
+    <div class="row2">
+      <div><label>Пеня поставщика (% в день)</label><input type="number" id="f-ps" placeholder="0.1" min="0" step="0.01"/></div>
+      <div><label>Пеня покупателя (% в день)</label><input type="number" id="f-pb" placeholder="0.1" min="0" step="0.01" oninput="document.getElementById('pc-rate').value=this.value"/></div>
+    </div>
+    <label>Срок ответа на претензию (дней)</label><input type="number" id="f-claim" placeholder="10" min="1"/>
+    <label>Суд</label><input type="text" id="f-court" placeholder="Арбитражный суд г. Москвы"/>
+
+  </div><!-- /supply-form -->
+
+  <!-- ══════════ АРЕНДА ══════════ -->
+  <div id="lease-form" style="display:none">
+
+    <div class="pt-wrap">
+      <div class="sec-title" style="border:none;margin:18px 0 0;padding:0">🏦 Арендодатель</div>
+      <div class="pt-toggle">
+        <button class="pt-btn active" onclick="setPartyType('ll','ooo',this)">ООО / АО</button>
+        <button class="pt-btn" onclick="setPartyType('ll','ip',this)">ИП</button>
+      </div>
+    </div>
+    <div style="border-bottom:2px solid var(--accent-light,#d0e3f5);margin-bottom:8px"></div>
+    <label id="ll-name-label">Наименование организации</label>
+    <input type="text" id="ll-name" placeholder='ООО "Инвест Недвижимость"'/>
+    <div id="ll-rep-row">
+      <label>В лице</label><input type="text" id="ll-rep" placeholder="Генерального директора Сидорова С.С."/>
+      <label>Основание</label><input type="text" id="ll-base" placeholder="Устава"/>
+    </div>
+    <div class="row2">
+      <div><label>ИНН</label><input type="text" id="ll-inn" placeholder="7701112233"/></div>
+      <div id="ll-kpp-wrap"><label>КПП</label><input type="text" id="ll-kpp" placeholder="770101001"/></div>
+    </div>
+    <label id="ll-ogrn-label">ОГРН</label><input type="text" id="ll-ogrn" placeholder="1111111111111"/>
+    <label id="ll-addr-label">Юр. адрес</label><input type="text" id="ll-addr" placeholder="121000, г. Москва, ул. Деловая, д. 10"/>
+    <label>Расчётный счёт</label><input type="text" id="ll-rs" placeholder="40702810000000000011"/>
+    <div class="row2">
+      <div><label>Банк</label><input type="text" id="ll-bank" placeholder='АО "Банк"'/></div>
+      <div><label>БИК</label><input type="text" id="ll-bik" placeholder="044525999"/></div>
+    </div>
+    <label>К/с</label><input type="text" id="ll-ks" placeholder="30101810000000000999"/>
+    <div class="row2">
+      <div><label>Телефон</label><input type="text" id="ll-phone" placeholder="+7 (495) 000-00-00"/></div>
+      <div><label>Email</label><input type="text" id="ll-email" placeholder="arendodatel@mail.ru"/></div>
+    </div>
+
+    <div class="pt-wrap">
+      <div class="sec-title" style="border:none;margin:18px 0 0;padding:0">🏢 Арендатор</div>
+      <div class="pt-toggle">
+        <button class="pt-btn active" onclick="setPartyType('lt','ooo',this)">ООО / АО</button>
+        <button class="pt-btn" onclick="setPartyType('lt','ip',this)">ИП</button>
+      </div>
+    </div>
+    <div style="border-bottom:2px solid var(--accent-light,#d0e3f5);margin-bottom:8px"></div>
+    <label id="lt-name-label">Наименование организации</label>
+    <input type="text" id="lt-name" placeholder='ООО "Компания Арендатор"'/>
+    <div id="lt-rep-row">
+      <label>В лице</label><input type="text" id="lt-rep" placeholder="Директора Козлова К.К."/>
+      <label>Основание</label><input type="text" id="lt-base" placeholder="Устава"/>
+    </div>
+    <div class="row2">
+      <div><label>ИНН</label><input type="text" id="lt-inn" placeholder="7709998877"/></div>
+      <div id="lt-kpp-wrap"><label>КПП</label><input type="text" id="lt-kpp" placeholder="770901001"/></div>
+    </div>
+    <label id="lt-ogrn-label">ОГРН</label><input type="text" id="lt-ogrn" placeholder="2222222222222"/>
+    <label id="lt-addr-label">Юр. адрес</label><input type="text" id="lt-addr" placeholder="119000, г. Москва, пр-т Арбат, д. 5"/>
+    <label>Расчётный счёт</label><input type="text" id="lt-rs" placeholder="40702810000000000022"/>
+    <div class="row2">
+      <div><label>Банк</label><input type="text" id="lt-bank" placeholder='АО "Банк"'/></div>
+      <div><label>БИК</label><input type="text" id="lt-bik" placeholder="044030000"/></div>
+    </div>
+    <label>К/с</label><input type="text" id="lt-ks" placeholder="30101810000000000000"/>
+    <div class="row2">
+      <div><label>Телефон</label><input type="text" id="lt-phone" placeholder="+7 (499) 000-00-00"/></div>
+      <div><label>Email</label><input type="text" id="lt-email" placeholder="arendator@mail.ru"/></div>
+    </div>
+
+    <div class="sec-title">🏗️ Объект аренды</div>
+    <label>Тип объекта</label>
+    <select id="la-type">
+      <option value="нежилое помещение (офис)">Офис</option>
+      <option value="нежилое помещение (склад)">Склад</option>
+      <option value="нежилое помещение (торговая площадь)">Торговая площадь</option>
+      <option value="нежилое помещение (производственное)">Производственное помещение</option>
+      <option value="нежилое помещение">Иное нежилое помещение</option>
+    </select>
+    <label>Адрес объекта</label>
+    <input type="text" id="la-addr" placeholder="г. Москва, ул. Ленина, д. 5, пом. 101"/>
+    <div class="row3">
+      <div><label>Площадь (кв.м.)</label><input type="number" id="la-area" placeholder="120" min="1" step="0.1"/></div>
+      <div><label>Этаж</label><input type="text" id="la-floor" placeholder="3"/></div>
+      <div><label>Кадастровый №</label><input type="text" id="la-cadastr" placeholder="77:01:0001001:1234"/></div>
+    </div>
+    <label>Целевое использование</label>
+    <input type="text" id="la-purpose" placeholder="Для размещения офиса"/>
+    <label>Состояние при передаче</label>
+    <select id="la-state">
+      <option value="хорошем техническом состоянии, пригодном для использования по назначению">Хорошее (пригодно для использования)</option>
+      <option value="удовлетворительном техническом состоянии">Удовлетворительное</option>
+      <option value="состоянии, требующем косметического ремонта">Требует косметического ремонта</option>
+    </select>
+
+    <div class="sec-title">💰 Арендная плата</div>
+    <div class="row2">
+      <div><label>Размер аренды (руб./мес.)</label><input type="number" id="la-rent" placeholder="100000" min="0" step="100" oninput="syncRentCalc()"/></div>
+      <div><label>НДС</label>
+        <select id="la-nds" onchange="syncRentCalc()">
+          <option value="no">Без НДС</option><option value="20">НДС 20%</option>
+        </select>
+      </div>
+    </div>
+    <div id="la-rent-total" style="margin-top:5px;font-size:11.5px;color:#555;padding:5px 8px;background:#f5f5f5;border-radius:5px;display:none">
+      Итого к оплате: <b id="la-rent-total-val">—</b> руб./мес. (включая НДС)
+    </div>
+    <label>Порядок оплаты</label>
+    <select id="la-payorder">
+      <option value="не позднее 5 (пятого) числа текущего месяца (за текущий месяц)">До 5-го числа (текущий месяц)</option>
+      <option value="не позднее 5 (пятого) числа текущего месяца (за следующий месяц)">До 5-го числа (следующий месяц)</option>
+      <option value="не позднее 10 (десятого) числа текущего месяца">До 10-го числа</option>
+      <option value="не позднее 25 (двадцать пятого) числа предшествующего месяца">До 25-го (предоплата следующего)</option>
+    </select>
+    <label>Обеспечительный платёж (депозит)</label>
+    <div class="row2">
+      <div>
+        <select id="la-deposit-type" onchange="onDepositChange()">
+          <option value="no">Без депозита</option>
+          <option value="fixed">Фиксированная сумма</option>
+          <option value="months">Количество месяцев аренды</option>
+        </select>
+      </div>
+      <div id="la-deposit-val-wrap">
+        <input type="number" id="la-deposit-val" placeholder="0" min="0" step="100" oninput="syncRentCalc()"/>
+      </div>
+    </div>
+    <div id="la-deposit-note" style="display:none;font-size:11px;color:#777;margin-top:3px;padding:4px 8px;background:#f0f8ff;border-radius:4px">
+      Депозит: <b id="la-deposit-computed">—</b> руб. (вносится в течение 5 рабочих дней с подписания)
+    </div>
+    <label>Индексация арендной платы</label>
+    <select id="la-index-type" onchange="onIndexChange()">
+      <option value="no">Без индексации</option>
+      <option value="fixed">Фиксированный % в год</option>
+      <option value="cpi">По уровню инфляции (ИПЦ)</option>
+    </select>
+    <div id="la-index-val-wrap" style="display:none">
+      <label>Процент индексации в год (%)</label>
+      <input type="number" id="la-index-val" placeholder="5" min="0" step="0.5"/>
+    </div>
+
+    <div class="sec-title">📅 Сроки аренды</div>
+    <div class="row2">
+      <div><label>Начало аренды</label><input type="date" id="la-start"/></div>
+      <div><label>Окончание аренды</label><input type="date" id="la-end"/></div>
+    </div>
+    <label>Условия продления</label>
+    <select id="la-renew">
+      <option value="auto">Автопролонгация (если нет уведомления за 30 дней)</option>
+      <option value="agree">Только по письменному соглашению сторон</option>
+      <option value="no">Без пролонгации</option>
+    </select>
+    <label>Срок уведомления о досрочном расторжении (дней)</label>
+    <input type="number" id="la-notice" placeholder="30" min="1"/>
+
+    <div class="sec-title">🔧 Права и обязанности</div>
+    <label>Коммунальные платежи</label>
+    <select id="la-utils">
+      <option value="включены в арендную плату">Включены в аренду</option>
+      <option value="оплачиваются Арендатором отдельно по счётчикам">Отдельно (по счётчикам)</option>
+      <option value="оплачиваются Арендатором пропорционально занимаемой площади">Отдельно (пропорционально площади)</option>
+    </select>
+    <label>Текущий ремонт</label>
+    <select id="la-repair-cur">
+      <option value="Арендатором за свой счёт">Арендатор (за свой счёт)</option>
+      <option value="Арендодателем за свой счёт">Арендодатель</option>
+    </select>
+    <label>Капитальный ремонт</label>
+    <select id="la-repair-cap">
+      <option value="Арендодателем за свой счёт">Арендодатель (за свой счёт)</option>
+      <option value="по согласованию Сторон с зачётом в счёт аренды">По соглашению с зачётом в аренду</option>
+    </select>
+    <label>Субаренда</label>
+    <select id="la-subarenда">
+      <option value="запрещена без письменного согласия Арендодателя">Запрещена без согласия</option>
+      <option value="разрешена с письменного согласия Арендодателя">Разрешена с согласия</option>
+      <option value="запрещена">Запрещена полностью</option>
+    </select>
+
+    <div class="sec-title">⚖️ Ответственность</div>
+    <div class="row2">
+      <div><label>Пеня арендодателя (% в день)</label><input type="number" id="la-ps" placeholder="0.1" min="0" step="0.01"/></div>
+      <div><label>Пеня арендатора (% в день)</label><input type="number" id="la-pt" placeholder="0.1" min="0" step="0.01" oninput="document.getElementById('pc-rate').value=this.value"/></div>
+    </div>
+    <label>Суд</label><input type="text" id="la-court" placeholder="Арбитражный суд г. Москвы"/>
+
+  </div><!-- /lease-form -->
+
+  <!-- КАЛЬКУЛЯТОР ПЕНИ (общий) -->
+  <div class="penalty-calc">
+    <div class="pc-title" onclick="toggleCalc()">
+      🔢 Калькулятор пени за просрочку
+      <span class="toggle" id="calc-toggle">▼</span>
+    </div>
+    <div class="pc-body" id="pc-body">
+      <div class="row2">
+        <div><label>Сумма долга, руб.</label><input type="number" id="pc-debt" placeholder="100000" min="0" step="0.01"/></div>
+        <div><label>Ставка (% в день)</label><input type="number" id="pc-rate" placeholder="0.1" min="0" step="0.01"/></div>
+      </div>
+      <div class="row2">
+        <div><label>Дата оплаты по договору</label><input type="date" id="pc-due"/></div>
+        <div><label>Фактическая дата</label><input type="date" id="pc-fact"/></div>
+      </div>
+      <label>Предел пени (% от долга)</label>
+      <input type="number" id="pc-cap" value="10" min="0" step="1"/>
+      <button class="btn-calc" onclick="calcPenalty()">🔢 Рассчитать</button>
+      <div class="calc-result" id="calc-result">
+        <div class="cr-row"><span>Сумма долга:</span><span id="cr-debt">—</span></div>
+        <div class="cr-row"><span>Ставка:</span><span id="cr-rate">—</span></div>
+        <div class="cr-row"><span>Дней просрочки:</span><span id="cr-days">—</span></div>
+        <div class="cr-row"><span>Пеня расчётная:</span><span id="cr-raw">—</span></div>
+        <div class="cr-row"><span>Предел:</span><span id="cr-max">—</span></div>
+        <div class="cr-row cr-total"><span>К взысканию:</span><span id="cr-final">—</span></div>
+        <div id="cr-note" style="margin-top:5px;font-size:10.5px;color:#888"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-gen" onclick="generateContract()">⚡ Сформировать договор</button>
+</div>
+
+<!-- ПРЕДПРОСМОТР -->
+<div class="preview-panel">
+  <div class="preview-toolbar">
+    <span id="preview-label">Выберите тип договора, заполните форму и нажмите «Сформировать»</span>
+    <div class="uniq-badge" id="uniq-badge">✦ Уникален</div>
+    <button class="btn-word" id="btn-word" onclick="downloadWord()" disabled>📄 Скачать Word</button>
+    <button class="btn-print" id="btn-print" onclick="window.print()" disabled>🖨️ Сохранить PDF</button>
+  </div>
+  <div id="contract-preview">
+    <div class="placeholder-msg">
+      <div class="big-icon">📄</div>
+      <div>Предпросмотр появится здесь</div>
+      <div style="font-size:11px;opacity:.5">📦 Договор поставки &nbsp;·&nbsp; 🏠 Договор аренды</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ===== ТЕМЫ =====
+const THEMES={
+  blue:  {grad:'linear-gradient(90deg,#1a3a5c,#2d6aa0)',bg:'#f0f6ff',border:'#c0d8f5',color:'#2d6aa0',hdr:'linear-gradient(135deg,#1a3a5c,#2d6aa0)',shadow:'rgba(45,106,160,.12)',shadow2:'rgba(45,106,160,.35)',al:'#d0e3f5'},
+  green: {grad:'linear-gradient(90deg,#1a5c3a,#27ae60)',bg:'#f0fff6',border:'#b0e5c5',color:'#27ae60',hdr:'linear-gradient(135deg,#1a5c3a,#27ae60)',shadow:'rgba(39,174,96,.12)',shadow2:'rgba(39,174,96,.35)',al:'#c0ecd5'},
+  wine: {grad:'linear-gradient(90deg,#5c1a2a,#a02d4a)',bg:'#fff0f3',border:'#e5b0be',color:'#a02d4a',hdr:'linear-gradient(135deg,#5c1a2a,#a02d4a)',shadow:'rgba(160,45,74,.12)',shadow2:'rgba(160,45,74,.35)',al:'#f0c0cc'},
+  dark: {grad:'linear-gradient(90deg,#1c1c2e,#4a4a6a)',bg:'#f2f2f8',border:'#c0c0da',color:'#4a4a6a',hdr:'linear-gradient(135deg,#1c1c2e,#4a4a6a)',shadow:'rgba(74,74,106,.12)',shadow2:'rgba(74,74,106,.35)',al:'#d0d0e8'},
+  gold:  {grad:'linear-gradient(90deg,#5c4a1a,#c8940a)',bg:'#fffbf0',border:'#e5d080',color:'#b8840a',hdr:'linear-gradient(135deg,#5c4a1a,#c8940a)',shadow:'rgba(200,148,10,.12)',shadow2:'rgba(200,148,10,.35)',al:'#ede0a0'},
+  teal:  {grad:'linear-gradient(90deg,#0d4040,#0d8080)',bg:'#f0fafa',border:'#a0d8d8',color:'#0d8080',hdr:'linear-gradient(135deg,#0d4040,#0d8080)',shadow:'rgba(13,128,128,.12)',shadow2:'rgba(13,128,128,.35)',al:'#c0e8e8'},
+  purple:{grad:'linear-gradient(90deg,#2d1a5c,#7a3fa0)',bg:'#f8f0ff',border:'#d0a8f0',color:'#7a3fa0',hdr:'linear-gradient(135deg,#2d1a5c,#7a3fa0)',shadow:'rgba(122,63,160,.12)',shadow2:'rgba(122,63,160,.35)',al:'#e8c8f8'},
+  slate: {grad:'linear-gradient(90deg,#2a3545,#546e8a)',bg:'#f2f4f8',border:'#b8c8d8',color:'#546e8a',hdr:'linear-gradient(135deg,#2a3545,#546e8a)',shadow:'rgba(84,110,138,.12)',shadow2:'rgba(84,110,138,.35)',al:'#ccdae8'},
+};
+const THEME_KEYS=Object.keys(THEMES);
+let curTheme='blue';
+let curFont='times';
+let curHdr='band';
+let curSst='classic';
+
+function applyTheme(n){
+  const t=THEMES[n]||THEMES.blue;
+  const r=document.documentElement.style;
+  r.setProperty('--accent',t.color);r.setProperty('--accent-light',t.al);
+  r.setProperty('--accent-shadow',t.shadow);r.setProperty('--accent-shadow2',t.shadow2);
+  r.setProperty('--accent-grad',t.hdr);r.setProperty('--hdr1',t.hdr);
+  r.setProperty('--theme-grad',t.grad);r.setProperty('--theme-bg',t.bg);
+  r.setProperty('--theme-border',t.border);r.setProperty('--theme-color',t.color);
+  curTheme=n;
+}
+document.querySelectorAll('.theme-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.theme-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); applyTheme(b.dataset.theme);
+}));
+
+// Пилл-кнопки: шрифт / шапка / стиль разделов
+function initPillRow(rowId, varSetter, initVal){
+  document.querySelectorAll(`#${rowId} .pill-btn`).forEach(b=>{
+    if(b.dataset[rowId.replace('-row','')] === initVal) b.classList.add('active');
+    b.addEventListener('click',()=>{
+      document.querySelectorAll(`#${rowId} .pill-btn`).forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      varSetter(b.dataset[rowId.replace('-row','')]);
+    });
+  });
+}
+initPillRow('font-row', v=>{ curFont=v; }, curFont);
+initPillRow('hdr-row',  v=>{ curHdr=v;  }, curHdr);
+initPillRow('sst-row',  v=>{ curSst=v;  }, curSst);
+
+// Случайный визуал (вызывается при рандомизации)
+function randomizeStyle(){
+  const themeKey = THEME_KEYS[Math.floor(Math.random()*THEME_KEYS.length)];
+  const fonts  = ['times','calibri','georgia','arial','pt'];
+  const hdrs   = ['band','minimal','solid','frame'];
+  const ssts   = ['classic','leftbar','filled','underline'];
+  curTheme = themeKey;
+  curFont  = fonts[Math.floor(Math.random()*fonts.length)];
+  curHdr   = hdrs[Math.floor(Math.random()*hdrs.length)];
+  curSst   = ssts[Math.floor(Math.random()*ssts.length)];
+  // Обновляем кнопки в UI
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active', b.dataset.theme===curTheme));
+  document.querySelectorAll('#font-row .pill-btn').forEach(b=>b.classList.toggle('active', b.dataset.font===curFont));
+  document.querySelectorAll('#hdr-row .pill-btn').forEach(b=>b.classList.toggle('active', b.dataset.hdr===curHdr));
+  document.querySelectorAll('#sst-row .pill-btn').forEach(b=>b.classList.toggle('active', b.dataset.sst===curSst));
+  applyTheme(curTheme);
+}
+
+// ===== ТИП ДОГОВОРА =====
+let contractType='supply';
+function switchType(t){
+  contractType=t;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===t));
+  document.getElementById('supply-form').style.display=t==='supply'?'block':'none';
+  document.getElementById('lease-form').style.display=t==='lease'?'block':'none';
+}
+
+// ===== УТИЛИТЫ =====
+function v(id){return(document.getElementById(id)?.value||'').trim();}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtDate(s){
+  if(!s)return'«___» ________ 20__ г.';
+  const d=new Date(s),m=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  return `«${d.getDate()}» ${m[d.getMonth()]} ${d.getFullYear()} г.`;
+}
+function fmtDateShort(s){if(!s)return'__.__.____';const d=new Date(s);return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;}
+function fmt(n){return Number(n).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function genNumber(){const y=new Date().getFullYear(),ts=Date.now().toString(36).toUpperCase().slice(-4),r=Math.floor(Math.random()*9000+1000);return `${y}-${contractType==='lease'?'А':'П'}-${ts}${r}`;}
+function genFP(){return Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,8).toUpperCase();}
+function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+
+// ===== ЛОГИКА АРЕНДЫ =====
+function syncRentCalc(){
+  const rent=parseFloat(v('la-rent'))||0;
+  const nds=v('la-nds');
+  const rentTotal=nds==='20'?rent*1.2:rent;
+  const el=document.getElementById('la-rent-total');
+  const vel=document.getElementById('la-rent-total-val');
+  if(nds!=='no'){el.style.display='block';vel.textContent=fmt(rentTotal);}
+  else el.style.display='none';
+  // депозит
+  const dt=v('la-deposit-type');
+  if(dt==='months'){
+    const months=parseFloat(v('la-deposit-val'))||1;
+    const dep=rentTotal*months;
+    document.getElementById('la-deposit-computed').textContent=fmt(dep);
+    document.getElementById('la-deposit-note').style.display='block';
+  } else if(dt==='fixed'){
+    const dep=parseFloat(v('la-deposit-val'))||0;
+    document.getElementById('la-deposit-computed').textContent=fmt(dep);
+    document.getElementById('la-deposit-note').style.display='block';
+  } else{
+    document.getElementById('la-deposit-note').style.display='none';
+  }
+}
+function onDepositChange(){
+  const t=v('la-deposit-type');
+  const w=document.getElementById('la-deposit-val-wrap');
+  const inp=document.getElementById('la-deposit-val');
+  if(t==='no'){w.style.opacity='.4';inp.disabled=true;}
+  else{w.style.opacity='1';inp.disabled=false;inp.placeholder=t==='months'?'Кол-во месяцев':'Сумма, руб.';}
+  syncRentCalc();
+}
+function onIndexChange(){
+  const t=v('la-index-type');
+  document.getElementById('la-index-val-wrap').style.display=t==='fixed'?'block':'none';
+}
+
+// ===== ЛОГИКА ПОСТАВКИ =====
+function getTotal(){
+  let sub=0;
+  document.querySelectorAll('#goods-body tr').forEach(r=>{const inp=r.querySelectorAll('input');sub+=(parseFloat(inp[1].value)||0)*(parseFloat(inp[3].value)||0);});
+  const nds=v('f-nds');return sub*(nds==='20'?1.2:nds==='10'?1.1:1);
+}
+function getSubtotal(){let sub=0;document.querySelectorAll('#goods-body tr').forEach(r=>{const inp=r.querySelectorAll('input');sub+=(parseFloat(inp[1].value)||0)*(parseFloat(inp[3].value)||0);});return sub;}
+function onPayModeChange(){
+  const m=v('f-pmode');
+  document.getElementById('pay-simple').style.display=m==='simple'?'block':'none';
+  document.getElementById('pay-stages').style.display=m==='stages'?'block':'none';
+  document.getElementById('pay-sched').style.display=m==='schedule'?'block':'none';
+  if(m==='stages')syncPayStages();if(m==='schedule')recalcSchedPct();
+}
+function syncPayStages(){
+  const total=getTotal();let sumP=0;
+  document.querySelectorAll('#stages-body tr').forEach(r=>{
+    const inp=r.querySelectorAll('input');const pct=parseFloat(inp[1].value)||0;sumP+=pct;inp[2].value=pct?(total*pct/100).toFixed(2):'';
+  });
+  const w=document.getElementById('stages-warn');if(w)w.style.display=(Math.abs(sumP-100)>0.01)?'block':'none';
+}
+function recalcSchedPct(){
+  const total=getTotal();let sumAmt=0;
+  document.querySelectorAll('#sched-body tr').forEach(r=>{const inp=r.querySelectorAll('input');const amt=parseFloat(inp[1].value)||0;sumAmt+=amt;inp[2].value=total>0?(amt/total*100).toFixed(1):'';});
+  const ss=document.getElementById('sched-sum');const sr=document.getElementById('sched-rem');
+  if(ss)ss.textContent=fmt(sumAmt);
+  if(sr){const rem=total-sumAmt;sr.textContent=fmt(rem);sr.style.color=Math.abs(rem)<0.01?'#27ae60':rem<0?'#c0392b':'#c07010';}
+}
+function addGoodsRow(){const tb=document.getElementById('goods-body');const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" placeholder="Товар"/></td><td><input type="number" placeholder="1" min="0" oninput="syncPayStages()"/></td><td><input type="text" placeholder="шт."/></td><td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="syncPayStages()"/></td><td><button class="btn-del" onclick="delRow(this,'goods-body')">✕</button></td>`;tb.appendChild(tr);}
+function addStageRow(){const tb=document.getElementById('stages-body');const tr=document.createElement('tr');tr.innerHTML=`<td><input type="text" placeholder="Этап"/></td><td><input type="number" value="0" min="0" max="100" step="1" oninput="syncPayStages()"/></td><td><input type="number" readonly style="color:#777"/></td><td><input type="text" placeholder="Условие"/></td><td><button class="btn-del" onclick="delRow(this,'stages-body')">✕</button></td>`;tb.appendChild(tr);syncPayStages();}
+function addSchedRow(){const tb=document.getElementById('sched-body');const tr=document.createElement('tr');tr.innerHTML=`<td><input type="date"/></td><td><input type="number" placeholder="0.00" min="0" step="0.01" oninput="recalcSchedPct()"/></td><td><input type="number" placeholder="%" readonly style="color:#777"/></td><td><input type="text" placeholder="Назначение"/></td><td><button class="btn-del" onclick="delRow(this,'sched-body')">✕</button></td>`;tb.appendChild(tr);}
+function distributeEvenly(){const rows=document.querySelectorAll('#sched-body tr');if(!rows.length)return;const total=getTotal(),each=total/rows.length;rows.forEach((r,i)=>{r.querySelectorAll('input')[1].value=(i<rows.length-1?each:(total-(each*(rows.length-1)))).toFixed(2);});recalcSchedPct();}
+function delRow(btn,tbodyId){if(document.querySelectorAll('#'+tbodyId+' tr').length>1){btn.closest('tr').remove();syncPayStages();recalcSchedPct();}}
+function getGoods(){const items=[];document.querySelectorAll('#goods-body tr').forEach(r=>{const inp=r.querySelectorAll('input');const name=inp[0].value.trim(),qty=parseFloat(inp[1].value)||0,unit=inp[2].value.trim()||'шт.',price=parseFloat(inp[3].value)||0;if(name)items.push({name,qty,unit,price,total:qty*price});});return items;}
+
+// ===== КАЛЬКУЛЯТОР ПЕНИ =====
+function toggleCalc(){const b=document.getElementById('pc-body');const t=document.getElementById('calc-toggle');b.classList.toggle('open');t.textContent=b.classList.contains('open')?'▲':'▼';}
+function calcPenalty(){
+  const debt=parseFloat(v('pc-debt'))||0,rate=parseFloat(v('pc-rate'))||0,due=v('pc-due'),fact=v('pc-fact'),cap=parseFloat(v('pc-cap'))||10;
+  if(!debt||!rate||!due||!fact){alert('Заполните все поля');return;}
+  const d1=new Date(due),d2=new Date(fact),days=Math.max(0,Math.floor((d2-d1)/(86400000)));
+  const raw=debt*rate/100*days,maxP=debt*cap/100,final=Math.min(raw,maxP);
+  document.getElementById('cr-debt').textContent=fmt(debt)+' руб.';
+  document.getElementById('cr-rate').textContent=rate+'% в день';
+  document.getElementById('cr-days').textContent=days+' дней';
+  document.getElementById('cr-raw').textContent=fmt(raw)+' руб.';
+  document.getElementById('cr-max').textContent=fmt(maxP)+' руб. ('+cap+'%)';
+  document.getElementById('cr-final').textContent=fmt(final)+' руб.';
+  document.getElementById('cr-note').textContent=raw>maxP?`Расчётная пеня (${fmt(raw)} руб.) превысила предел.`:'';
+  document.getElementById('calc-result').classList.add('show');
+}
+
+// ===== ИП / ООО =====
+const partyTypes={s:'ooo',b:'ooo',ll:'ooo',lt:'ooo'};
+function setPartyType(prefix,type,btn){
+  partyTypes[prefix]=type;
+  btn.closest('.pt-toggle').querySelectorAll('.pt-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const isIP=type==='ip';
+  const nl=document.getElementById(prefix+'-name-label');
+  if(nl)nl.textContent=isIP?'ФИО предпринимателя':'Наименование организации';
+  const rr=document.getElementById(prefix+'-rep-row');
+  if(rr)rr.style.display=isIP?'none':'';
+  const kw=document.getElementById(prefix+'-kpp-wrap');
+  if(kw)kw.style.display=isIP?'none':'';
+  const ol=document.getElementById(prefix+'-ogrn-label');
+  if(ol)ol.textContent=isIP?'ОГРНИП':'ОГРН';
+  const al=document.getElementById(prefix+'-addr-label');
+  if(al)al.textContent=isIP?'Адрес регистрации':'Юр. адрес';
+  const inn=document.getElementById(prefix+'-inn');
+  if(inn)inn.placeholder=isIP?'772812345678':'7701234567';
+  const og=document.getElementById(prefix+'-ogrn');
+  if(og)og.placeholder=isIP?'312774600123456':'1234567890123';
+}
+function partyIntroStr(prefix,roleLabel){
+  const isIP=partyTypes[prefix]==='ip';
+  const N=v(prefix+'-name')||'________________________';
+  const R=v(prefix+'-rep')||'________________________';
+  const Bs=v(prefix+'-base')||'Устава';
+  const I=v(prefix+'-inn')||'____________';
+  const O=v(prefix+'-ogrn')||'____________';
+  if(isIP)return`<b>ИП ${esc(N)}</b>, ОГРНИП ${esc(O)}, ИНН ${esc(I)}, действующий на основании Свидетельства о государственной регистрации, именуемый далее <b>«${roleLabel}»</b>`;
+  return`<b>${esc(N)}</b>, в лице ${esc(R)}, действующего на основании ${esc(Bs)}, именуемое далее <b>«${roleLabel}»</b>`;
+}
+function sigBlock(prefix,roleTitle){
+  const isIP=partyTypes[prefix]==='ip';
+  const N=v(prefix+'-name')||'________________________';
+  const nameStr=isIP?`ИП ${esc(N)}`:esc(N);
+  const I=v(prefix+'-inn')||'____________',K=v(prefix+'-kpp')||'____________',O=v(prefix+'-ogrn')||'____________';
+  const A=v(prefix+'-addr')||'________________________',Rs=v(prefix+'-rs')||'________________________';
+  const Bk=v(prefix+'-bank')||'________________________',Bi=v(prefix+'-bik')||'____________',Ks=v(prefix+'-ks')||'________________________';
+  const P=v(prefix+'-phone'),E=v(prefix+'-email'),R=v(prefix+'-rep')||'________________________';
+  const innKpp=isIP?`ИНН: ${esc(I)}`:`ИНН: ${esc(I)} / КПП: ${esc(K)}`;
+  const ogrnLn=isIP?`ОГРНИП: ${esc(O)}`:`ОГРН: ${esc(O)}`;
+  const addrLbl=isIP?'Адрес рег.: ':'Адрес: ';
+  const mpLn=isIP?'':'<div style="margin-top:14px">М.П.</div>';
+  const sigCap=isIP?`${nameStr} / _____________`:`${esc(R)} / _____________`;
+  return`<div class="sig-block"><div class="sig-title">${roleTitle}</div><div><b>${nameStr}</b></div><div>${innKpp}</div><div>${ogrnLn}</div><div>${addrLbl}${esc(A)}</div><div>Р/с: ${esc(Rs)}</div><div>Банк: ${esc(Bk)}, БИК: ${esc(Bi)}</div><div>К/с: ${esc(Ks)}</div>${P?`<div>Тел: ${esc(P)}</div>`:''}${E?`<div>Email: ${esc(E)}</div>`:''}
+  <div class="sig-line"></div><div class="sig-caption">${sigCap}</div>${mpLn}</div>`;
+}
+
+// ===== РАНДОМИЗАЦИЯ =====
+const V={
+  // ── Предмет договора поставки (7 вариантов) ──
+  subj:[
+    'Поставщик обязуется передать в собственность Покупателя Товар, а Покупатель обязуется принять его и уплатить установленную настоящим Договором цену.',
+    'По настоящему Договору Поставщик принимает на себя обязательство поставить Товар в количестве, ассортименте и по ценам согласно Спецификации (Приложение № 1), а Покупатель — своевременно принять и оплатить его.',
+    'Предметом настоящего Договора является возмездная поставка Поставщиком Товара Покупателю. Наименование, количество, ассортимент и цена Товара определяются Спецификацией, являющейся неотъемлемой частью настоящего Договора.',
+    'В соответствии со статьёй 506 Гражданского кодекса Российской Федерации Поставщик обязуется передать в установленные сроки Товары Покупателю для использования в предпринимательской деятельности или иных целях, не связанных с личным потреблением.',
+    'Поставщик обязуется в порядке, предусмотренном настоящим Договором, поставить Покупателю Товар, а Покупатель — принять Товар и уплатить за него цену, определённую в разделе 2 настоящего Договора.',
+    'Настоящий Договор регулирует отношения Сторон по поставке Товара. Поставщик передаёт, а Покупатель принимает и оплачивает Товар в соответствии со Спецификацией, согласованной Сторонами.',
+    'Поставщик обязуется систематически поставлять Товар в сроки и на условиях, установленных настоящим Договором, а Покупатель — принимать и оплачивать Товар согласно выставленным счетам.',
+  ],
+
+  // ── Передача права собственности (7 вариантов) ──
+  transfer:[
+    'Право собственности и риск случайной гибели Товара переходят к Покупателю с момента его фактической передачи, подтверждённой подписанием соответствующего товарного документа.',
+    'Переход права собственности на Товар происходит в момент подписания накладной (ТОРГ-12) или универсального передаточного документа (УПД) обеими Сторонами.',
+    'Товар считается переданным с даты подписания обеими Сторонами приёмопередаточного документа. С этого момента к Покупателю переходит право собственности и все риски, связанные с Товаром.',
+    'С момента передачи Товара и подписания накладной Покупатель несёт риск случайной гибели или повреждения Товара. Право собственности переходит одновременно с рисками.',
+    'Передача права собственности фиксируется в передаточном документе. До момента его подписания риск гибели и повреждения Товара несёт Поставщик.',
+    'Право собственности на Товар переходит к Покупателю в момент фактической передачи, подтверждённой первичными учётными документами, оформленными в соответствии с действующим законодательством.',
+    'Датой передачи Товара считается дата подписания Покупателем товарной накладной или акта приёма-передачи. С указанной даты к Покупателю переходят право собственности на Товар и все риски.',
+  ],
+
+  // ── Форс-мажор поставка (8 вариантов) ──
+  fm:[
+    'Стороны освобождаются от ответственности за полное или частичное неисполнение обязательств по настоящему Договору в случае наступления обстоятельств непреодолимой силы: стихийных бедствий, военных действий, актов государственных органов, эпидемий и иных непредотвратимых событий, находящихся вне разумного контроля Сторон.',
+    'Ни одна из Сторон не несёт ответственности за неисполнение или ненадлежащее исполнение обязательств, если такое неисполнение явилось следствием обстоятельств непреодолимой силы, возникших после заключения настоящего Договора и независящих от воли Сторон.',
+    'Стороны признают форс-мажорными следующие обстоятельства: природные катастрофы, войны, революции, забастовки, эпидемии, блокады, законодательные ограничения и иные события, объективно делающие невозможным исполнение обязательств в установленный срок.',
+    'В случае возникновения обстоятельств непреодолимой силы, препятствующих исполнению обязательств, срок их исполнения соразмерно продлевается на время действия таких обстоятельств и их последствий. Стороны обязаны принять все возможные меры по минимизации ущерба.',
+    'Наступление форс-мажорных обстоятельств подлежит обязательному документальному подтверждению компетентными органами (ТПП, органы власти). При наступлении форс-мажора Сторона уведомляет другую Сторону и предпринимает меры для минимизации последствий.',
+    'Сторона, для которой возникла невозможность исполнения обязательств вследствие форс-мажора, обязана в течение 5 рабочих дней письменно уведомить об этом другую Сторону. Освобождение от ответственности не освобождает от исполнения обязательств после прекращения форс-мажора.',
+    'К обстоятельствам непреодолимой силы не относятся: изменение курса валют, инфляция, ухудшение финансового положения Стороны, нарушения со стороны контрагентов. Форс-мажор — исключительно события, объективно находящиеся за пределами разумного контроля.',
+    'При возникновении форс-мажорных обстоятельств срок исполнения обязательств откладывается соразмерно сроку их действия. Если форс-мажор длится более 60 календарных дней, каждая из Сторон вправе отказаться от Договора без взыскания штрафных санкций.',
+  ],
+
+  // ── Форс-мажор аренда (6 вариантов) ──
+  leaseFm:[
+    'Стороны освобождаются от ответственности за неисполнение обязательств по настоящему Договору в случае наступления обстоятельств непреодолимой силы: стихийных бедствий, военных действий, актов государственных органов, аварий и иных непредотвратимых событий.',
+    'При возникновении обстоятельств непреодолимой силы, объективно препятствующих исполнению условий настоящего Договора, Стороны освобождаются от ответственности в той мере, в какой исполнение стало невозможным вследствие таких обстоятельств.',
+    'Ни одна из Сторон не несёт ответственности за неисполнение обязательств, если это обусловлено обстоятельствами непреодолимой силы: войнами, эпидемиями, природными катастрофами, решениями органов власти.',
+    'В случае наступления форс-мажорных обстоятельств сроки исполнения обязательств продлеваются соразмерно их продолжительности. Сторона, пострадавшая от форс-мажора, обязана предпринять все возможные меры для их преодоления.',
+    'Стороны соглашаются, что к форс-мажорным обстоятельствам относятся только события, которые объективно невозможно было предвидеть и предотвратить при должной осмотрительности. Изменение рыночной конъюнктуры форс-мажором не является.',
+    'При наступлении обстоятельств непреодолимой силы Сторона незамедлительно уведомляет другую Сторону. Если форс-мажор длится более 90 дней, каждая Сторона вправе расторгнуть Договор в одностороннем порядке без выплаты штрафных санкций.',
+  ],
+
+  // ── Предмет договора аренды (5 вариантов) ──
+  leaseSubj:[
+    'Арендодатель обязуется предоставить Арендатору за плату во временное владение и пользование Объект, а Арендатор обязуется принять его, своевременно вносить арендную плату и возвратить Объект в надлежащем состоянии.',
+    'По настоящему Договору Арендодатель передаёт Арендатору в аренду нежилое помещение (далее — «Объект»), а Арендатор обязуется вносить арендную плату в размере и порядке, установленных настоящим Договором.',
+    'В соответствии со статьями 606, 650 Гражданского кодекса РФ Арендодатель предоставляет Арендатору Объект во временное пользование за плату. Арендатор обязуется использовать Объект по назначению и своевременно вносить арендную плату.',
+    'Предметом настоящего Договора является предоставление Арендодателем Арендатору права временного возмездного пользования Объектом на условиях, установленных настоящим Договором и действующим законодательством РФ.',
+    'Арендодатель передаёт Арендатору во временное пользование Объект. Арендатор принимает его и обязуется уплачивать арендную плату, использовать по целевому назначению, содержать в надлежащем состоянии и вернуть по окончании аренды.',
+  ],
+
+  // ── Обязанности арендодателя п.4.1 (4 варианта) ──
+  landlordDuties:[
+    'передать Объект Арендатору в состоянии, указанном в п. 1.3; обеспечить доступ к Объекту в рабочее и нерабочее время; устранять аварии и неисправности инженерных систем, не зависящие от действий Арендатора, в разумные сроки.',
+    'обеспечить передачу Объекта в пригодном для использования состоянии; гарантировать Арендатору беспрепятственный доступ к Объекту; устранять неисправности, не связанные с действиями Арендатора, за собственный счёт.',
+    'своевременно передать Объект по Акту приёма-передачи; не препятствовать Арендатору в использовании Объекта; за свой счёт устранять выявленные до подписания Акта недостатки.',
+    'передать Объект в состоянии, соответствующем его целевому назначению; обеспечить все необходимые условия для нормальной деятельности Арендатора; информировать Арендатора о правах третьих лиц на Объект при их возникновении.',
+  ],
+
+  // ── Право осмотра арендодателем (3 варианта) ──
+  landlordInspect:[
+    'Арендодатель вправе проверять состояние Объекта с предварительным уведомлением Арендатора не менее чем за 24 часа. Проверки проводятся в рабочее время и не должны препятствовать деятельности Арендатора.',
+    'Арендодатель имеет право осматривать Объект не чаще одного раза в месяц при предварительном уведомлении Арендатора не позднее чем за 48 часов. В экстренных ситуациях осмотр допускается без предварительного уведомления.',
+    'Арендодатель вправе производить осмотр Объекта в рабочее время при предварительном согласовании с Арендатором. Арендатор обязан обеспечить доступ к Объекту в согласованное время.',
+  ],
+
+  // ── Обязанности арендатора (варианты формулировки) ──
+  tenantDuties:[
+    'использовать Объект исключительно по целевому назначению, указанному в настоящем Договоре; своевременно и в полном объёме вносить арендную плату; соблюдать требования пожарной безопасности и санитарные нормы; содержать Объект в надлежащем состоянии.',
+    'использовать Объект строго в соответствии с его назначением; своевременно вносить арендную плату; незамедлительно уведомлять Арендодателя о повреждениях Объекта; обеспечивать сохранность инженерных систем и оборудования.',
+    'использовать арендуемый Объект в соответствии с условиями настоящего Договора и целевым назначением; вносить арендную плату в установленные сроки; не допускать ухудшения технического состояния Объекта сверх нормального износа.',
+  ],
+
+  // ── Претензионный порядок / Споры поставка (5 вариантов) ──
+  disputeSupply:[
+    'Споры разрешаются путём переговоров. При недостижении согласия — <b>{court}</b>. Претензионный порядок обязателен; срок ответа на претензию: <b>{claim}</b> рабочих дней.',
+    'Все споры и разногласия разрешаются переговорами. Если в течение 30 календарных дней стороны не достигли соглашения — <b>{court}</b>. Претензионный порядок является обязательным; срок ответа: <b>{claim}</b> рабочих дней.',
+    'Стороны обязуются разрешать возникающие разногласия путём переговоров. В случае недостижения взаимоприемлемого решения — <b>{court}</b>. Обязательный досудебный порядок; срок рассмотрения претензии — <b>{claim}</b> рабочих дней.',
+    'Споры по настоящему Договору передаются на рассмотрение в <b>{court}</b> только после соблюдения обязательного претензионного порядка. Сторона, получившая претензию, обязана дать мотивированный ответ в течение <b>{claim}</b> рабочих дней.',
+    'Стороны устанавливают обязательный претензионный порядок урегулирования споров. Срок рассмотрения претензии — <b>{claim}</b> рабочих дней. Неурегулированные разногласия передаются в <b>{court}</b> в соответствии с нормами АПК РФ.',
+  ],
+
+  // ── Ответственность поставка п.4.3 (4 варианта) ──
+  liability:[
+    'Уплата неустойки не освобождает Сторону от исполнения принятых обязательств.',
+    'Выплата штрафных санкций не освобождает виновную Сторону от реального исполнения обязательств по настоящему Договору.',
+    'Уплата пени и штрафов носит компенсационный характер и не прекращает обязательства по поставке или оплате Товара.',
+    'Стороны вправе требовать возмещения убытков сверх суммы неустойки. Уплата неустойки не освобождает от исполнения обязательств.',
+  ],
+
+  // ── Срок действия поставка заключительные (4 варианта) ──
+  finalSupply:[
+    'Изменения — в письменной форме, подписанной обеими Сторонами. Договор составлен в 2 (двух) экземплярах, имеющих равную юридическую силу.',
+    'Любые изменения и дополнения к настоящему Договору действительны лишь при условии их оформления в письменном виде и подписания уполномоченными представителями обеих Сторон. Договор составлен в двух экземплярах.',
+    'Настоящий Договор составлен в двух подлинных экземплярах, по одному для каждой из Сторон. Изменения и дополнения оформляются дополнительными соглашениями, подписанными обеими Сторонами.',
+    'Все приложения к настоящему Договору являются его неотъемлемыми частями. Изменения к Договору оформляются письменно за подписями уполномоченных представителей. Договор составлен в 2 экземплярах равной силы.',
+  ],
+
+  // ── Необязательные блоки (вставляются случайно) ──
+  quality:[
+    'Поставщик гарантирует, что Товар соответствует стандартам качества, предусмотренным действующим законодательством РФ. Гарантийный срок устанавливается производителем и указывается в сопроводительной документации к Товару.',
+    'Качество Товара должно соответствовать ГОСТам, ТУ и иным нормативным документам, действующим на территории РФ. Поставщик несёт ответственность за скрытые дефекты в течение всего гарантийного срока.',
+    'Поставщик гарантирует надлежащее качество Товара в течение установленного гарантийного срока. При обнаружении недостатков в течение гарантийного срока Покупатель вправе потребовать замены Товара, устранения недостатков или соразмерного уменьшения цены.',
+  ],
+  confidential:[
+    'Стороны обязуются не разглашать третьим лицам условия настоящего Договора, а также коммерческую информацию, полученную в ходе исполнения Договора. Данное обязательство действует в течение 3 (трёх) лет после окончания срока действия Договора.',
+    'Каждая Сторона обязуется сохранять конфиденциальность информации, переданной другой Стороной в рамках настоящего Договора, включая коммерческую, техническую и финансовую информацию. Нарушение конфиденциальности является существенным нарушением Договора.',
+    'Условия настоящего Договора и любые сведения, полученные Сторонами в ходе его исполнения, носят конфиденциальный характер. Стороны принимают разумные меры для предотвращения их разглашения в течение срока действия Договора и 2 лет после его окончания.',
+  ],
+  edo:[
+    'Стороны вправе применять электронный документооборот (ЭДО) с использованием усиленной квалифицированной электронной подписи. Электронные документы имеют юридическую силу, равную оригиналам на бумажном носителе.',
+    'По взаимному согласию Сторон первичные документы (счета, накладные, акты) могут оформляться в электронном виде через систему ЭДО. Конкретный оператор ЭДО и порядок обмена согласовываются Сторонами дополнительно.',
+  ],
+  insurance:[
+    'Арендатор вправе застраховать арендуемый Объект и гражданскую ответственность перед третьими лицами за свой счёт. Страхование не уменьшает ответственность Арендатора по условиям настоящего Договора.',
+    'Арендодатель рекомендует Арендатору застраховать Объект и находящееся в нём имущество. Стороны согласовывают перечень страховых рисков дополнительно.',
+  ],
+  improvements:[
+    'Арендатор вправе производить неотделимые улучшения Объекта исключительно с письменного согласия Арендодателя. Стоимость неотделимых улучшений возмещается Арендатором самостоятельно, если иное не предусмотрено отдельным соглашением.',
+    'Производство неотделимых улучшений Объекта допускается только с предварительного письменного согласия Арендодателя. Отделимые улучшения являются собственностью Арендатора и могут быть изъяты им при возврате Объекта.',
+    'Арендатор не вправе производить перепланировку и реконструкцию Объекта без письменного согласия Арендодателя. Стоимость согласованных улучшений может быть зачтена в счёт арендной платы по отдельному соглашению.',
+  ],
+};
+
+/// ===== ГЕНЕРАЦИЯ: ПОСТАВКА =====
+function generateSupply(num,useRnd){
+  const city=v('f-city')||'________________', date=fmtDate(v('f-date'));
+  const sN=v('s-name')||'________________________',sR=v('s-rep')||'________________________',sBs=v('s-base')||'Устава';
+  const sI=v('s-inn')||'____________',sK=v('s-kpp')||'____________',sO=v('s-ogrn')||'____________';
+  const sA=v('s-addr')||'________________________',sRs=v('s-rs')||'________________________';
+  const sBk=v('s-bank')||'________________________',sBi=v('s-bik')||'____________',sKs=v('s-ks')||'________________________';
+  const sP=v('s-phone'),sE=v('s-email');
+  const bN=v('b-name')||'________________________',bR=v('b-rep')||'________________________',bBs=v('b-base')||'Устава';
+  const bI=v('b-inn')||'____________',bK=v('b-kpp')||'____________',bO=v('b-ogrn')||'____________';
+  const bA=v('b-addr')||'________________________',bRs=v('b-rs')||'________________________';
+  const bBk=v('b-bank')||'________________________',bBi=v('b-bik')||'____________',bKs=v('b-ks')||'________________________';
+  const bP=v('b-phone'),bE=v('b-email');
+  const dterm=v('f-dterm')||'30 календарных дней', dtype=document.getElementById('f-dtype').value;
+  const vfrom=v('f-vfrom')?fmtDate(v('f-vfrom')):'___.___.______';
+  const vto=v('f-vto')?fmtDate(v('f-vto')):'___.___.______';
+  const ps=v('f-ps')||'0,1', pb=v('f-pb')||'0,1';
+  const claim=v('f-claim')||'10', court=v('f-court')||'Арбитражный суд по месту нахождения истца';
+  const ndsOpt=v('f-nds'), pmode=v('f-pmode');
+  const goods=getGoods();let sub=0;goods.forEach(g=>sub+=g.total);
+  let ndsAmt=0,ndsLabel='';if(ndsOpt==='20'){ndsAmt=sub*.2;ndsLabel='20%';}else if(ndsOpt==='10'){ndsAmt=sub*.1;ndsLabel='10%';}
+  const total=sub+ndsAmt;
+  let goodsRows='';
+  if(!goods.length) goodsRows='<tr><td colspan="6" style="text-align:center;color:#aaa">Нет позиций</td></tr>';
+  else goods.forEach((g,i)=>{goodsRows+=`<tr><td class="c">${i+1}</td><td>${esc(g.name)}</td><td class="c">${g.qty}</td><td class="c">${esc(g.unit)}</td><td class="r">${fmt(g.price)}</td><td class="r">${fmt(g.total)}</td></tr>`;});
+  let ndsRow=ndsOpt!=='no'?`<tr><td colspan="5" style="text-align:right;font-weight:bold">НДС ${ndsLabel}:</td><td class="r">${fmt(ndsAmt)}</td></tr>`:'';
+
+  let paySection='';
+  if(pmode==='simple'){
+    const ptype=document.getElementById('f-ptype').value, pterm=v('f-pterm')||'5 банковских дней';
+    paySection=`<div class="c-clause"><span class="c-clause-num">2.1.</span>Общая стоимость: <b>${fmt(total)} руб.</b> ${ndsOpt==='no'?'(НДС не облагается)':`(НДС ${ndsLabel} — ${fmt(ndsAmt)} руб.)`}.</div>
+    <div class="c-clause"><span class="c-clause-num">2.2.</span>Оплата: <b>${esc(ptype)}</b>, в течение <b>${esc(pterm)}</b> от выставления счёта.</div>
+    <div class="c-clause"><span class="c-clause-num">2.3.</span>Обязательство исполнено с момента зачисления средств на счёт Поставщика.</div>`;
+  } else if(pmode==='stages'){
+    const sterm=v('f-stage-term')||'5 банковских дней';
+    let stR='';document.querySelectorAll('#stages-body tr').forEach((r,i)=>{const inp=r.querySelectorAll('input');const nm=inp[0].value||'—',pct=parseFloat(inp[1].value)||0,cond=inp[3].value||'—';stR+=`<tr><td class="c">${i+1}</td><td>${esc(nm)}</td><td class="c">${pct}%</td><td class="r">${fmt(total*pct/100)}</td><td>${esc(cond)}</td></tr>`;});
+    paySection=`<div class="c-clause"><span class="c-clause-num">2.1.</span>Общая стоимость: <b>${fmt(total)} руб.</b></div>
+    <div class="c-clause"><span class="c-clause-num">2.2.</span>Оплата — поэтапно:</div>
+    <table class="ct ct-pay"><thead><tr><th>№</th><th>Этап</th><th>%</th><th>Сумма, руб.</th><th>Условие</th></tr></thead><tbody>${stR}</tbody></table>
+    <div class="c-clause"><span class="c-clause-num">2.3.</span>Каждый платёж — в течение <b>${esc(sterm)}</b>.</div>`;
+  } else {
+    let schR='';document.querySelectorAll('#sched-body tr').forEach((r,i)=>{const inp=r.querySelectorAll('input');const dt=fmtDateShort(inp[0].value),amt=parseFloat(inp[1].value)||0,desc=inp[3].value||'—';schR+=`<tr><td class="c">${i+1}</td><td class="c">${dt}</td><td class="r">${fmt(amt)}</td><td class="c">${(total>0?(amt/total*100).toFixed(1):0)}%</td><td>${esc(desc)}</td></tr>`;});
+    paySection=`<div class="c-clause"><span class="c-clause-num">2.1.</span>Общая стоимость: <b>${fmt(total)} руб.</b></div>
+    <div class="c-clause"><span class="c-clause-num">2.2.</span>Оплата по графику:</div>
+    <table class="ct ct-pay"><thead><tr><th>№</th><th>Дата</th><th>Сумма, руб.</th><th>%</th><th>Назначение</th></tr></thead><tbody>${schR}</tbody></table>
+    <div class="c-clause"><span class="c-clause-num">2.3.</span>Нарушение дат графика — основание для начисления пени по разделу 4.</div>`;
+  }
+
+  const sIS=partyIntroStr('s','Поставщик'),bIS=partyIntroStr('b','Покупатель');
+  const introVars=[
+    `${sIS}, и ${bIS}, совместно именуемые <b>«Стороны»</b>, заключили настоящий Договор поставки о нижеследующем:`,
+    `${sIS}; и ${bIS}; именуемые совместно <b>«Стороны»</b>, пришли к следующему соглашению:`,
+    `Настоящий Договор поставки заключён между ${sIS} и ${bIS}.`,
+    `Стороны: ${sIS} и ${bIS} — заключили настоящий Договор поставки товаров на нижеследующих условиях:`,
+    `В соответствии с нормами действующего законодательства РФ ${sIS} и ${bIS} заключили настоящий Договор.`,
+  ];
+  const introT=useRnd?rnd(introVars):introVars[0];
+  const subjT=useRnd?rnd(V.subj):V.subj[0];
+  const transT=useRnd?rnd(V.transfer):V.transfer[0];
+  const fmT=useRnd?rnd(V.fm):V.fm[0];
+  const liabT=useRnd?rnd(V.liability):V.liability[0];
+  const finalT=useRnd?rnd(V.finalSupply):V.finalSupply[0];
+  const vfromD=v('f-vfrom')?fmtDate(v('f-vfrom')):'___.___.______';
+  const vtoD=v('f-vto')?fmtDate(v('f-vto')):'___.___.______';
+  const extVars=[
+    'Если ни одна из Сторон не заявит о расторжении за 30 дней до истечения срока, Договор автоматически пролонгируется на тот же срок.',
+    'Договор продлевается на аналогичный срок, если за 30 дней до окончания ни одна из Сторон не уведомит другую об ином.',
+    'По истечении срока действия Договор считается пролонгированным, если Стороны не заявили о прекращении не позднее чем за 30 дней.',
+    'Автоматическая пролонгация на тот же срок происходит при отсутствии письменного отказа за 30 дней до окончания.',
+  ];
+  const extT=useRnd?rnd(extVars):extVars[0];
+
+  // ── Опциональные разделы (случайные при включённом рандоме) ──
+  let secNum=7; // текущий номер раздела
+  let optBlocks='';
+  if(useRnd){
+    const dice=Math.random;
+    if(dice()>0.4){
+      secNum++;
+      optBlocks+=`<hr class="c-div"/>
+      <div class="c-section">${secNum}. Качество товара и гарантии</div>
+      <div class="c-clause"><span class="c-clause-num">${secNum}.1.</span>${rnd(V.quality)}</div>`;
+    }
+    if(dice()>0.5){
+      secNum++;
+      optBlocks+=`<hr class="c-div"/>
+      <div class="c-section">${secNum}. Конфиденциальность</div>
+      <div class="c-clause"><span class="c-clause-num">${secNum}.1.</span>${rnd(V.confidential)}</div>`;
+    }
+    if(dice()>0.6){
+      secNum++;
+      optBlocks+=`<hr class="c-div"/>
+      <div class="c-section">${secNum}. Электронный документооборот</div>
+      <div class="c-clause"><span class="c-clause-num">${secNum}.1.</span>${rnd(V.edo)}</div>`;
+    }
+  }
+  const finalSecNum=secNum+1;
+  const sigsSecNum=finalSecNum+1;
+
+  // ── Приёмка: варианты формулировки ──
+  const acceptVars=[
+    `Покупатель обязан принять Товар в течение ${useRnd?rnd(['3','5','3 (трёх)','5 (пяти)']):'3'} рабочих дней с момента его доставки. При выявлении несоответствий по количеству или качеству составляется двусторонний акт.`,
+    `Приёмка Товара осуществляется Покупателем в течение ${useRnd?rnd(['3','5']):'3'} рабочих дней после его поступления. Обнаруженные расхождения фиксируются актом, подписанным уполномоченными представителями Сторон.`,
+    `Покупатель производит приёмку Товара по количеству и качеству в течение ${useRnd?rnd(['3','5']):'3'} рабочих дней. Выявленные недостатки отражаются в рекламационном акте.`,
+  ];
+  const acceptT=useRnd?rnd(acceptVars):acceptVars[0];
+
+  // ── Споры ──
+  const dispT=(useRnd?rnd(V.disputeSupply):V.disputeSupply[0])
+    .replace('{court}',esc(court)).replace('{claim}',esc(claim));
+
+  return `
+    <p style="margin-bottom:11px;text-align:justify">${introT}</p>
+    <hr class="c-div"/>
+    <div class="c-section">1. Предмет договора</div>
+    <div class="c-clause"><span class="c-clause-num">1.1.</span>${subjT}</div>
+    <div class="c-clause"><span class="c-clause-num">1.2.</span>Спецификация товара (Приложение № 1):</div>
+    <table class="ct"><thead><tr><th style="width:5%">№</th><th>Наименование</th><th style="width:9%">Кол.</th><th style="width:9%">Ед.</th><th style="width:13%">Цена,руб.</th><th style="width:13%">Сумма,руб.</th></tr></thead>
+    <tbody>${goodsRows}</tbody>
+    <tfoot><tr><td colspan="5" style="text-align:right;font-weight:bold">Итого без НДС:</td><td class="r">${fmt(sub)}</td></tr>${ndsRow}<tr><td colspan="5" style="text-align:right;font-weight:bold">ИТОГО:</td><td class="r" style="font-weight:bold">${fmt(total)}</td></tr></tfoot></table>
+    <div class="c-total-words">Итого ${fmt(total)} руб. ${ndsOpt==='no'?'(без НДС)':`(НДС ${ndsLabel})`}.</div>
+    <hr class="c-div"/>
+    <div class="c-section">2. Цена и порядок расчётов</div>${paySection}
+    <hr class="c-div"/>
+    <div class="c-section">3. Сроки и условия поставки</div>
+    <div class="c-clause"><span class="c-clause-num">3.1.</span>Срок поставки: <b>${esc(dterm)}</b>.</div>
+    <div class="c-clause"><span class="c-clause-num">3.2.</span>Поставка осуществляется <b>${esc(dtype)}</b>.</div>
+    <div class="c-clause"><span class="c-clause-num">3.3.</span>${transT}</div>
+    <div class="c-clause"><span class="c-clause-num">3.4.</span>${acceptT}</div>
+    <hr class="c-div"/>
+    <div class="c-section">4. Ответственность сторон</div>
+    <div class="c-clause"><span class="c-clause-num">4.1.</span>За просрочку поставки — пеня <b>${esc(ps)}% в день</b> от стоимости не поставленного в срок Товара, но не более 10% суммы Договора.</div>
+    <div class="c-clause"><span class="c-clause-num">4.2.</span>За просрочку оплаты — пеня <b>${esc(pb)}% в день</b> от суммы задолженности, но не более 10% суммы Договора.</div>
+    <div class="c-clause"><span class="c-clause-num">4.3.</span>${liabT}</div>
+    <hr class="c-div"/>
+    <div class="c-section">5. Форс-мажор</div>
+    <div class="c-clause"><span class="c-clause-num">5.1.</span>${fmT}</div>
+    <div class="c-clause"><span class="c-clause-num">5.2.</span>Уведомление о форс-мажоре направляется в течение 5 (пяти) рабочих дней с приложением подтверждающих документов.</div>
+    <hr class="c-div"/>
+    <div class="c-section">6. Порядок разрешения споров</div>
+    <div class="c-clause"><span class="c-clause-num">6.1.</span>${dispT}</div>
+    ${optBlocks}
+    <hr class="c-div"/>
+    <div class="c-section">${finalSecNum}. Срок действия и заключительные положения</div>
+    <div class="c-clause"><span class="c-clause-num">${finalSecNum}.1.</span>Договор действует с ${vfromD} по ${vtoD}. ${extT}</div>
+    <div class="c-clause"><span class="c-clause-num">${finalSecNum}.2.</span>${finalT}</div>
+    <hr class="c-div"/>
+    <div class="c-section">${sigsSecNum}. Реквизиты и подписи сторон</div>
+    <div class="c-sigs">
+      ${sigBlock('s','ПОСТАВЩИК')}
+      ${sigBlock('b','ПОКУПАТЕЛЬ')}
+    </div>`;
+}
+
+/// ===== ГЕНЕРАЦИЯ: АРЕНДА =====
+function generateLease(num,useRnd){
+  const city=v('f-city')||'________________', date=fmtDate(v('f-date'));
+  const llN=v('ll-name')||'________________________',llR=v('ll-rep')||'________________________',llB=v('ll-base')||'Устава';
+  const llI=v('ll-inn')||'____________',llK=v('ll-kpp')||'____________',llO=v('ll-ogrn')||'____________';
+  const llA=v('ll-addr')||'________________________',llRs=v('ll-rs')||'________________________';
+  const llBk=v('ll-bank')||'________________________',llBi=v('ll-bik')||'____________',llKs=v('ll-ks')||'________________________';
+  const llP=v('ll-phone'),llE=v('ll-email');
+  const ltN=v('lt-name')||'________________________',ltR=v('lt-rep')||'________________________',ltB=v('lt-base')||'Устава';
+  const ltI=v('lt-inn')||'____________',ltK=v('lt-kpp')||'____________',ltO=v('lt-ogrn')||'____________';
+  const ltA=v('lt-addr')||'________________________',ltRs=v('lt-rs')||'________________________';
+  const ltBk=v('lt-bank')||'________________________',ltBi=v('lt-bik')||'____________',ltKs=v('lt-ks')||'________________________';
+  const ltP=v('lt-phone'),ltE=v('lt-email');
+
+  const laType=v('la-type')||'нежилое помещение', laAddr=v('la-addr')||'____________';
+  const laArea=v('la-area')||'___', laFloor=v('la-floor')||'___', laCadastr=v('la-cadastr')||'____________';
+  const laPurpose=v('la-purpose')||'в соответствии с назначением помещения';
+  const laState=document.getElementById('la-state').value;
+
+  const laRent=parseFloat(v('la-rent'))||0;
+  const laNds=v('la-nds');
+  const laRentTotal=laNds==='20'?laRent*1.2:laRent;
+  const laRentNdsStr=laNds==='20'?`(в т.ч. НДС 20% — ${fmt(laRent*.2)} руб.)`:'(без НДС)';
+  const laPayorder=document.getElementById('la-payorder').value;
+
+  // Депозит
+  const laDepType=v('la-deposit-type');
+  let depositAmt=0, depositText='';
+  if(laDepType==='fixed'){depositAmt=parseFloat(v('la-deposit-val'))||0;depositText=`Обеспечительный платёж: <b>${fmt(depositAmt)} рублей</b>, вносится в течение 5 (пяти) рабочих дней с даты подписания настоящего Договора. Возвращается Арендатору в течение 10 рабочих дней после окончания аренды при отсутствии задолженностей.`;}
+  else if(laDepType==='months'){const mo=parseFloat(v('la-deposit-val'))||1;depositAmt=laRentTotal*mo;depositText=`Обеспечительный платёж в размере ${mo} ${mo===1?'месяца':'месяцев'} арендной платы: <b>${fmt(depositAmt)} рублей</b>, вносится в течение 5 рабочих дней с подписания. Возвращается после окончания аренды при отсутствии задолженностей.`;}
+  else depositText='Обеспечительный платёж не предусмотрен.';
+
+  // Индексация
+  const laIndexType=v('la-index-type');
+  let indexText='';
+  if(laIndexType==='fixed'){const pct=v('la-index-val')||'5';indexText=`Арендная плата индексируется ежегодно на <b>${pct}%</b>. Индексация производится автоматически с начала каждого следующего года аренды без дополнительного соглашения.`;}
+  else if(laIndexType==='cpi') indexText='Арендная плата индексируется ежегодно в соответствии с официальным уровнем инфляции (ИПЦ), публикуемым Росстатом. Новый размер аренды согласовывается Сторонами в письменной форме.';
+  else indexText='Арендная плата является фиксированной и пересматривается только по письменному соглашению Сторон.';
+
+  const laStart=v('la-start')?fmtDate(v('la-start')):'«___» ________ 20__ г.';
+  const laEnd=v('la-end')?fmtDate(v('la-end')):'«___» ________ 20__ г.';
+  const laNotice=v('la-notice')||'30';
+  const laRenew=document.getElementById('la-renew').value;
+  let renewText='';
+  if(laRenew==='auto') renewText=`По истечении срока Договор автоматически пролонгируется на тот же срок, если за ${laNotice} (${laNotice}) дней до окончания ни одна из Сторон не уведомит другую о прекращении арендных отношений.`;
+  else if(laRenew==='agree') renewText='По истечении срока Договор может быть продлён только путём заключения письменного дополнительного соглашения.';
+  else renewText='Пролонгация настоящего Договора не предусмотрена. После истечения срока Арендатор обязан освободить помещение.';
+
+  const laUtils=document.getElementById('la-utils').value;
+  const laRepairCur=document.getElementById('la-repair-cur').value;
+  const laRepairCap=document.getElementById('la-repair-cap').value;
+  const laSubA=document.getElementById('la-subarenда').value;
+  const laPenS=v('la-ps')||'0,1', laPenT=v('la-pt')||'0,1';
+  const laCourt=v('la-court')||'Арбитражный суд г. Москвы';
+
+  const llIS=partyIntroStr('ll','Арендодатель'),ltIS=partyIntroStr('lt','Арендатор');
+  const leaseIntroVars=[
+    `${llIS}, и ${ltIS}, совместно именуемые <b>«Стороны»</b>, заключили настоящий Договор аренды нежилого помещения о нижеследующем:`,
+    `${llIS}; и ${ltIS}; именуемые совместно <b>«Стороны»</b>, пришли к следующему соглашению:`,
+    `Настоящий Договор аренды нежилого помещения заключён между ${llIS} и ${ltIS}.`,
+    `Стороны: ${llIS} и ${ltIS} — заключили настоящий Договор аренды на нижеследующих условиях:`,
+    `В соответствии с действующим законодательством РФ ${llIS} и ${ltIS} заключили настоящий Договор аренды.`,
+  ];
+  const introT=useRnd?rnd(leaseIntroVars):leaseIntroVars[0];
+  const fmT=useRnd?rnd(V.leaseFm):V.leaseFm[0];
+  const leaseSubjT=useRnd?rnd(V.leaseSubj):V.leaseSubj[0];
+  const landlordDutiesT=useRnd?rnd(V.landlordDuties):V.landlordDuties[0];
+  const landlordInspectT=useRnd?rnd(V.landlordInspect):V.landlordInspect[0];
+  const tenantDutiesT=useRnd?rnd(V.tenantDuties):V.tenantDuties[0];
+
+  // ── Опциональные разделы аренды ──
+  let lSecNum=8;
+  let lOptBlocks='';
+  if(useRnd){
+    const dice=Math.random;
+    if(dice()>0.5){
+      lSecNum++;
+      lOptBlocks+=`<hr class="c-div"/>
+      <div class="c-section">${lSecNum}. Улучшения арендованного имущества</div>
+      <div class="c-clause"><span class="c-clause-num">${lSecNum}.1.</span>${rnd(V.improvements)}</div>`;
+    }
+    if(dice()>0.55){
+      lSecNum++;
+      lOptBlocks+=`<hr class="c-div"/>
+      <div class="c-section">${lSecNum}. Страхование</div>
+      <div class="c-clause"><span class="c-clause-num">${lSecNum}.1.</span>${rnd(V.insurance)}</div>`;
+    }
+    if(dice()>0.6){
+      lSecNum++;
+      lOptBlocks+=`<hr class="c-div"/>
+      <div class="c-section">${lSecNum}. Конфиденциальность</div>
+      <div class="c-clause"><span class="c-clause-num">${lSecNum}.1.</span>${rnd(V.confidential)}</div>`;
+    }
+  }
+  const lSigsSecNum=lSecNum+1;
+
+  // ── Ответственность: варианты п.6.3 ──
+  const leaseHarmVars=[
+    `За ущерб, причинённый Объекту по вине Арендатора, последний возмещает ущерб в полном объёме на основании документально подтверждённой оценки.`,
+    `Арендатор несёт полную материальную ответственность за ущерб, причинённый Объекту, его инженерным системам и оборудованию по вине Арендатора или его сотрудников.`,
+    `В случае повреждения Объекта по вине Арендатора последний обязан за собственный счёт произвести ремонт либо возместить стоимость ущерба по рыночным ценам.`,
+  ];
+  const leaseHarmT=useRnd?rnd(leaseHarmVars):leaseHarmVars[0];
+
+  // ── Споры аренда ──
+  const leaseDisputeVars=[
+    `Споры разрешаются путём переговоров. При недостижении согласия в течение 15 (пятнадцати) рабочих дней — <b>${esc(laCourt)}</b>.`,
+    `Все разногласия Стороны стремятся разрешить путём переговоров. Если соглашение не достигнуто в течение 20 рабочих дней, спор передаётся в <b>${esc(laCourt)}</b>.`,
+    `Обязательный претензионный порядок. Срок рассмотрения претензии — 10 рабочих дней. Неурегулированные споры рассматриваются <b>${esc(laCourt)}</b>.`,
+    `Стороны договорились об обязательном досудебном урегулировании споров (срок — 15 рабочих дней). При отсутствии результата — <b>${esc(laCourt)}</b> в соответствии с нормами АПК РФ.`,
+  ];
+  const leaseDisputeT=useRnd?rnd(leaseDisputeVars):leaseDisputeVars[0];
+
+  return `
+    <p style="margin-bottom:11px;text-align:justify">${introT}</p>
+    <hr class="c-div"/>
+    <div class="c-section">1. Предмет договора</div>
+    <div class="c-clause"><span class="c-clause-num">1.1.</span>${leaseSubjT} Объектом аренды является <b>${esc(laType)}</b> (далее — «Объект»).</div>
+    <div class="c-clause"><span class="c-clause-num">1.2.</span>Характеристики Объекта:
+      <table class="ct ct-rent" style="margin-top:6px">
+        <tbody>
+          <tr><td style="width:35%;font-weight:bold">Адрес:</td><td>${esc(laAddr)}</td></tr>
+          <tr><td style="font-weight:bold">Площадь:</td><td>${esc(laArea)} кв.м.</td></tr>
+          <tr><td style="font-weight:bold">Этаж:</td><td>${esc(laFloor)}</td></tr>
+          <tr><td style="font-weight:bold">Кадастровый №:</td><td>${esc(laCadastr)}</td></tr>
+          <tr><td style="font-weight:bold">Целевое использование:</td><td>${esc(laPurpose)}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="c-clause"><span class="c-clause-num">1.3.</span>Объект передаётся в состоянии: <b>${esc(laState)}</b>. Передача оформляется Актом приёма-передачи (Приложение № 1), подписанным обеими Сторонами.</div>
+    <div class="c-clause"><span class="c-clause-num">1.4.</span>Арендодатель гарантирует, что Объект принадлежит ему на праве собственности, свободен от прав третьих лиц и не обременён.</div>
+    <hr class="c-div"/>
+    <div class="c-section">2. Арендная плата и порядок расчётов</div>
+    <div class="c-clause"><span class="c-clause-num">2.1.</span>Ежемесячная арендная плата составляет <b>${fmt(laRentTotal)} рублей</b> ${laRentNdsStr}.</div>
+    <div class="c-clause"><span class="c-clause-num">2.2.</span>Арендная плата вносится Арендатором на расчётный счёт Арендодателя <b>${esc(laPayorder)}</b>.</div>
+    <div class="c-clause"><span class="c-clause-num">2.3.</span>${indexText}</div>
+    <div class="c-clause"><span class="c-clause-num">2.4.</span>${depositText}</div>
+    <div class="c-clause"><span class="c-clause-num">2.5.</span>Коммунальные услуги и эксплуатационные расходы <b>${esc(laUtils)}</b>.</div>
+    <hr class="c-div"/>
+    <div class="c-section">3. Срок аренды</div>
+    <div class="c-clause"><span class="c-clause-num">3.1.</span>Срок аренды: с <b>${laStart}</b> по <b>${laEnd}</b>.</div>
+    <div class="c-clause"><span class="c-clause-num">3.2.</span>${renewText}</div>
+    <div class="c-clause"><span class="c-clause-num">3.3.</span>Каждая из Сторон вправе расторгнуть Договор досрочно, уведомив другую Сторону письменно не менее чем за <b>${esc(laNotice)}</b> календарных дней до предполагаемой даты расторжения.</div>
+    <hr class="c-div"/>
+    <div class="c-section">4. Права и обязанности арендодателя</div>
+    <div class="c-clause"><span class="c-clause-num">4.1.</span>Арендодатель обязан: ${landlordDutiesT}</div>
+    <div class="c-clause"><span class="c-clause-num">4.2.</span>Капитальный ремонт производится <b>${esc(laRepairCap)}</b>.</div>
+    <div class="c-clause"><span class="c-clause-num">4.3.</span>${landlordInspectT}</div>
+    <hr class="c-div"/>
+    <div class="c-section">5. Права и обязанности арендатора</div>
+    <div class="c-clause"><span class="c-clause-num">5.1.</span>Арендатор обязан: ${tenantDutiesT}</div>
+    <div class="c-clause"><span class="c-clause-num">5.2.</span>Текущий ремонт производится <b>${esc(laRepairCur)}</b>.</div>
+    <div class="c-clause"><span class="c-clause-num">5.3.</span>Субаренда <b>${esc(laSubA)}</b>.</div>
+    <div class="c-clause"><span class="c-clause-num">5.4.</span>По окончании аренды Арендатор обязан вернуть Объект Арендодателю в состоянии, не хуже принятого, с учётом нормального износа, по Акту возврата.</div>
+    <hr class="c-div"/>
+    <div class="c-section">6. Ответственность сторон</div>
+    <div class="c-clause"><span class="c-clause-num">6.1.</span>За нарушение обязательств по предоставлению Объекта Арендатор вправе взыскать с Арендодателя пеню <b>${esc(laPenS)}% в день</b>, но не более 10% месячной арендной платы.</div>
+    <div class="c-clause"><span class="c-clause-num">6.2.</span>За просрочку арендных платежей Арендодатель вправе взыскать с Арендатора пеню <b>${esc(laPenT)}% в день</b> от суммы просроченного платежа, но не более 10% месячной арендной платы.</div>
+    <div class="c-clause"><span class="c-clause-num">6.3.</span>${leaseHarmT}</div>
+    <hr class="c-div"/>
+    <div class="c-section">7. Форс-мажор</div>
+    <div class="c-clause"><span class="c-clause-num">7.1.</span>${fmT}</div>
+    <div class="c-clause"><span class="c-clause-num">7.2.</span>Уведомление о форс-мажоре направляется в течение 5 рабочих дней. Если форс-мажор длится более 30 дней — каждая Сторона вправе расторгнуть Договор.</div>
+    <hr class="c-div"/>
+    <div class="c-section">8. Порядок разрешения споров</div>
+    <div class="c-clause"><span class="c-clause-num">8.1.</span>${leaseDisputeT}</div>
+    ${lOptBlocks}
+    <hr class="c-div"/>
+    <div class="c-section">${lSigsSecNum}. Реквизиты и подписи сторон</div>
+    <div class="c-sigs">
+      ${sigBlock('ll','АРЕНДОДАТЕЛЬ')}
+      ${sigBlock('lt','АРЕНДАТОР')}
+    </div>`;
+}
+
+// ===== ГЛАВНАЯ ФУНКЦИЯ =====
+function generateContract(){
+  const useNum=document.getElementById('opt-num').checked;
+  const useRnd=document.getElementById('opt-rnd').checked;
+
+  // При рандоме — случайный визуальный стиль
+  if(useRnd) randomizeStyle();
+
+  let num=v('f-number');
+  if(useNum&&!num){num=genNumber();document.getElementById('f-number').value=num;}
+  if(!num)num='___';
+
+  const t=THEMES[curTheme]||THEMES.blue;
+  const ts=`--theme-grad:${t.grad};--theme-bg:${t.bg};--theme-border:${t.border};--theme-color:${t.color};`;
+  // Классы визуального стиля
+  const docClasses=`doc-wrapper hdr-${curHdr} sst-${curSst} font-${curFont}`;
+
+  const isLease=contractType==='lease';
+  const docTitle=isLease?'Договор аренды нежилого помещения':'Договор поставки';
+  const docCity=v('f-city')||'________________', docDate=fmtDate(v('f-date'));
+  const bodyHtml=isLease?generateLease(num,useRnd):generateSupply(num,useRnd);
+
+  const html=`<div class="${docClasses}" style="${ts}">
+  <div class="doc-header-bar"></div>
+  <div class="doc-header-inner">
+    <div class="dhi-num">${docTitle}</div>
+    <div class="dhi-title">№ ${esc(num)}</div>
+    <div class="dhi-meta">${esc(docCity)} &nbsp;·&nbsp; ${esc(docDate)}</div>
+  </div>
+  <div class="uniq-corner"><span>ОРИГИНАЛ</span></div>
+  <div class="contract-doc">${bodyHtml}</div>
+</div>`;
+
+  document.getElementById('contract-preview').innerHTML=html;
+  document.getElementById('preview-label').textContent=`${docTitle} № ${num}`;
+  const fontNames={times:'Times',calibri:'Calibri',georgia:'Georgia',arial:'Arial',pt:'PT Serif'};
+  const hdrNames={band:'Полоса',minimal:'Минимал',solid:'Заливка',frame:'Рамка'};
+  const sstNames={classic:'Классика',leftbar:'Полоса',filled:'Блоки',underline:'Линия'};
+  const features=[];
+  if(useNum)features.push('№ авто');
+  if(useRnd)features.push('Рандом');
+  features.push(fontNames[curFont]||curFont);
+  features.push('Шапка: '+hdrNames[curHdr]);
+  features.push('Разд.: '+sstNames[curSst]);
+  const badge=document.getElementById('uniq-badge');
+  badge.textContent='✦ '+features.join(' · ');
+  badge.classList.add('show');
+  document.getElementById('btn-print').disabled=false;
+  document.getElementById('btn-word').disabled=false;
+  document.getElementById('contract-preview').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ===== СКАЧАТЬ WORD (.doc) =====
+function downloadWord(){
+  const preview=document.getElementById('preview-doc');
+  if(!preview||!preview.innerHTML.trim()){alert('Сначала сформируйте договор');return;}
+
+  // Текущая тема
+  const t=THEMES[curTheme]||THEMES.blue;
+  const themeColor=t.color;
+  const themeGrad=t.grad;
+  const themeBg=t.bg;
+  const themeBorder=t.border;
+
+  // Шрифт по текущему выбору
+  const fontMap={
+    times:   '"Times New Roman",Times,serif',
+    calibri: 'Calibri,"Trebuchet MS",Arial,sans-serif',
+    georgia: 'Georgia,"Book Antiqua",serif',
+    arial:   'Arial,Helvetica,sans-serif',
+    pt:      '"PT Serif","Palatino Linotype",serif'
+  };
+  const fontSizeMap={times:'13pt',calibri:'13pt',georgia:'12.5pt',arial:'12pt',pt:'13pt'};
+  const fontFamily=fontMap[curFont]||fontMap.times;
+  const fontSize=fontSizeMap[curFont]||'13pt';
+
+  // CSS шапки
+  const hdrCSS={
+    band:`
+      .doc-header-bar{height:5pt;background:${themeGrad};margin-bottom:0}
+      .doc-header-inner{padding:12pt 36pt 9pt;background:${themeBg};border-bottom:1pt solid ${themeBorder}}
+      .dhi-num{color:${themeColor};font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.8px}
+      .dhi-title{font-size:16pt;font-weight:bold;color:#111}
+      .dhi-meta{font-size:9pt;color:#555;margin-top:2pt}`,
+    minimal:`
+      .doc-header-bar{display:none}
+      .doc-header-inner{padding:10pt 36pt 9pt 16pt;background:white;border-left:5pt solid ${themeColor};border-bottom:1pt solid ${themeBorder}}
+      .dhi-num{color:${themeColor};font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.8px}
+      .dhi-title{font-size:14pt;font-weight:bold;color:#111}
+      .dhi-meta{font-size:9pt;color:#555;margin-top:2pt}`,
+    solid:`
+      .doc-header-bar{display:none}
+      .doc-header-inner{padding:16pt 36pt 12pt;background:${themeGrad};border-bottom:none}
+      .dhi-num{color:white;font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.8px;opacity:.85}
+      .dhi-title{font-size:16pt;font-weight:bold;color:white}
+      .dhi-meta{font-size:9pt;color:white;opacity:.85;margin-top:2pt}`,
+    frame:`
+      .doc-header-bar{display:none}
+      .doc-header-inner{background:white;border:2pt solid ${themeColor};margin:12pt 30pt 0;padding:12pt 24pt 10pt;text-align:center}
+      .dhi-num{color:${themeColor};font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.8px}
+      .dhi-title{font-size:15pt;font-weight:bold;color:#111}
+      .dhi-meta{font-size:9pt;color:#555;margin-top:2pt;text-align:center}`
+  }[curHdr]||'';
+
+  // CSS разделов
+  const sstCSS={
+    classic:`
+      .c-section{font-size:12pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin:14pt 0 5pt;color:#111}
+      hr.c-div{border:none;border-top:1pt solid #ccc;margin:10pt 0}`,
+    leftbar:`
+      .c-section{font-size:12pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin:12pt 0 5pt;color:${themeColor};border-left:4pt solid ${themeColor};padding-left:8pt}
+      hr.c-div{display:none}`,
+    filled:`
+      .c-section{font-size:12pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin:12pt 0 5pt;color:white;background:${themeGrad};padding:3pt 10pt}
+      hr.c-div{display:none}`,
+    underline:`
+      .c-section{font-size:12pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin:12pt 0 5pt;color:${themeColor};border-bottom:2pt solid ${themeColor};padding-bottom:2pt}
+      hr.c-div{border:none;border-top:1pt dashed #ddd;margin:6pt 0}`
+  }[curSst]||'';
+
+  // Базовый CSS договора
+  const contractCSS=`
+    body{font-family:${fontFamily};font-size:${fontSize};color:#111;margin:0;padding:0}
+    .contract-doc{padding:20mm 25mm 22mm;max-width:none;font-family:${fontFamily};font-size:${fontSize};line-height:1.65}
+    .c-clause{margin:4pt 0;text-align:justify;line-height:1.6}
+    .c-clause-num{font-weight:bold;margin-right:4pt}
+    .c-total-words{font-style:italic;font-size:10pt;margin:3pt 0 8pt}
+    /* Word-совместимая разбивка подписей (grid→table) */
+    .c-sigs{width:100%;border-collapse:collapse;display:table;margin-top:16pt}
+    .sig-block{display:table-cell;vertical-align:top;width:50%;padding:0 8pt}
+    .sig-title{font-weight:bold;font-size:11pt;margin-bottom:6pt;text-transform:uppercase;color:${themeColor};border-bottom:1.5pt solid ${themeColor};padding-bottom:3pt}
+    .sig-line{margin-top:22pt;border-bottom:1pt solid #333;width:65%}
+    .sig-caption{font-size:8pt;color:#666;margin-top:2pt}
+    table.ct{width:100%;border-collapse:collapse;font-size:10.5pt;margin:6pt 0}
+    table.ct th{background:#f0f0f0;border:1pt solid #999;padding:4pt 6pt;font-weight:bold;font-size:9.5pt}
+    table.ct td{border:1pt solid #bbb;padding:3pt 6pt}
+    table.ct-pay th{background:#e8f4e8;border:1pt solid #88bb88}
+    table.ct-pay td{border:1pt solid #a8cca8}
+    table.ct-rent th{background:#e8f0f8;border:1pt solid #88aad0}
+    table.ct-rent td{border:1pt solid #a8c0da}
+    .td-c{text-align:center}.td-r{text-align:right}
+    .uniq-corner{display:none}
+    ${hdrCSS}
+    ${sstCSS}
+  `;
+
+  const num=document.getElementById('f-number')?.value||'Договор';
+  const isLease=contractType==='lease';
+  const docTitle=isLease?'Договор аренды нежилого помещения':'Договор поставки';
+
+  const wordHTML=`<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>${docTitle} №${num}</title>
+<!--[if gte mso 9]><xml>
+<w:WordDocument>
+  <w:View>Print</w:View><w:Zoom>100</w:Zoom>
+  <w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml><![endif]-->
+<style>
+  @page{margin:2cm 2.5cm}
+  ${contractCSS}
+</style>
+</head>
+<body>
+${preview.innerHTML}
+</body>
+</html>`;
+
+  const blob=new Blob(['\ufeff'+wordHTML],{type:'application/msword'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download=`${docTitle}_${num}.doc`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+
+// ===== ИМПОРТ ИЗ EXCEL =====
+let _prefillData = null;
+
+function checkImportData(){
+  try {
+    const raw = localStorage.getItem('dogovor_prefill');
+    if(!raw) return;
+    _prefillData = JSON.parse(raw);
+    const pf = _prefillData;
+    const banner = document.getElementById('import-banner');
+    const info   = document.getElementById('ib-org-info');
+    const mainBtn= document.getElementById('ib-main-btn');
+
+    // Определяем роли для отображения
+    const roleMap = { tenant:'Арендатор', supplier:'Поставщик', buyer:'Покупатель' };
+    const counterRoleMap = { tenant:'Арендодатель', supplier:'Покупатель', buyer:'Поставщик' };
+    const contractMap = { tenant:'Договор аренды', supplier:'Договор поставки', buyer:'Договор поставки' };
+    const emojiMap = { tenant:'🏗️', supplier:'📦', buyer:'🛒' };
+
+    const orgRole = pf.orgRole || '';
+    const orgName = pf.org?.name || '—';
+    const cntName = pf.counter?.name || '—';
+    const roleLbl = roleMap[orgRole] || '?';
+    const cntLbl  = counterRoleMap[orgRole] || '?';
+    const ctLbl   = contractMap[orgRole] || 'Договор';
+    const emoji   = emojiMap[orgRole] || '📄';
+
+    info.innerHTML =
+      `<b>${orgName}</b> → ${roleLbl}<br>` +
+      `<b>${cntName}</b> → ${cntLbl}`;
+
+    if(mainBtn){
+      mainBtn.textContent = `${emoji} Создать ${ctLbl}`;
+    }
+
+    banner.style.display = 'block';
+  } catch(e){ console.error('checkImportData:', e); }
+}
+
+function applyPrefill(){
+  const pf = _prefillData;
+  if(!pf) return;
+  const role = pf.orgRole || '';
+
+  if(role === 'tenant'){
+    // Арендатор: наша орг → lt-, контрагент (арендодатель) → ll-
+    switchType('lease');
+    if(pf.org)     fillParty('lt', pf.org);
+    if(pf.counter) fillParty('ll', pf.counter);
+    // Сумма и даты из вкладки Аренда
+    const c = pf.counter || {};
+    if(c.amount){
+      const el=document.getElementById('la-rent');
+      if(el){ el.value=parseFloat(String(c.amount).replace(/\s/g,''))||''; syncRentCalc(); }
+    }
+    if(c.date_agr){
+      const el=document.getElementById('la-start');
+      if(el) el.value=isoDate(c.date_agr);
+    }
+    if(c.date_end){
+      const el=document.getElementById('la-end');
+      if(el) el.value=isoDate(c.date_end);
+    }
+    if(c.num_agr){
+      const el=document.getElementById('la-num');
+      if(el) el.value=c.num_agr;
+    }
+
+  } else if(role === 'supplier'){
+    // Поставщик: наша орг → s-, контрагент (покупатель) → b-
+    switchType('supply');
+    if(pf.org)     fillParty('s', pf.org);
+    if(pf.counter) fillParty('b', pf.counter);
+
+  } else if(role === 'buyer'){
+    // Покупатель: контрагент (поставщик) → s-, наша орг → b-
+    switchType('supply');
+    if(pf.counter) fillParty('s', pf.counter);
+    if(pf.org)     fillParty('b', pf.org);
+
+  } else {
+    // Роль не определена — просто заполняем первую сторону
+    switchType('supply');
+    if(pf.org)     fillParty('s', pf.org);
+    if(pf.counter) fillParty('b', pf.counter);
+  }
+
+  // Показываем успех
+  const banner = document.getElementById('import-banner');
+  banner.style.background='linear-gradient(135deg,#c8e6c9,#dcedc8)';
+  banner.querySelector('.ib-head').textContent='✅ Форма заполнена из файла';
+  const btns = banner.querySelector('.ib-btns');
+  if(btns) btns.style.display='none';
+  setTimeout(()=>{ banner.style.display='none'; }, 3000);
+}
+
+function fillParty(prefix, data){
+  if(!data) return;
+  const isIP = data.isIP || (data.inn && String(data.inn).replace(/\D/g,'').length===12);
+  // Установить тип ИП/ООО
+  const typeBtn = document.querySelector(`[onclick="setPartyType('${prefix}','${isIP?'ip':'ooo'}',this)"]`);
+  if(typeBtn) setPartyType(prefix, isIP?'ip':'ooo', typeBtn);
+  // Заполнить поля
+  const set = (id, val) => {
+    const el=document.getElementById(id);
+    if(el && val && val!=='null' && val!=='undefined') el.value=val;
+  };
+  const name = data.name || data.org_name || '';
+  set(prefix+'-name', name);
+  set(prefix+'-inn',  data.inn);
+  set(prefix+'-kpp',  data.kpp);
+  set(prefix+'-rs',   data.rs);
+  set(prefix+'-bank', data.bank);
+  set(prefix+'-bik',  data.bik);
+  set(prefix+'-ks',   data.ks);
+  // Для ИП поле "В лице" не нужно, для ООО заполняем пустым (не известно)
+  if(!isIP){
+    // rep/base не знаем из файла — оставляем пустыми, пусть заполнит вручную
+  }
+}
+
+function isoDate(d){
+  if(!d) return '';
+  const s=String(d).trim();
+  // yyyy-mm-dd → ok
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+  // dd.mm.yyyy → yyyy-mm-dd
+  if(/^\d{2}\.\d{2}\.\d{4}/.test(s)){ const p=s.split('.'); return `${p[2]}-${p[1]}-${p[0]}`; }
+  return '';
+}
+
+function dismissImport(){
+  document.getElementById('import-banner').style.display='none';
+  localStorage.removeItem('dogovor_prefill');
+  _prefillData=null;
+}
+
+// ===== INIT =====
+(function init(){
+  const d=new Date();
+  document.getElementById('f-date').value=d.toISOString().split('T')[0];
+  const e=new Date(d);e.setFullYear(e.getFullYear()+1);
+  document.getElementById('f-vfrom').value=d.toISOString().split('T')[0];
+  document.getElementById('f-vto').value=e.toISOString().split('T')[0];
+  document.getElementById('la-start').value=d.toISOString().split('T')[0];
+  document.getElementById('la-end').value=e.toISOString().split('T')[0];
+  document.getElementById('f-number').placeholder=`Пример: ${genNumber()} (автогенерация)`;
+  onPayModeChange();
+  onDepositChange();
+  applyTheme('blue');
+  checkImportData();
+})();
+</script>
+</body>
+</html>
