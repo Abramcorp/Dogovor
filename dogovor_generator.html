@@ -136,8 +136,7 @@
     .sig-title{font-weight:bold;font-size:12.5px;margin-bottom:5px;border-bottom:2px solid var(--theme-color,#2d6aa0);padding-bottom:4px;color:var(--theme-color,#2d6aa0)}
     .sig-line{margin-top:24px;border-bottom:1px solid #333;width:65%}
     .sig-caption{font-size:9.5px;color:#666;margin-top:2px}
-    .uniq-corner{position:absolute;top:0;right:0;width:70px;height:70px;overflow:hidden;pointer-events:none}
-    .uniq-corner span{position:absolute;top:14px;right:-18px;transform:rotate(45deg);background:var(--theme-color,#2d6aa0);color:white;font-size:7.5px;font-weight:700;letter-spacing:.4px;padding:2px 22px;text-transform:uppercase;opacity:.75}
+    .uniq-corner{display:none}
     .doc-wrapper{position:relative}
 
     /* ══ СТИЛИ ШАПКИ ══ */
@@ -189,6 +188,32 @@
     .theme-btn{width:22px;height:22px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;transition:transform .15s,border-color .12s;flex-shrink:0}
     .theme-btn:hover{transform:scale(1.18)}
     .theme-btn.active{border-color:#333 !important;transform:scale(1.1)}
+
+    /* ══ СКЕЛЕТЫ: структурные элементы ══ */
+    .c-preamble{background:var(--theme-bg,#f0f6ff);border-left:4px solid var(--theme-color,#2d6aa0);border-radius:0 5px 5px 0;padding:10px 14px;margin-bottom:13px;font-style:italic;font-size:12px;line-height:1.7;color:#444}
+    .c-parties-section{margin:8px 0 12px}
+    .c-party-box{background:#f8fafe;border:1px solid var(--theme-border,#c0d8f5);border-radius:5px;padding:9px 13px;margin-bottom:7px}
+    .c-party-box-title{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--theme-color,#2d6aa0);margin-bottom:5px}
+    .c-party-row{font-size:11.5px;color:#333;line-height:1.7}
+    .c-party-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:11.5px}
+    .c-party-table td{padding:5px 8px;border:1px solid var(--theme-border,#c0d8f5);vertical-align:top}
+    .c-party-table td:first-child{font-weight:700;background:var(--theme-bg,#f0f6ff);color:var(--theme-color,#2d6aa0);width:32%;font-size:10.5px}
+    .c-defs-item{margin-bottom:6px;font-size:12.5px;line-height:1.6}
+    .c-defs-term{font-weight:700;color:var(--theme-color,#2d6aa0)}
+    .c-toc{background:var(--theme-bg,#f0f6ff);border:1px solid var(--theme-border,#c0d8f5);border-radius:5px;padding:10px 16px;margin-bottom:14px}
+    .c-toc-title{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--theme-color,#2d6aa0);margin-bottom:7px}
+    .c-toc-item{padding:2px 0;font-size:11.5px;display:flex;gap:4px;align-items:baseline;color:#444}
+    .c-toc-dot{flex:1;border-bottom:1px dotted #ccc;margin-bottom:3px}
+    .c-toc-num{color:var(--theme-color,#2d6aa0);font-weight:700;min-width:24px;flex-shrink:0}
+    .c-sigs-stack .sig-block{margin-bottom:22px}
+    .sig-table{width:100%;border-collapse:collapse;margin-top:24px;font-size:11.5px}
+    .sig-table th{background:var(--theme-bg,#f0f6ff);padding:7px 12px;border:1px solid var(--theme-border,#c0d8f5);font-size:10.5px;font-weight:700;color:var(--theme-color,#2d6aa0);text-align:left}
+    .sig-table td{padding:10px 12px;border:1px solid var(--theme-border,#c0d8f5);vertical-align:top;width:50%}
+    .sig-minimal{margin-top:30px;font-size:11.5px}
+    .sig-minimal .sig-row{display:flex;justify-content:space-between;gap:30px}
+    .sig-minimal .sig-line-block{flex:1;text-align:center}
+    .sig-minimal .sig-line-inner{border-bottom:1px solid #333;margin:20px 0 4px}
+    .sig-minimal .sig-label{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--theme-color,#2d6aa0)}
 
     @media print{
       body{background:white}
@@ -801,6 +826,7 @@ function randomizeStyle(){
   curFont  = fonts[Math.floor(Math.random()*fonts.length)];
   curHdr   = hdrs[Math.floor(Math.random()*hdrs.length)];
   curSst   = ssts[Math.floor(Math.random()*ssts.length)];
+  curSkeleton = Math.floor(Math.random()*SKELETONS.length);
   // Обновляем кнопки в UI
   document.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active', b.dataset.theme===curTheme));
   document.querySelectorAll('#font-row .pill-btn').forEach(b=>b.classList.toggle('active', b.dataset.font===curFont));
@@ -862,6 +888,47 @@ const TEMPLATES=[
 ];
 
 let curTemplate=0;
+let curSkeleton=0;
+
+// ===== 25 СТРУКТУРНЫХ СКЕЛЕТОВ =====
+const SKELETONS=[
+  {name:'Классический',    numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+  {name:'С преамбулой',    numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:true, hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Корпоративный',   numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:false,hasPartiesBox:true, hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+  {name:'С определениями', numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:true, hasToc:false,payFirst:false},
+  {name:'С оглавлением',   numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:true, payFirst:false},
+  {name:'Официальный',     numStyle:'arabic',clauseStyle:'dot', sigsStyle:'formal', hasPreamble:true, hasPartiesBox:false,hasPartiesTable:true, hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Юридический',     numStyle:'roman', clauseStyle:'dot', sigsStyle:'formal', hasPreamble:true, hasPartiesBox:false,hasPartiesTable:false,hasDefs:true, hasToc:false,payFirst:false},
+  {name:'Финансовый',      numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:true},
+  {name:'Лаконичный',      numStyle:'arabic',clauseStyle:'dash',sigsStyle:'stack',  hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Стороны-блок',    numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:true, hasPartiesBox:true, hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Деловой',         numStyle:'arabic',clauseStyle:'dot', sigsStyle:'table',  hasPreamble:false,hasPartiesBox:false,hasPartiesTable:true, hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Полный',          numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:true, hasPartiesBox:true, hasPartiesTable:false,hasDefs:true, hasToc:false,payFirst:false},
+  {name:'Международный',   numStyle:'roman', clauseStyle:'dot', sigsStyle:'formal', hasPreamble:true, hasPartiesBox:false,hasPartiesTable:true, hasDefs:true, hasToc:true, payFirst:false},
+  {name:'Перечневый',      numStyle:'arabic',clauseStyle:'alpha',sigsStyle:'2col',  hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Реестровый',      numStyle:'arabic',clauseStyle:'dash',sigsStyle:'minimal',hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Расширенный',     numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:true, hasToc:true, payFirst:false},
+  {name:'Нотариальный',    numStyle:'arabic',clauseStyle:'dot', sigsStyle:'formal', hasPreamble:true, hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Буквенный',       numStyle:'alpha', clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Оплата вперёд',   numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:true},
+  {name:'Архивный',        numStyle:'arabic',clauseStyle:'dot', sigsStyle:'stack',  hasPreamble:true, hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:true, payFirst:false},
+  {name:'Стандарт Де-Люкс',numStyle:'arabic',clauseStyle:'dot', sigsStyle:'table',  hasPreamble:true, hasPartiesBox:true, hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Детальный',       numStyle:'arabic',clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:true, hasToc:true, payFirst:false},
+  {name:'Служебный',       numStyle:'arabic',clauseStyle:'dot', sigsStyle:'minimal',hasPreamble:false,hasPartiesBox:false,hasPartiesTable:true, hasDefs:false,hasToc:false,payFirst:false},
+  {name:'Полный+ТОС',      numStyle:'roman', clauseStyle:'dot', sigsStyle:'2col',   hasPreamble:true, hasPartiesBox:true, hasPartiesTable:false,hasDefs:true, hasToc:true, payFirst:false},
+  {name:'Простой',         numStyle:'arabic',clauseStyle:'none',sigsStyle:'minimal',hasPreamble:false,hasPartiesBox:false,hasPartiesTable:false,hasDefs:false,hasToc:false,payFirst:false},
+];
+
+// Хелперы для скелетов
+function skSN(n){const sk=SKELETONS[curSkeleton];if(sk.numStyle==='roman'){const r=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV'];return r[n-1]||n;}if(sk.numStyle==='alpha'){return 'АБВГДЕЖЗИКЛ'[n-1]||n;}return n;}
+function skST(n,t){return `<div class="c-section">${skSN(n)}. ${t}</div>`;}
+function skCL(sn,cn,text){const sk=SKELETONS[curSkeleton];let num='';if(sk.clauseStyle==='dot')num=`<span class="c-clause-num">${sn}.${cn}.</span>`;else if(sk.clauseStyle==='dash')num=`<span class="c-clause-num">—</span>`;else if(sk.clauseStyle==='alpha')num=`<span class="c-clause-num">${'абвгдежзикл'[cn-1]||cn})</span>`;return `<div class="c-clause">${num}${text}</div>`;}
+function skPreambleBlock(docType,city,date){const sk=SKELETONS[curSkeleton];if(!sk.hasPreamble)return '';const vars=['Настоящий '+docType+' заключён в городе '+city+' '+date+' и вступает в силу с момента подписания обеими Сторонами. Регулируется нормами Гражданского кодекса РФ.','Стороны, руководствуясь действующим законодательством РФ, заключили настоящий '+docType+' в г. '+city+' '+date+' на нижеизложенных условиях.','В соответствии с требованиями ГК РФ нижеподписавшиеся Стороны заключили настоящий '+docType+'. Место заключения: г. '+city+'. Дата: '+date+'.','Настоящий '+docType+' устанавливает взаимные права и обязанности Сторон. Место: г. '+city+'. Дата: '+date+'.'];return `<div class="c-preamble">${rnd(vars)}</div>`;}
+function skDefsBlock(secN,docType){const sk=SKELETONS[curSkeleton];if(!sk.hasDefs)return '';return `<hr class="c-div"/>${skST(secN,'Термины и определения')}<div class="c-defs-item"><span class="c-defs-term">«Договор»</span> — настоящий ${docType} со всеми приложениями и дополнительными соглашениями.</div><div class="c-defs-item"><span class="c-defs-term">«Стороны»</span> — обе стороны Договора совместно; «Сторона» — каждая из них в отдельности.</div><div class="c-defs-item"><span class="c-defs-term">«Рабочий день»</span> — день пн–пт, кроме официальных нерабочих праздничных дней в Российской Федерации.</div>`;}
+function skPartiesBlock(secN,a,b){const sk=SKELETONS[curSkeleton];if(!sk.hasPartiesBox&&!sk.hasPartiesTable)return '';let inner='';if(sk.hasPartiesTable){inner=`<table class="c-party-table"><tbody><tr><td>${a.role}</td><td class="c-party-row">${a.info}</td></tr><tr><td>${b.role}</td><td class="c-party-row">${b.info}</td></tr></tbody></table>`;}else{inner=`<div class="c-parties-section"><div class="c-party-box"><div class="c-party-box-title">${a.role}</div><div class="c-party-row">${a.info}</div></div><div class="c-party-box"><div class="c-party-box-title">${b.role}</div><div class="c-party-row">${b.info}</div></div></div>`;}return `<hr class="c-div"/>${skST(secN,'Стороны договора')}${inner}`;}
+function skTocBlock(titles){const sk=SKELETONS[curSkeleton];if(!sk.hasToc)return '';const items=titles.map((t,i)=>`<div class="c-toc-item"><span class="c-toc-num">${skSN(i+1)}.</span><span>${t}</span><span class="c-toc-dot"></span></div>`).join('');return `<div class="c-toc"><div class="c-toc-title">Содержание договора</div>${items}</div>`;}
+function skSigsBlock(p1,p2,t1,t2){const sk=SKELETONS[curSkeleton];if(sk.sigsStyle==='table'){return `<table class="sig-table"><thead><tr><th>${t1}</th><th>${t2}</th></tr></thead><tbody><tr><td>${p1}</td><td>${p2}</td></tr></tbody></table>`;}if(sk.sigsStyle==='stack'){return `<div class="c-sigs-stack">${p1}${p2}</div>`;}if(sk.sigsStyle==='minimal'){return `<div class="sig-minimal"><div class="sig-row"><div class="sig-line-block"><div class="sig-label">${t1}</div><div class="sig-line-inner"></div></div><div class="sig-line-block"><div class="sig-label">${t2}</div><div class="sig-line-inner"></div></div></div></div>`;}return `<div class="c-sigs">${p1}${p2}</div>`;}
+
 const TPL_EXTRA_CLASSES=['tpl-notch','tpl-doubleline','tpl-noborder','tpl-wide','tpl-compact','tpl-shaded','tpl-bold-num','tpl-centered-sig','tpl-rounded','tpl-nohr','tpl-indent','tpl-sigbox','tpl-stamp'];
 
 function buildTemplateCards(){
@@ -917,6 +984,8 @@ function applyTemplate(idx){
     TPL_EXTRA_CLASSES.forEach(c=>pw.classList.remove(c));
     (t.extra||'').split(' ').forEach(c=>c&&pw.classList.add(c));
   }
+  // pick a random skeleton when template changes
+  curSkeleton=Math.floor(Math.random()*SKELETONS.length);
   // refresh if contract is shown
   if(pw&&pw.querySelector('.contract-doc')) generateContract();
 }
@@ -1291,32 +1360,29 @@ function generateSupply(num,useRnd){
   ];
   const extT=useRnd?rnd(extVars):extVars[0];
 
-  // ── Опциональные разделы (случайные при включённом рандоме) ──
-  let secNum=7; // текущий номер раздела
+  // ── Скелет: секционные номера ──
+  const sk=SKELETONS[curSkeleton];
+  const hasPar=sk.hasPartiesBox||sk.hasPartiesTable;
+  let _sn=0;
+  const nPar=hasPar?++_sn:null;
+  const nDef=sk.hasDefs?++_sn:null;
+  const n1=++_sn,n2=++_sn,n3=++_sn,n4=++_sn,n5=++_sn,n6=++_sn;
+  const optQ=useRnd&&Math.random()>0.4,optC=useRnd&&Math.random()>0.5,optE=useRnd&&Math.random()>0.6;
+  const nQ=optQ?++_sn:null,nC=optC?++_sn:null,nE=optE?++_sn:null;
+  const nFin=++_sn,nSig=++_sn;
+  const sPartyInfo=`${esc(sN)}; ИНН ${esc(sI)}; ОГРН ${esc(sO)}; адрес: ${esc(sA)}`;
+  const bPartyInfo=`${esc(bN)}; ИНН ${esc(bI)}; ОГРН ${esc(bO)}; адрес: ${esc(bA)}`;
   let optBlocks='';
-  if(useRnd){
-    const dice=Math.random;
-    if(dice()>0.4){
-      secNum++;
-      optBlocks+=`<hr class="c-div"/>
-      <div class="c-section">${secNum}. Качество товара и гарантии</div>
-      <div class="c-clause"><span class="c-clause-num">${secNum}.1.</span>${rnd(V.quality)}</div>`;
-    }
-    if(dice()>0.5){
-      secNum++;
-      optBlocks+=`<hr class="c-div"/>
-      <div class="c-section">${secNum}. Конфиденциальность</div>
-      <div class="c-clause"><span class="c-clause-num">${secNum}.1.</span>${rnd(V.confidential)}</div>`;
-    }
-    if(dice()>0.6){
-      secNum++;
-      optBlocks+=`<hr class="c-div"/>
-      <div class="c-section">${secNum}. Электронный документооборот</div>
-      <div class="c-clause"><span class="c-clause-num">${secNum}.1.</span>${rnd(V.edo)}</div>`;
-    }
-  }
-  const finalSecNum=secNum+1;
-  const sigsSecNum=finalSecNum+1;
+  if(optQ)optBlocks+=`<hr class="c-div"/>${skST(nQ,'Качество товара и гарантии')}${skCL(nQ,1,rnd(V.quality))}`;
+  if(optC)optBlocks+=`<hr class="c-div"/>${skST(nC,'Конфиденциальность')}${skCL(nC,1,rnd(V.confidential))}`;
+  if(optE)optBlocks+=`<hr class="c-div"/>${skST(nE,'Электронный документооборот')}${skCL(nE,1,rnd(V.edo))}`;
+  const tocTitles=[];
+  if(hasPar)tocTitles.push('Стороны договора');
+  if(sk.hasDefs)tocTitles.push('Термины и определения');
+  if(sk.payFirst){tocTitles.push('Цена и порядок расчётов','Предмет договора');}else{tocTitles.push('Предмет договора','Цена и порядок расчётов');}
+  tocTitles.push('Сроки и условия поставки','Ответственность сторон','Форс-мажор','Порядок разрешения споров');
+  if(optQ)tocTitles.push('Качество и гарантии');if(optC)tocTitles.push('Конфиденциальность');if(optE)tocTitles.push('Электронный документооборот');
+  tocTitles.push('Срок действия и заключительные положения','Реквизиты и подписи сторон');
 
   // ── Приёмка: варианты формулировки ──
   const acceptVars=[
@@ -1330,47 +1396,35 @@ function generateSupply(num,useRnd){
   const dispT=(useRnd?rnd(V.disputeSupply):V.disputeSupply[0])
     .replace('{court}',esc(court)).replace('{claim}',esc(claim));
 
-  return `
+  const _goodsTableHtml=`<table class="ct"><thead><tr><th style="width:5%">№</th><th>Наименование</th><th style="width:9%">Кол.</th><th style="width:9%">Ед.</th><th style="width:13%">Цена,руб.</th><th style="width:13%">Сумма,руб.</th></tr></thead><tbody>${goodsRows}</tbody><tfoot><tr><td colspan="5" style="text-align:right;font-weight:bold">Итого без НДС:</td><td class="r">${fmt(sub)}</td></tr>${ndsRow}<tr><td colspan="5" style="text-align:right;font-weight:bold">ИТОГО:</td><td class="r" style="font-weight:bold">${fmt(total)}</td></tr></tfoot></table><div class="c-total-words">Итого ${fmt(total)} руб. ${ndsOpt==='no'?'(без НДС)':`(НДС ${ndsLabel})`}.</div>`;
+  const _subjSec=`<hr class="c-div"/>${skST(sk.payFirst?n2:n1,'Предмет договора')}${skCL(sk.payFirst?n2:n1,1,subjT)}${skCL(sk.payFirst?n2:n1,2,'Спецификация товара (Приложение № 1):')}${_goodsTableHtml}`;
+  const _paySec=`<hr class="c-div"/>${skST(sk.payFirst?n1:n2,'Цена и порядок расчётов')}${paySection}`;
+  return `${skPreambleBlock('Договор поставки',city,date)}
     <p style="margin-bottom:11px;text-align:justify">${introT}</p>
-    <hr class="c-div"/>
-    <div class="c-section">1. Предмет договора</div>
-    <div class="c-clause"><span class="c-clause-num">1.1.</span>${subjT}</div>
-    <div class="c-clause"><span class="c-clause-num">1.2.</span>Спецификация товара (Приложение № 1):</div>
-    <table class="ct"><thead><tr><th style="width:5%">№</th><th>Наименование</th><th style="width:9%">Кол.</th><th style="width:9%">Ед.</th><th style="width:13%">Цена,руб.</th><th style="width:13%">Сумма,руб.</th></tr></thead>
-    <tbody>${goodsRows}</tbody>
-    <tfoot><tr><td colspan="5" style="text-align:right;font-weight:bold">Итого без НДС:</td><td class="r">${fmt(sub)}</td></tr>${ndsRow}<tr><td colspan="5" style="text-align:right;font-weight:bold">ИТОГО:</td><td class="r" style="font-weight:bold">${fmt(total)}</td></tr></tfoot></table>
-    <div class="c-total-words">Итого ${fmt(total)} руб. ${ndsOpt==='no'?'(без НДС)':`(НДС ${ndsLabel})`}.</div>
-    <hr class="c-div"/>
-    <div class="c-section">2. Цена и порядок расчётов</div>${paySection}
-    <hr class="c-div"/>
-    <div class="c-section">3. Сроки и условия поставки</div>
-    <div class="c-clause"><span class="c-clause-num">3.1.</span>Срок поставки: <b>${esc(dterm)}</b>.</div>
-    <div class="c-clause"><span class="c-clause-num">3.2.</span>Поставка осуществляется <b>${esc(dtype)}</b>.</div>
-    <div class="c-clause"><span class="c-clause-num">3.3.</span>${transT}</div>
-    <div class="c-clause"><span class="c-clause-num">3.4.</span>${acceptT}</div>
-    <hr class="c-div"/>
-    <div class="c-section">4. Ответственность сторон</div>
-    <div class="c-clause"><span class="c-clause-num">4.1.</span>За просрочку поставки — пеня <b>${esc(ps)}% в день</b> от стоимости не поставленного в срок Товара, но не более 10% суммы Договора.</div>
-    <div class="c-clause"><span class="c-clause-num">4.2.</span>За просрочку оплаты — пеня <b>${esc(pb)}% в день</b> от суммы задолженности, но не более 10% суммы Договора.</div>
-    <div class="c-clause"><span class="c-clause-num">4.3.</span>${liabT}</div>
-    <hr class="c-div"/>
-    <div class="c-section">5. Форс-мажор</div>
-    <div class="c-clause"><span class="c-clause-num">5.1.</span>${fmT}</div>
-    <div class="c-clause"><span class="c-clause-num">5.2.</span>Уведомление о форс-мажоре направляется в течение 5 (пяти) рабочих дней с приложением подтверждающих документов.</div>
-    <hr class="c-div"/>
-    <div class="c-section">6. Порядок разрешения споров</div>
-    <div class="c-clause"><span class="c-clause-num">6.1.</span>${dispT}</div>
+    ${skTocBlock(tocTitles)}
+    ${nPar!==null?skPartiesBlock(nPar,{role:'ПОСТАВЩИК',info:sPartyInfo},{role:'ПОКУПАТЕЛЬ',info:bPartyInfo}):''}
+    ${nDef!==null?skDefsBlock(nDef,'Договор поставки'):''}
+    ${sk.payFirst?_paySec+_subjSec:_subjSec+_paySec}
+    <hr class="c-div"/>${skST(n3,'Сроки и условия поставки')}
+    ${skCL(n3,1,'Срок поставки: <b>'+esc(dterm)+'</b>.')}
+    ${skCL(n3,2,'Поставка осуществляется <b>'+esc(dtype)+'</b>.')}
+    ${skCL(n3,3,transT)}
+    ${skCL(n3,4,acceptT)}
+    <hr class="c-div"/>${skST(n4,'Ответственность сторон')}
+    ${skCL(n4,1,'За просрочку поставки — пеня <b>'+esc(ps)+'% в день</b> от стоимости не поставленного в срок Товара, но не более 10% суммы Договора.')}
+    ${skCL(n4,2,'За просрочку оплаты — пеня <b>'+esc(pb)+'% в день</b> от суммы задолженности, но не более 10% суммы Договора.')}
+    ${skCL(n4,3,liabT)}
+    <hr class="c-div"/>${skST(n5,'Форс-мажор')}
+    ${skCL(n5,1,fmT)}
+    ${skCL(n5,2,'Уведомление о форс-мажоре направляется в течение 5 (пяти) рабочих дней с приложением подтверждающих документов.')}
+    <hr class="c-div"/>${skST(n6,'Порядок разрешения споров')}
+    ${skCL(n6,1,dispT)}
     ${optBlocks}
-    <hr class="c-div"/>
-    <div class="c-section">${finalSecNum}. Срок действия и заключительные положения</div>
-    <div class="c-clause"><span class="c-clause-num">${finalSecNum}.1.</span>Договор действует с ${vfromD} по ${vtoD}. ${extT}</div>
-    <div class="c-clause"><span class="c-clause-num">${finalSecNum}.2.</span>${finalT}</div>
-    <hr class="c-div"/>
-    <div class="c-section">${sigsSecNum}. Реквизиты и подписи сторон</div>
-    <div class="c-sigs">
-      ${sigBlock('s','ПОСТАВЩИК')}
-      ${sigBlock('b','ПОКУПАТЕЛЬ')}
-    </div>`;
+    <hr class="c-div"/>${skST(nFin,'Срок действия и заключительные положения')}
+    ${skCL(nFin,1,'Договор действует с '+vfromD+' по '+vtoD+'. '+extT)}
+    ${skCL(nFin,2,finalT)}
+    <hr class="c-div"/>${skST(nSig,'Реквизиты и подписи сторон')}
+    ${skSigsBlock(sigBlock('s','ПОСТАВЩИК'),sigBlock('b','ПОКУПАТЕЛЬ'),'ПОСТАВЩИК','ПОКУПАТЕЛЬ')}`;
 }
 
 /// ===== ГЕНЕРАЦИЯ: АРЕНДА =====
@@ -1443,31 +1497,29 @@ function generateLease(num,useRnd){
   const landlordInspectT=useRnd?rnd(V.landlordInspect):V.landlordInspect[0];
   const tenantDutiesT=useRnd?rnd(V.tenantDuties):V.tenantDuties[0];
 
-  // ── Опциональные разделы аренды ──
-  let lSecNum=8;
+  // ── Скелет: секционные номера (аренда) ──
+  const sk=SKELETONS[curSkeleton];
+  const hasPar=sk.hasPartiesBox||sk.hasPartiesTable;
+  let _lsn=0;
+  const lnPar=hasPar?++_lsn:null;
+  const lnDef=sk.hasDefs?++_lsn:null;
+  const ln1=++_lsn,ln2=++_lsn,ln3=++_lsn,ln4=++_lsn,ln5=++_lsn,ln6=++_lsn,ln7=++_lsn,ln8=++_lsn;
+  const lOptI=useRnd&&Math.random()>0.5,lOptS=useRnd&&Math.random()>0.55,lOptC=useRnd&&Math.random()>0.6;
+  const lnI=lOptI?++_lsn:null,lnS=lOptS?++_lsn:null,lnC=lOptC?++_lsn:null;
+  const lnSig=++_lsn;
+  const sLLInfo=`${esc(llN)}; ИНН ${esc(llI)}; ОГРН ${esc(llO)}; адрес: ${esc(llA)}`;
+  const sLTInfo=`${esc(ltN)}; ИНН ${esc(ltI)}; ОГРН ${esc(ltO)}; адрес: ${esc(ltA)}`;
   let lOptBlocks='';
-  if(useRnd){
-    const dice=Math.random;
-    if(dice()>0.5){
-      lSecNum++;
-      lOptBlocks+=`<hr class="c-div"/>
-      <div class="c-section">${lSecNum}. Улучшения арендованного имущества</div>
-      <div class="c-clause"><span class="c-clause-num">${lSecNum}.1.</span>${rnd(V.improvements)}</div>`;
-    }
-    if(dice()>0.55){
-      lSecNum++;
-      lOptBlocks+=`<hr class="c-div"/>
-      <div class="c-section">${lSecNum}. Страхование</div>
-      <div class="c-clause"><span class="c-clause-num">${lSecNum}.1.</span>${rnd(V.insurance)}</div>`;
-    }
-    if(dice()>0.6){
-      lSecNum++;
-      lOptBlocks+=`<hr class="c-div"/>
-      <div class="c-section">${lSecNum}. Конфиденциальность</div>
-      <div class="c-clause"><span class="c-clause-num">${lSecNum}.1.</span>${rnd(V.confidential)}</div>`;
-    }
-  }
-  const lSigsSecNum=lSecNum+1;
+  if(lOptI)lOptBlocks+=`<hr class="c-div"/>${skST(lnI,'Улучшения арендованного имущества')}${skCL(lnI,1,rnd(V.improvements))}`;
+  if(lOptS)lOptBlocks+=`<hr class="c-div"/>${skST(lnS,'Страхование')}${skCL(lnS,1,rnd(V.insurance))}`;
+  if(lOptC)lOptBlocks+=`<hr class="c-div"/>${skST(lnC,'Конфиденциальность')}${skCL(lnC,1,rnd(V.confidential))}`;
+  const lTocTitles=[];
+  if(hasPar)lTocTitles.push('Стороны договора');
+  if(sk.hasDefs)lTocTitles.push('Термины и определения');
+  if(sk.payFirst){lTocTitles.push('Арендная плата и расчёты','Предмет договора');}else{lTocTitles.push('Предмет договора','Арендная плата и расчёты');}
+  lTocTitles.push('Срок аренды','Права Арендодателя','Права Арендатора','Ответственность сторон','Форс-мажор','Порядок разрешения споров');
+  if(lOptI)lTocTitles.push('Улучшения имущества');if(lOptS)lTocTitles.push('Страхование');if(lOptC)lTocTitles.push('Конфиденциальность');
+  lTocTitles.push('Реквизиты и подписи сторон');
 
   // ── Ответственность: варианты п.6.3 ──
   const leaseHarmVars=[
@@ -1486,66 +1538,41 @@ function generateLease(num,useRnd){
   ];
   const leaseDisputeT=useRnd?rnd(leaseDisputeVars):leaseDisputeVars[0];
 
-  return `
+  const _objTable=`<table class="ct ct-rent" style="margin-top:6px"><tbody><tr><td style="width:35%;font-weight:bold">Адрес:</td><td>${esc(laAddr)}</td></tr><tr><td style="font-weight:bold">Площадь:</td><td>${esc(laArea)} кв.м.</td></tr><tr><td style="font-weight:bold">Этаж:</td><td>${esc(laFloor)}</td></tr><tr><td style="font-weight:bold">Кадастровый №:</td><td>${esc(laCadastr)}</td></tr><tr><td style="font-weight:bold">Целевое использование:</td><td>${esc(laPurpose)}</td></tr></tbody></table>`;
+  const _subjN=sk.payFirst?ln2:ln1, _payN=sk.payFirst?ln1:ln2;
+  const _lSubjSec=`<hr class="c-div"/>${skST(_subjN,'Предмет договора')}${skCL(_subjN,1,leaseSubjT+' Объектом аренды является <b>'+esc(laType)+'</b> (далее — «Объект»).')}${skCL(_subjN,2,'Характеристики Объекта:'+_objTable)}${skCL(_subjN,3,'Объект передаётся в состоянии: <b>'+esc(laState)+'</b>. Передача оформляется Актом приёма-передачи (Приложение № 1).')}${skCL(_subjN,4,'Арендодатель гарантирует, что Объект принадлежит ему на праве собственности, свободен от прав третьих лиц и не обременён.')}`;
+  const _lPaySec=`<hr class="c-div"/>${skST(_payN,'Арендная плата и порядок расчётов')}${skCL(_payN,1,'Ежемесячная арендная плата: <b>'+fmt(laRentTotal)+' рублей</b> '+laRentNdsStr+'.')}${skCL(_payN,2,'Арендная плата вносится Арендатором на счёт Арендодателя <b>'+esc(laPayorder)+'</b>.')}${skCL(_payN,3,indexText)}${skCL(_payN,4,depositText)}${skCL(_payN,5,'Коммунальные услуги и эксплуатационные расходы <b>'+esc(laUtils)+'</b>.')}`;
+  return `${skPreambleBlock('Договор аренды нежилого помещения',city,date)}
     <p style="margin-bottom:11px;text-align:justify">${introT}</p>
-    <hr class="c-div"/>
-    <div class="c-section">1. Предмет договора</div>
-    <div class="c-clause"><span class="c-clause-num">1.1.</span>${leaseSubjT} Объектом аренды является <b>${esc(laType)}</b> (далее — «Объект»).</div>
-    <div class="c-clause"><span class="c-clause-num">1.2.</span>Характеристики Объекта:
-      <table class="ct ct-rent" style="margin-top:6px">
-        <tbody>
-          <tr><td style="width:35%;font-weight:bold">Адрес:</td><td>${esc(laAddr)}</td></tr>
-          <tr><td style="font-weight:bold">Площадь:</td><td>${esc(laArea)} кв.м.</td></tr>
-          <tr><td style="font-weight:bold">Этаж:</td><td>${esc(laFloor)}</td></tr>
-          <tr><td style="font-weight:bold">Кадастровый №:</td><td>${esc(laCadastr)}</td></tr>
-          <tr><td style="font-weight:bold">Целевое использование:</td><td>${esc(laPurpose)}</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="c-clause"><span class="c-clause-num">1.3.</span>Объект передаётся в состоянии: <b>${esc(laState)}</b>. Передача оформляется Актом приёма-передачи (Приложение № 1), подписанным обеими Сторонами.</div>
-    <div class="c-clause"><span class="c-clause-num">1.4.</span>Арендодатель гарантирует, что Объект принадлежит ему на праве собственности, свободен от прав третьих лиц и не обременён.</div>
-    <hr class="c-div"/>
-    <div class="c-section">2. Арендная плата и порядок расчётов</div>
-    <div class="c-clause"><span class="c-clause-num">2.1.</span>Ежемесячная арендная плата составляет <b>${fmt(laRentTotal)} рублей</b> ${laRentNdsStr}.</div>
-    <div class="c-clause"><span class="c-clause-num">2.2.</span>Арендная плата вносится Арендатором на расчётный счёт Арендодателя <b>${esc(laPayorder)}</b>.</div>
-    <div class="c-clause"><span class="c-clause-num">2.3.</span>${indexText}</div>
-    <div class="c-clause"><span class="c-clause-num">2.4.</span>${depositText}</div>
-    <div class="c-clause"><span class="c-clause-num">2.5.</span>Коммунальные услуги и эксплуатационные расходы <b>${esc(laUtils)}</b>.</div>
-    <hr class="c-div"/>
-    <div class="c-section">3. Срок аренды</div>
-    <div class="c-clause"><span class="c-clause-num">3.1.</span>Срок аренды: с <b>${laStart}</b> по <b>${laEnd}</b>.</div>
-    <div class="c-clause"><span class="c-clause-num">3.2.</span>${renewText}</div>
-    <div class="c-clause"><span class="c-clause-num">3.3.</span>Каждая из Сторон вправе расторгнуть Договор досрочно, уведомив другую Сторону письменно не менее чем за <b>${esc(laNotice)}</b> календарных дней до предполагаемой даты расторжения.</div>
-    <hr class="c-div"/>
-    <div class="c-section">4. Права и обязанности арендодателя</div>
-    <div class="c-clause"><span class="c-clause-num">4.1.</span>Арендодатель обязан: ${landlordDutiesT}</div>
-    <div class="c-clause"><span class="c-clause-num">4.2.</span>Капитальный ремонт производится <b>${esc(laRepairCap)}</b>.</div>
-    <div class="c-clause"><span class="c-clause-num">4.3.</span>${landlordInspectT}</div>
-    <hr class="c-div"/>
-    <div class="c-section">5. Права и обязанности арендатора</div>
-    <div class="c-clause"><span class="c-clause-num">5.1.</span>Арендатор обязан: ${tenantDutiesT}</div>
-    <div class="c-clause"><span class="c-clause-num">5.2.</span>Текущий ремонт производится <b>${esc(laRepairCur)}</b>.</div>
-    <div class="c-clause"><span class="c-clause-num">5.3.</span>Субаренда <b>${esc(laSubA)}</b>.</div>
-    <div class="c-clause"><span class="c-clause-num">5.4.</span>По окончании аренды Арендатор обязан вернуть Объект Арендодателю в состоянии, не хуже принятого, с учётом нормального износа, по Акту возврата.</div>
-    <hr class="c-div"/>
-    <div class="c-section">6. Ответственность сторон</div>
-    <div class="c-clause"><span class="c-clause-num">6.1.</span>За нарушение обязательств по предоставлению Объекта Арендатор вправе взыскать с Арендодателя пеню <b>${esc(laPenS)}% в день</b>, но не более 10% месячной арендной платы.</div>
-    <div class="c-clause"><span class="c-clause-num">6.2.</span>За просрочку арендных платежей Арендодатель вправе взыскать с Арендатора пеню <b>${esc(laPenT)}% в день</b> от суммы просроченного платежа, но не более 10% месячной арендной платы.</div>
-    <div class="c-clause"><span class="c-clause-num">6.3.</span>${leaseHarmT}</div>
-    <hr class="c-div"/>
-    <div class="c-section">7. Форс-мажор</div>
-    <div class="c-clause"><span class="c-clause-num">7.1.</span>${fmT}</div>
-    <div class="c-clause"><span class="c-clause-num">7.2.</span>Уведомление о форс-мажоре направляется в течение 5 рабочих дней. Если форс-мажор длится более 30 дней — каждая Сторона вправе расторгнуть Договор.</div>
-    <hr class="c-div"/>
-    <div class="c-section">8. Порядок разрешения споров</div>
-    <div class="c-clause"><span class="c-clause-num">8.1.</span>${leaseDisputeT}</div>
+    ${skTocBlock(lTocTitles)}
+    ${lnPar!==null?skPartiesBlock(lnPar,{role:'АРЕНДОДАТЕЛЬ',info:sLLInfo},{role:'АРЕНДАТОР',info:sLTInfo}):''}
+    ${lnDef!==null?skDefsBlock(lnDef,'Договор аренды нежилого помещения'):''}
+    ${sk.payFirst?_lPaySec+_lSubjSec:_lSubjSec+_lPaySec}
+    <hr class="c-div"/>${skST(ln3,'Срок аренды')}
+    ${skCL(ln3,1,'Срок аренды: с <b>'+laStart+'</b> по <b>'+laEnd+'</b>.')}
+    ${skCL(ln3,2,renewText)}
+    ${skCL(ln3,3,'Каждая из Сторон вправе расторгнуть Договор досрочно, уведомив другую Сторону письменно не менее чем за <b>'+esc(laNotice)+'</b> календарных дней.')}
+    <hr class="c-div"/>${skST(ln4,'Права и обязанности арендодателя')}
+    ${skCL(ln4,1,'Арендодатель обязан: '+landlordDutiesT)}
+    ${skCL(ln4,2,'Капитальный ремонт производится <b>'+esc(laRepairCap)+'</b>.')}
+    ${skCL(ln4,3,landlordInspectT)}
+    <hr class="c-div"/>${skST(ln5,'Права и обязанности арендатора')}
+    ${skCL(ln5,1,'Арендатор обязан: '+tenantDutiesT)}
+    ${skCL(ln5,2,'Текущий ремонт производится <b>'+esc(laRepairCur)+'</b>.')}
+    ${skCL(ln5,3,'Субаренда <b>'+esc(laSubA)+'</b>.')}
+    ${skCL(ln5,4,'По окончании аренды Арендатор обязан вернуть Объект в состоянии, не хуже принятого, с учётом нормального износа, по Акту возврата.')}
+    <hr class="c-div"/>${skST(ln6,'Ответственность сторон')}
+    ${skCL(ln6,1,'За нарушение обязательств по предоставлению Объекта Арендатор вправе взыскать с Арендодателя пеню <b>'+esc(laPenS)+'% в день</b>, но не более 10% месячной арендной платы.')}
+    ${skCL(ln6,2,'За просрочку арендных платежей Арендодатель вправе взыскать с Арендатора пеню <b>'+esc(laPenT)+'% в день</b> от суммы просроченного платежа, но не более 10%.')}
+    ${skCL(ln6,3,leaseHarmT)}
+    <hr class="c-div"/>${skST(ln7,'Форс-мажор')}
+    ${skCL(ln7,1,fmT)}
+    ${skCL(ln7,2,'Уведомление о форс-мажоре направляется в течение 5 рабочих дней. Если форс-мажор длится более 30 дней — каждая Сторона вправе расторгнуть Договор.')}
+    <hr class="c-div"/>${skST(ln8,'Порядок разрешения споров')}
+    ${skCL(ln8,1,leaseDisputeT)}
     ${lOptBlocks}
-    <hr class="c-div"/>
-    <div class="c-section">${lSigsSecNum}. Реквизиты и подписи сторон</div>
-    <div class="c-sigs">
-      ${sigBlock('ll','АРЕНДОДАТЕЛЬ')}
-      ${sigBlock('lt','АРЕНДАТОР')}
-    </div>`;
+    <hr class="c-div"/>${skST(lnSig,'Реквизиты и подписи сторон')}
+    ${skSigsBlock(sigBlock('ll','АРЕНДОДАТЕЛЬ'),sigBlock('lt','АРЕНДАТОР'),'АРЕНДОДАТЕЛЬ','АРЕНДАТОР')}`;
 }
 
 // ===== ГЛАВНАЯ ФУНКЦИЯ =====
@@ -1577,7 +1604,6 @@ function generateContract(){
     <div class="dhi-title">№ ${esc(num)}</div>
     <div class="dhi-meta">${esc(docCity)} &nbsp;·&nbsp; ${esc(docDate)}</div>
   </div>
-  <div class="uniq-corner"><span>ОРИГИНАЛ</span></div>
   <div class="contract-doc">${bodyHtml}</div>
 </div>`;
 
