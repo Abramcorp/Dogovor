@@ -198,6 +198,46 @@
       .contract-doc{padding:10mm 16mm}
       .doc-header-inner{padding:7px 16mm}
     }
+
+    /* ══ ШАБЛОНЫ ДИЗАЙНА ══ */
+    .tpl-section{margin-bottom:4px}
+    .tpl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+    .tpl-hint{font-size:10px;color:#888}
+    .btn-rnd-tpl{padding:5px 13px;background:linear-gradient(135deg,#6a3fa0,#2d6aa0);color:white;border:none;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:opacity .15s,transform .1s;white-space:nowrap}
+    .btn-rnd-tpl:hover{opacity:.85;transform:scale(1.03)}
+    .tpl-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+    .tpl-card{background:white;border:2px solid #e0e6ef;border-radius:6px;cursor:pointer;overflow:hidden;transition:all .15s;position:relative}
+    .tpl-card:hover{border-color:#aabbd0;transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+    .tpl-card.active{border-color:#2d6aa0;box-shadow:0 0 0 2px rgba(45,106,160,.22)}
+    .tpl-card.active::after{content:'✓';position:absolute;top:2px;right:2px;font-size:7px;color:white;background:#2d6aa0;border-radius:50%;width:11px;height:11px;display:flex;align-items:center;justify-content:center;font-weight:bold;line-height:11px;text-align:center}
+    .tc-preview{height:28px;position:relative;overflow:hidden;flex-shrink:0}
+    .tc-body{padding:3px 4px 4px}
+    .tc-lines{display:flex;flex-direction:column;gap:2px}
+    .tc-l{height:2px;border-radius:1px;background:#e0e4ea}
+    .tc-name{font-size:7px;font-weight:700;color:#444;margin-top:3px;text-align:center;line-height:1.25;overflow:hidden}
+
+    /* Дополнительные уникальные стили для шаблонов */
+    .tpl-notch .doc-header-bar{height:8px}
+    .tpl-notch .contract-doc{padding:36px 44px}
+    .tpl-doubleline hr.c-div{border-top:3px double #ccc}
+    .tpl-noborder .contract-doc table.ct td,.tpl-noborder .contract-doc table.ct th{border-color:transparent;border-bottom:1px solid #ddd}
+    .tpl-wide .contract-doc{padding:32px 64px}
+    .tpl-compact .contract-doc{padding:28px 38px;font-size:12px;line-height:1.55}
+    .tpl-compact .c-clause{font-size:11.5px}
+    .tpl-shaded .c-clause:nth-child(even){background:rgba(0,0,0,.02);border-radius:3px;padding:3px 6px;margin-left:-6px}
+    .tpl-bold-num .c-clause-num{color:var(--theme-color,#2d6aa0);font-size:14px}
+    .tpl-centered-sig .c-sigs{grid-template-columns:1fr;max-width:70%;margin:32px auto 0}
+    .tpl-rounded .doc-header-inner{border-radius:0 0 12px 12px}
+    .tpl-rounded #contract-preview{border-radius:8px}
+    .tpl-serif-num .c-section::before{content:counter(section) ". ";counter-increment:section}
+    .tpl-nohr hr.c-div{display:none}
+    .tpl-indent .c-clause{text-indent:1.5em}
+    .tpl-indent .c-section{margin-top:20px}
+    .tpl-highlight .c-section{display:inline-block;background:var(--theme-color,#2d6aa0);color:white;padding:2px 10px;border-radius:3px}
+    .tpl-highlight .sst-classic .c-section{display:block}
+    .tpl-sigbox .sig-block{background:#f8f9fc;border:1px solid #e0e6ef;border-radius:8px;padding:12px 14px}
+    .tpl-sigbox .sig-title{background:var(--theme-bg,#f0f6ff);margin:-12px -14px 8px;padding:8px 14px;border-radius:8px 8px 0 0}
+    .tpl-stamp .sig-block::after{content:'М.П.';display:block;width:50px;height:50px;border:2px solid #ccc;border-radius:50%;text-align:center;line-height:50px;font-size:9px;color:#bbb;margin-top:8px}
   </style>
 </head>
 <body>
@@ -297,6 +337,16 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- ВИЗУАЛЬНЫЙ ШАБЛОН ДОГОВОРА -->
+  <div class="sec-title" style="margin-top:16px">🎨 Визуальный шаблон договора</div>
+  <div class="tpl-section">
+    <div class="tpl-header">
+      <div class="tpl-hint">24 готовых шаблона — каждый визуально уникален</div>
+      <button class="btn-rnd-tpl" onclick="randomTemplate()">🎲 Случайный</button>
+    </div>
+    <div class="tpl-grid" id="tpl-grid"></div>
   </div>
 
   <!-- ОБЩЕЕ (для обоих типов) -->
@@ -758,6 +808,127 @@ function randomizeStyle(){
   document.querySelectorAll('#sst-row .pill-btn').forEach(b=>b.classList.toggle('active', b.dataset.sst===curSst));
   applyTheme(curTheme);
 }
+
+// ===== ШАБЛОНЫ ДИЗАЙНА (24 штуки) =====
+const TEMPLATES=[
+  {name:'Классический',  hdr:'band',    sst:'classic',    font:'times',   extra:'',
+   color:'#2d6aa0',grad:'linear-gradient(90deg,#1a3a5c,#2d6aa0)',bg:'#f0f6ff',border:'#c0d8f5',cl:'rgba(45,106,160,.12)',cl2:'rgba(45,106,160,.35)'},
+  {name:'Корпоративный', hdr:'solid',   sst:'leftbar',    font:'arial',   extra:'tpl-notch',
+   color:'#1a8050',grad:'linear-gradient(90deg,#0d3320,#1a8050)',bg:'#f0faf5',border:'#b0dfc0',cl:'rgba(26,128,80,.12)',cl2:'rgba(26,128,80,.35)'},
+  {name:'Минималист',    hdr:'minimal', sst:'underline',  font:'calibri', extra:'tpl-nohr',
+   color:'#0d8080',grad:'linear-gradient(90deg,#0d4040,#0d8080)',bg:'#f0fbfb',border:'#b0d8d8',cl:'rgba(13,128,128,.12)',cl2:'rgba(13,128,128,.35)'},
+  {name:'Нотариальный',  hdr:'frame',   sst:'underline',  font:'times',   extra:'tpl-stamp',
+   color:'#8b2030',grad:'linear-gradient(90deg,#5c0d1a,#a02d4a)',bg:'#fff5f6',border:'#e0b8c0',cl:'rgba(139,32,48,.12)',cl2:'rgba(139,32,48,.35)'},
+  {name:'Премиум',       hdr:'minimal', sst:'leftbar',    font:'pt',      extra:'tpl-wide',
+   color:'#9a7010',grad:'linear-gradient(90deg,#5c3d0a,#c8940a)',bg:'#fffbf0',border:'#e8d090',cl:'rgba(154,112,16,.12)',cl2:'rgba(154,112,16,.35)'},
+  {name:'Официальный',   hdr:'solid',   sst:'classic',    font:'times',   extra:'tpl-indent',
+   color:'#20207a',grad:'linear-gradient(90deg,#0a0a3a,#2c2c8a)',bg:'#f5f5ff',border:'#c0c0e8',cl:'rgba(32,32,122,.12)',cl2:'rgba(32,32,122,.35)'},
+  {name:'Современный',   hdr:'band',    sst:'filled',     font:'calibri', extra:'tpl-rounded',
+   color:'#0070bb',grad:'linear-gradient(90deg,#003870,#0099dd)',bg:'#f0f8ff',border:'#b0d8f0',cl:'rgba(0,112,187,.12)',cl2:'rgba(0,112,187,.35)'},
+  {name:'Элегантный',    hdr:'minimal', sst:'classic',    font:'georgia', extra:'tpl-sigbox',
+   color:'#7030aa',grad:'linear-gradient(90deg,#3a1a6a,#7a4db0)',bg:'#f8f4ff',border:'#d0b8f0',cl:'rgba(112,48,170,.12)',cl2:'rgba(112,48,170,.35)'},
+  {name:'Строгий',       hdr:'solid',   sst:'underline',  font:'arial',   extra:'tpl-compact',
+   color:'#404060',grad:'linear-gradient(90deg,#202030,#505070)',bg:'#f5f5f8',border:'#ccccdd',cl:'rgba(64,64,96,.12)',cl2:'rgba(64,64,96,.35)'},
+  {name:'Правовой',      hdr:'frame',   sst:'leftbar',    font:'times',   extra:'tpl-bold-num',
+   color:'#7a2020',grad:'linear-gradient(90deg,#4a1010,#8a3030)',bg:'#fff8f8',border:'#e0c0c0',cl:'rgba(122,32,32,.12)',cl2:'rgba(122,32,32,.35)'},
+  {name:'Традиционный',  hdr:'band',    sst:'classic',    font:'pt',      extra:'tpl-doubleline',
+   color:'#5a6a20',grad:'linear-gradient(90deg,#3a4a10,#7a9030)',bg:'#f8faf0',border:'#d0dbb0',cl:'rgba(90,106,32,.12)',cl2:'rgba(90,106,32,.35)'},
+  {name:'Профес-ный',    hdr:'frame',   sst:'filled',     font:'arial',   extra:'tpl-noborder',
+   color:'#3a2a8a',grad:'linear-gradient(90deg,#1a0a5a,#4a3a9a)',bg:'#f5f4ff',border:'#c8b8f8',cl:'rgba(58,42,138,.12)',cl2:'rgba(58,42,138,.35)'},
+  {name:'Реестровый',    hdr:'solid',   sst:'leftbar',    font:'georgia', extra:'tpl-compact',
+   color:'#1a5c7a',grad:'linear-gradient(90deg,#0a3040,#2070a0)',bg:'#f0f7fa',border:'#b0d0da',cl:'rgba(26,92,122,.12)',cl2:'rgba(26,92,122,.35)'},
+  {name:'Служебный',     hdr:'minimal', sst:'filled',     font:'calibri', extra:'tpl-shaded',
+   color:'#208050',grad:'linear-gradient(90deg,#0a4020,#2aa060)',bg:'#f0faf4',border:'#b0dcbf',cl:'rgba(32,128,80,.12)',cl2:'rgba(32,128,80,.35)'},
+  {name:'Представит.',   hdr:'solid',   sst:'underline',  font:'pt',      extra:'tpl-centered-sig',
+   color:'#8a1a4a',grad:'linear-gradient(90deg,#4a0a20,#9a2a4a)',bg:'#fff5f8',border:'#e8b8c8',cl:'rgba(138,26,74,.12)',cl2:'rgba(138,26,74,.35)'},
+  {name:'Формальный',    hdr:'band',    sst:'leftbar',    font:'times',   extra:'tpl-wide',
+   color:'#2a608a',grad:'linear-gradient(90deg,#1a3a5a,#3a7aaa)',bg:'#f0f6fa',border:'#c0d6e8',cl:'rgba(42,96,138,.12)',cl2:'rgba(42,96,138,.35)'},
+  {name:'Администрат.',  hdr:'minimal', sst:'classic',    font:'arial',   extra:'tpl-indent',
+   color:'#4a4a8a',grad:'linear-gradient(90deg,#2a2a4a,#5a5a8a)',bg:'#f5f5fa',border:'#ccccdd',cl:'rgba(74,74,138,.12)',cl2:'rgba(74,74,138,.35)'},
+  {name:'Деловой Pro',   hdr:'frame',   sst:'underline',  font:'calibri', extra:'tpl-sigbox',
+   color:'#006aaa',grad:'linear-gradient(90deg,#003a6a,#1a8adf)',bg:'#f0f8ff',border:'#b0d5ef',cl:'rgba(0,106,170,.12)',cl2:'rgba(0,106,170,.35)'},
+  {name:'Лаконичный',    hdr:'band',    sst:'underline',  font:'georgia', extra:'tpl-nohr',
+   color:'#108a7a',grad:'linear-gradient(90deg,#0a4a40,#109a8a)',bg:'#f0faf8',border:'#b0d8d0',cl:'rgba(16,138,122,.12)',cl2:'rgba(16,138,122,.35)'},
+  {name:'Контрактный',   hdr:'frame',   sst:'filled',     font:'pt',      extra:'tpl-stamp',
+   color:'#8a5020',grad:'linear-gradient(90deg,#5a3010,#b07030)',bg:'#fdf8f0',border:'#e8d0b0',cl:'rgba(138,80,32,.12)',cl2:'rgba(138,80,32,.35)'},
+  {name:'Архивный',      hdr:'minimal', sst:'filled',     font:'times',   extra:'tpl-doubleline tpl-shaded',
+   color:'#6a5a30',grad:'linear-gradient(90deg,#3a2a10,#7a6040)',bg:'#faf8f0',border:'#ddd0b0',cl:'rgba(106,90,48,.12)',cl2:'rgba(106,90,48,.35)'},
+  {name:'Стандарт+',     hdr:'solid',   sst:'classic',    font:'calibri', extra:'tpl-bold-num',
+   color:'#205080',grad:'linear-gradient(90deg,#0a2a4a,#2a6aaa)',bg:'#f0f5fa',border:'#c0d0e8',cl:'rgba(32,80,128,.12)',cl2:'rgba(32,80,128,.35)'},
+  {name:'Исполнит-ный',  hdr:'band',    sst:'filled',     font:'georgia', extra:'tpl-rounded tpl-notch',
+   color:'#2a408a',grad:'linear-gradient(90deg,#1a2060,#3a60bb)',bg:'#f2f4ff',border:'#c0ccee',cl:'rgba(42,64,138,.12)',cl2:'rgba(42,64,138,.35)'},
+  {name:'Дипломатич.',   hdr:'frame',   sst:'classic',    font:'pt',      extra:'tpl-sigbox tpl-wide',
+   color:'#108070',grad:'linear-gradient(90deg,#0a3a2a,#1a9080)',bg:'#f0faf7',border:'#b0d8cc',cl:'rgba(16,128,112,.12)',cl2:'rgba(16,128,112,.35)'},
+];
+
+let curTemplate=0;
+const TPL_EXTRA_CLASSES=['tpl-notch','tpl-doubleline','tpl-noborder','tpl-wide','tpl-compact','tpl-shaded','tpl-bold-num','tpl-centered-sig','tpl-rounded','tpl-nohr','tpl-indent','tpl-sigbox','tpl-stamp'];
+
+function buildTemplateCards(){
+  const grid=document.getElementById('tpl-grid');
+  if(!grid) return;
+  TEMPLATES.forEach((t,i)=>{
+    const card=document.createElement('div');
+    card.className='tpl-card'+(i===0?' active':'');
+    card.title=t.name;
+    card.onclick=()=>applyTemplate(i);
+    const c=t.color, bg=t.bg, g=t.grad;
+    let ph='';
+    if(t.hdr==='band')
+      ph=`<div style="height:5px;background:${g}"></div><div style="height:23px;background:${bg};display:flex;align-items:center;padding:0 4px"><span style="font-size:5.5px;font-weight:800;color:${c};white-space:nowrap;overflow:hidden">Договор</span></div>`;
+    else if(t.hdr==='solid')
+      ph=`<div style="height:28px;background:${g};display:flex;align-items:center;padding:0 4px"><span style="font-size:5.5px;font-weight:800;color:white;white-space:nowrap">Договор</span></div>`;
+    else if(t.hdr==='minimal')
+      ph=`<div style="height:28px;background:white;border-left:3px solid ${c};display:flex;align-items:center;padding:0 4px"><span style="font-size:5.5px;font-weight:800;color:${c};white-space:nowrap">Договор</span></div>`;
+    else
+      ph=`<div style="height:28px;padding:3px"><div style="height:22px;border:2px solid ${c};border-radius:3px;display:flex;align-items:center;justify-content:center"><span style="font-size:5.5px;font-weight:800;color:${c}">Договор</span></div></div>`;
+    let sl='';
+    if(t.sst==='leftbar') sl=`<div style="height:2.5px;width:55%;background:${c};border-left:2px solid ${c};border-radius:1px"></div>`;
+    else if(t.sst==='filled') sl=`<div style="height:3px;width:100%;background:${c};border-radius:1px"></div>`;
+    else if(t.sst==='underline') sl=`<div style="height:1.5px;width:80%;background:${c};border-radius:1px"></div>`;
+    else sl=`<div style="height:2px;width:65%;background:#555;border-radius:1px"></div>`;
+    card.innerHTML=`<div class="tc-preview">${ph}</div><div class="tc-body"><div class="tc-lines">${sl}<div class="tc-l" style="width:90%"></div><div class="tc-l" style="width:75%"></div><div class="tc-l" style="width:83%"></div></div><div class="tc-name">${t.name}</div></div>`;
+    grid.appendChild(card);
+  });
+}
+
+function applyTemplate(idx){
+  const t=TEMPLATES[idx]; if(!t) return;
+  curTemplate=idx;
+  document.querySelectorAll('.tpl-card').forEach((c,i)=>c.classList.toggle('active',i===idx));
+  // CSS vars
+  const r=document.documentElement.style;
+  r.setProperty('--accent',t.color); r.setProperty('--accent-light',t.border);
+  r.setProperty('--accent-shadow',t.cl); r.setProperty('--accent-shadow2',t.cl2);
+  r.setProperty('--accent-grad',t.grad); r.setProperty('--hdr1',t.grad);
+  r.setProperty('--theme-grad',t.grad); r.setProperty('--theme-bg',t.bg);
+  r.setProperty('--theme-border',t.border); r.setProperty('--theme-color',t.color);
+  // classes
+  curFont=t.font; curHdr=t.hdr; curSst=t.sst; curTheme='custom';
+  // sync pill buttons
+  document.querySelectorAll('#font-row .pill-btn').forEach(b=>b.classList.toggle('active',b.dataset.font===t.font));
+  document.querySelectorAll('#hdr-row .pill-btn').forEach(b=>b.classList.toggle('active',b.dataset.hdr===t.hdr));
+  document.querySelectorAll('#sst-row .pill-btn').forEach(b=>b.classList.toggle('active',b.dataset.sst===t.sst));
+  // sync theme dots — clear all
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+  // remove old tpl extra classes from preview wrapper & apply new
+  const pw=document.getElementById('contract-preview');
+  if(pw){
+    TPL_EXTRA_CLASSES.forEach(c=>pw.classList.remove(c));
+    (t.extra||'').split(' ').forEach(c=>c&&pw.classList.add(c));
+  }
+  // refresh if contract is shown
+  if(pw&&pw.querySelector('.contract-doc')) generateContract();
+}
+
+function randomTemplate(){
+  let idx;
+  do{ idx=Math.floor(Math.random()*TEMPLATES.length); }while(idx===curTemplate&&TEMPLATES.length>1);
+  applyTemplate(idx);
+}
+
+buildTemplateCards();
+applyTemplate(0);
 
 // ===== ТИП ДОГОВОРА =====
 let contractType='supply';
