@@ -109,71 +109,61 @@
     .placeholder-msg{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;color:#aaa;font-size:14px;gap:9px}
     .placeholder-msg .big-icon{font-size:54px;opacity:.4}
 
-    /* ДОГОВОР (общие стили) */
-    .doc-header-bar{height:5px;background:var(--theme-grad,linear-gradient(90deg,#1a3a5c,#2d6aa0));border-radius:2px 2px 0 0}
-    .doc-header-inner{padding:14px 50px 10px;background:var(--theme-bg,#f0f6ff);border-bottom:1px solid var(--theme-border,#c0d8f5)}
-    .dhi-num{font-size:10px;color:var(--theme-color,#2d6aa0);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
-    .dhi-title{font-size:18px;font-weight:bold;color:#111;letter-spacing:.3px}
-    .dhi-meta{font-size:11px;color:#555;margin-top:2px}
-    .dhi-fp{font-size:9px;color:#bbb;margin-top:2px;font-family:monospace}
-    .contract-doc{padding:40px 50px;font-family:'Times New Roman',serif;font-size:13px;line-height:1.65;color:#111;position:relative}
-    .c-section{font-size:13px;font-weight:bold;margin-top:16px;margin-bottom:5px;text-transform:uppercase}
-    .c-clause{margin-bottom:5px;text-align:justify;font-size:12.5px}
-    .c-clause-num{font-weight:bold;margin-right:4px}
-    hr.c-div{border:none;border-top:1px solid #ccc;margin:13px 0}
-    .contract-doc table.ct{width:100%;border-collapse:collapse;font-size:12px;margin:7px 0}
-    .contract-doc table.ct th{background:#f0f0f0;border:1px solid #999;padding:5px 7px;text-align:center;font-weight:bold}
-    .contract-doc table.ct td{border:1px solid #bbb;padding:4px 7px}
+    /* ДОГОВОР (профессиональный юридический стиль) */
+    .doc-header-bar{display:none}
+    .doc-header-inner{display:none}
+    .dhi-num{display:none}
+    .dhi-title{display:none}
+    .dhi-meta{display:none}
+    .dhi-fp{display:none}
+    .contract-doc{padding:20mm 15mm 20mm 30mm;font-family:'Times New Roman',Times,serif;font-size:12pt;line-height:1.4;color:#000;background:#fff;position:relative}
+    .c-title{text-align:center;font-weight:bold;font-size:14pt;text-transform:uppercase;margin-bottom:4px;color:#000;background:none}
+    .c-city-date{display:flex;justify-content:space-between;margin-bottom:16px;font-size:12pt;color:#000}
+    .c-intro{text-align:justify;text-indent:1.25cm;margin-bottom:12px;color:#000}
+    .c-section{font-weight:bold;text-transform:uppercase;font-size:12pt;margin:14px 0 6px 0;color:#000;background:none;border:none;padding:0;text-align:left}
+    .c-clause{text-align:justify;text-indent:1.25cm;margin:4px 0;color:#000}
+    .c-clause-num{font-weight:normal;color:#000;margin-right:4px}
+    hr.c-div{display:none}
+    .contract-doc table.ct{width:100%;border-collapse:collapse;font-size:10pt;margin:8px 0;color:#000}
+    .contract-doc table.ct th{background:#f0f0f0;border:1px solid #000;padding:4px 6pt;text-align:center;font-weight:bold;color:#000}
+    .contract-doc table.ct td{border:1px solid #000;padding:3px 5px;color:#000}
     .contract-doc table.ct td.c{text-align:center}
     .contract-doc table.ct td.r{text-align:right}
-    .contract-doc table.ct-pay th{background:#e8f4e8;border:1px solid #88bb88}
-    .contract-doc table.ct-pay td{border:1px solid #a8cca8}
-    .contract-doc table.ct-rent th{background:#e8f0f8;border:1px solid #88aad0}
-    .contract-doc table.ct-rent td{border:1px solid #a8c0da}
-    .c-total-words{font-style:italic;font-size:11.5px;margin-bottom:8px}
-    .c-sigs{margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .sig-block{font-size:11.5px}
-    .sig-title{font-weight:bold;font-size:12.5px;margin-bottom:5px;border-bottom:2px solid var(--theme-color,#2d6aa0);padding-bottom:4px;color:var(--theme-color,#2d6aa0)}
-    .sig-line{margin-top:24px;border-bottom:1px solid #333;width:65%}
-    .sig-caption{font-size:9.5px;color:#666;margin-top:2px}
+    .contract-doc table.ct-pay th{background:#f0f0f0;border:1px solid #000;color:#000}
+    .contract-doc table.ct-pay td{border:1px solid #000;color:#000}
+    .contract-doc table.ct-rent th{background:#f0f0f0;border:1px solid #000;color:#000}
+    .contract-doc table.ct-rent td{border:1px solid #000;color:#000}
+    .c-total-words{font-style:italic;font-size:11pt;margin-bottom:8px;color:#000}
+    .c-sigs{margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .sig-block{font-size:11pt;color:#000}
+    .sig-title{font-weight:bold;font-size:12pt;margin-bottom:5px;padding-bottom:4px;color:#000;border-bottom:none;text-transform:uppercase}
+    .sig-line{margin-top:24px;border-bottom:1px solid #000;width:65%}
+    .sig-caption{font-size:9.5px;color:#000;margin-top:2px}
     .uniq-corner{display:none}
     .doc-wrapper{position:relative}
 
-    /* ══ СТИЛИ ШАПКИ ══ */
-    /* hdr-band (default — уже существует) */
-    /* hdr-minimal: тонкая цветная полоса слева */
+    /* ══ СТИЛИ ШАПКИ (все скрыты — используем c-title/c-city-date) ══ */
     .hdr-minimal .doc-header-bar{display:none}
-    .hdr-minimal .doc-header-inner{background:white;border-left:5px solid var(--theme-color,#2d6aa0);border-bottom:1px solid var(--theme-border,#c0d8f5);padding:12px 50px 10px 20px}
-    .hdr-minimal .dhi-title{font-size:16px}
-    /* hdr-solid: полная заливка фоном темы, белый текст */
+    .hdr-minimal .doc-header-inner{display:none}
     .hdr-solid .doc-header-bar{display:none}
-    .hdr-solid .doc-header-inner{background:var(--theme-grad,linear-gradient(90deg,#1a3a5c,#2d6aa0));border-bottom:none;padding:18px 50px 14px}
-    .hdr-solid .dhi-num,.hdr-solid .dhi-title,.hdr-solid .dhi-meta{color:white}
-    .hdr-solid .dhi-meta{opacity:.85}
-    /* hdr-frame: рамка вокруг шапки */
+    .hdr-solid .doc-header-inner{display:none}
     .hdr-frame .doc-header-bar{display:none}
-    .hdr-frame .doc-header-inner{background:white;border:2.5px solid var(--theme-color,#2d6aa0);margin:14px 40px 0;border-radius:6px;text-align:center;padding:14px 30px 12px}
-    .hdr-frame .dhi-meta{justify-content:center;text-align:center}
-    .hdr-frame .dhi-num{color:var(--theme-color,#2d6aa0)}
+    .hdr-frame .doc-header-inner{display:none}
 
-    /* ══ СТИЛИ РАЗДЕЛОВ ══ */
-    /* sst-classic (default — уже существует) */
-    /* sst-leftbar: цветная вертикальная полоса слева */
-    .sst-leftbar .c-section{border-left:4px solid var(--theme-color,#2d6aa0);padding-left:9px;color:var(--theme-color,#2d6aa0);background:transparent;margin-top:14px}
+    /* ══ СТИЛИ РАЗДЕЛОВ (все нейтральные, без цвета) ══ */
+    .sst-leftbar .c-section{border:none;padding:0;color:#000;background:none;margin-top:14px}
     .sst-leftbar hr.c-div{display:none}
-    /* sst-filled: закрашенный заголовок раздела */
-    .sst-filled .c-section{background:var(--theme-grad,linear-gradient(90deg,#1a3a5c,#2d6aa0));color:white;padding:4px 12px;border-radius:4px;margin-top:14px;margin-left:-6px;margin-right:-6px}
+    .sst-filled .c-section{background:none;color:#000;padding:0;border-radius:0;margin-top:14px;margin-left:0;margin-right:0}
     .sst-filled hr.c-div{display:none}
-    /* sst-underline: подчёркнутые разделы */
-    .sst-underline .c-section{border-bottom:2px solid var(--theme-color,#2d6aa0);padding-bottom:3px;color:var(--theme-color,#2d6aa0);margin-top:14px}
-    .sst-underline hr.c-div{border-top:1px dashed #ddd;margin:8px 0}
+    .sst-underline .c-section{border-bottom:none;padding-bottom:0;color:#000;margin-top:14px}
+    .sst-underline hr.c-div{display:none}
 
     /* ══ ШРИФТЫ ══ */
-    .font-times .contract-doc{font-family:'Times New Roman',Times,serif;font-size:13px}
-    .font-calibri .contract-doc{font-family:Calibri,'Trebuchet MS',Arial,sans-serif;font-size:13px;line-height:1.6}
-    .font-georgia .contract-doc{font-family:Georgia,'Book Antiqua',serif;font-size:12.5px;line-height:1.7}
-    .font-arial .contract-doc{font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6}
-    .font-pt .contract-doc{font-family:'PT Serif','Palatino Linotype',serif;font-size:13px;line-height:1.65}
+    .font-times .contract-doc{font-family:'Times New Roman',Times,serif;font-size:12pt}
+    .font-calibri .contract-doc{font-family:Calibri,'Trebuchet MS',Arial,sans-serif;font-size:12pt;line-height:1.4}
+    .font-georgia .contract-doc{font-family:Georgia,'Book Antiqua',serif;font-size:12pt;line-height:1.4}
+    .font-arial .contract-doc{font-family:Arial,Helvetica,sans-serif;font-size:12pt;line-height:1.4}
+    .font-pt .contract-doc{font-family:'PT Serif','Palatino Linotype',serif;font-size:12pt;line-height:1.4}
 
     /* ══ СТИЛЬ КОНТРОЛ UI ══ */
     .style-box{background:linear-gradient(135deg,#f8f4ff,#eff6ff);border:1.5px solid #c9b8f0;border-radius:8px;padding:11px 13px;margin-bottom:4px}
@@ -190,30 +180,30 @@
     .theme-btn.active{border-color:#333 !important;transform:scale(1.1)}
 
     /* ══ СКЕЛЕТЫ: структурные элементы ══ */
-    .c-preamble{background:var(--theme-bg,#f0f6ff);border-left:4px solid var(--theme-color,#2d6aa0);border-radius:0 5px 5px 0;padding:10px 14px;margin-bottom:13px;font-style:italic;font-size:12px;line-height:1.7;color:#444}
-    .c-parties-section{margin:8px 0 12px}
-    .c-party-box{background:#f8fafe;border:1px solid var(--theme-border,#c0d8f5);border-radius:5px;padding:9px 13px;margin-bottom:7px}
-    .c-party-box-title{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--theme-color,#2d6aa0);margin-bottom:5px}
-    .c-party-row{font-size:11.5px;color:#333;line-height:1.7}
-    .c-party-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:11.5px}
-    .c-party-table td{padding:5px 8px;border:1px solid var(--theme-border,#c0d8f5);vertical-align:top}
-    .c-party-table td:first-child{font-weight:700;background:var(--theme-bg,#f0f6ff);color:var(--theme-color,#2d6aa0);width:32%;font-size:10.5px}
-    .c-defs-item{margin-bottom:6px;font-size:12.5px;line-height:1.6}
-    .c-defs-term{font-weight:700;color:var(--theme-color,#2d6aa0)}
-    .c-toc{background:var(--theme-bg,#f0f6ff);border:1px solid var(--theme-border,#c0d8f5);border-radius:5px;padding:10px 16px;margin-bottom:14px}
-    .c-toc-title{font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--theme-color,#2d6aa0);margin-bottom:7px}
-    .c-toc-item{padding:2px 0;font-size:11.5px;display:flex;gap:4px;align-items:baseline;color:#444}
-    .c-toc-dot{flex:1;border-bottom:1px dotted #ccc;margin-bottom:3px}
-    .c-toc-num{color:var(--theme-color,#2d6aa0);font-weight:700;min-width:24px;flex-shrink:0}
+    .c-preamble{background:none;border:none;border-radius:0;padding:0;margin-bottom:12px;font-style:normal;font-size:12pt;line-height:1.4;color:#000;text-align:justify;text-indent:1.25cm}
+    .c-parties-section{margin:0}
+    .c-party-box{background:none;border:none;border-radius:0;padding:0;margin-bottom:7px}
+    .c-party-box-title{font-weight:bold;font-size:12pt;text-transform:uppercase;color:#000;margin-bottom:5px}
+    .c-party-row{font-size:11pt;color:#000;line-height:1.4}
+    .c-party-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:11pt}
+    .c-party-table td{padding:1px 4px;border:none;vertical-align:top;color:#000}
+    .c-party-table td:first-child{font-weight:bold;background:none;color:#000;width:32%;font-size:11pt}
+    .c-defs-item{margin-bottom:6px;font-size:12pt;line-height:1.4}
+    .c-defs-term{font-weight:bold;color:#000}
+    .c-toc{background:none;border:none;border-radius:0;padding:0;margin-bottom:14px}
+    .c-toc-title{font-weight:bold;font-size:12pt;text-transform:uppercase;color:#000;margin-bottom:7px;text-align:center}
+    .c-toc-item{padding:2px 0;font-size:11pt;display:flex;gap:4px;align-items:baseline;color:#000}
+    .c-toc-dot{flex:1;border-bottom:1px dotted #000;margin-bottom:3px}
+    .c-toc-num{color:#000;font-weight:bold;min-width:24px;flex-shrink:0}
     .c-sigs-stack .sig-block{margin-bottom:22px}
-    .sig-table{width:100%;border-collapse:collapse;margin-top:24px;font-size:11.5px}
-    .sig-table th{background:var(--theme-bg,#f0f6ff);padding:7px 12px;border:1px solid var(--theme-border,#c0d8f5);font-size:10.5px;font-weight:700;color:var(--theme-color,#2d6aa0);text-align:left}
-    .sig-table td{padding:10px 12px;border:1px solid var(--theme-border,#c0d8f5);vertical-align:top;width:50%}
-    .sig-minimal{margin-top:30px;font-size:11.5px}
+    .sig-table{width:100%;border-collapse:collapse;margin-top:20px;font-size:11pt}
+    .sig-table th{background:none;padding:4px 8px;border:none;font-size:12pt;font-weight:bold;color:#000;text-align:left;text-transform:uppercase}
+    .sig-table td{padding:4px 8px;border:none;vertical-align:top;width:50%;color:#000;font-size:11pt}
+    .sig-minimal{margin-top:30px;font-size:11pt}
     .sig-minimal .sig-row{display:flex;justify-content:space-between;gap:30px}
     .sig-minimal .sig-line-block{flex:1;text-align:center}
-    .sig-minimal .sig-line-inner{border-bottom:1px solid #333;margin:20px 0 4px}
-    .sig-minimal .sig-label{font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--theme-color,#2d6aa0)}
+    .sig-minimal .sig-line-inner{border-bottom:1px solid #000;margin:20px 0 4px}
+    .sig-minimal .sig-label{font-weight:bold;font-size:12pt;text-transform:uppercase;color:#000}
 
     @media print{
       body{background:white}
@@ -250,7 +240,7 @@
     .tpl-compact .contract-doc{padding:28px 38px;font-size:12px;line-height:1.55}
     .tpl-compact .c-clause{font-size:11.5px}
     .tpl-shaded .c-clause:nth-child(even){background:rgba(0,0,0,.02);border-radius:3px;padding:3px 6px;margin-left:-6px}
-    .tpl-bold-num .c-clause-num{color:var(--theme-color,#2d6aa0);font-size:14px}
+    .tpl-bold-num .c-clause-num{color:#000;font-size:12pt;font-weight:bold}
     .tpl-centered-sig .c-sigs{grid-template-columns:1fr;max-width:70%;margin:32px auto 0}
     .tpl-rounded .doc-header-inner{border-radius:0 0 12px 12px}
     .tpl-rounded #contract-preview{border-radius:8px}
@@ -258,10 +248,10 @@
     .tpl-nohr hr.c-div{display:none}
     .tpl-indent .c-clause{text-indent:1.5em}
     .tpl-indent .c-section{margin-top:20px}
-    .tpl-highlight .c-section{display:inline-block;background:var(--theme-color,#2d6aa0);color:white;padding:2px 10px;border-radius:3px}
+    .tpl-highlight .c-section{display:block;background:none;color:#000;padding:0;border-radius:0}
     .tpl-highlight .sst-classic .c-section{display:block}
-    .tpl-sigbox .sig-block{background:#f8f9fc;border:1px solid #e0e6ef;border-radius:8px;padding:12px 14px}
-    .tpl-sigbox .sig-title{background:var(--theme-bg,#f0f6ff);margin:-12px -14px 8px;padding:8px 14px;border-radius:8px 8px 0 0}
+    .tpl-sigbox .sig-block{background:none;border:none;border-radius:0;padding:0}
+    .tpl-sigbox .sig-title{background:none;margin:0;padding:0;border-radius:0}
     .tpl-stamp .sig-block::after{content:'М.П.';display:block;width:50px;height:50px;border:2px solid #ccc;border-radius:50%;text-align:center;line-height:50px;font-size:9px;color:#bbb;margin-top:8px}
   </style>
 </head>
@@ -921,7 +911,7 @@ const SKELETONS=[
 
 // Хелперы для скелетов
 function skSN(n){const sk=SKELETONS[curSkeleton];if(sk.numStyle==='roman'){const r=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV'];return r[n-1]||n;}if(sk.numStyle==='alpha'){return 'АБВГДЕЖЗИКЛ'[n-1]||n;}return n;}
-function skST(n,t){return `<div class="c-section">${skSN(n)}. ${t}</div>`;}
+function skST(n,t){return `<div class="c-section">${skSN(n)}. ${t.toUpperCase()}</div>`;}
 function skCL(sn,cn,text){const sk=SKELETONS[curSkeleton];let num='';if(sk.clauseStyle==='dot')num=`<span class="c-clause-num">${sn}.${cn}.</span>`;else if(sk.clauseStyle==='dash')num=`<span class="c-clause-num">—</span>`;else if(sk.clauseStyle==='alpha')num=`<span class="c-clause-num">${'абвгдежзикл'[cn-1]||cn})</span>`;return `<div class="c-clause">${num}${text}</div>`;}
 function skPreambleBlock(docType,city,date){const sk=SKELETONS[curSkeleton];if(!sk.hasPreamble)return '';const vars=['Настоящий '+docType+' заключён в городе '+city+' '+date+' и вступает в силу с момента подписания обеими Сторонами. Регулируется нормами Гражданского кодекса РФ.','Стороны, руководствуясь действующим законодательством РФ, заключили настоящий '+docType+' в г. '+city+' '+date+' на нижеизложенных условиях.','В соответствии с требованиями ГК РФ нижеподписавшиеся Стороны заключили настоящий '+docType+'. Место заключения: г. '+city+'. Дата: '+date+'.','Настоящий '+docType+' устанавливает взаимные права и обязанности Сторон. Место: г. '+city+'. Дата: '+date+'.'];return `<div class="c-preamble">${rnd(vars)}</div>`;}
 function skDefsBlock(secN,docType){const sk=SKELETONS[curSkeleton];if(!sk.hasDefs)return '';return `<hr class="c-div"/>${skST(secN,'Термины и определения')}<div class="c-defs-item"><span class="c-defs-term">«Договор»</span> — настоящий ${docType} со всеми приложениями и дополнительными соглашениями.</div><div class="c-defs-item"><span class="c-defs-term">«Стороны»</span> — обе стороны Договора совместно; «Сторона» — каждая из них в отдельности.</div><div class="c-defs-item"><span class="c-defs-term">«Рабочий день»</span> — день пн–пт, кроме официальных нерабочих праздничных дней в Российской Федерации.</div>`;}
@@ -1787,14 +1777,14 @@ function generateContract(){
   const docCity=v('f-city')||'________________', docDate=fmtDate(v('f-date'));
   const bodyHtml=isLease?generateLease(num,useRnd):generateSupply(num,useRnd);
 
+  const isLease2=contractType==='lease';
+  const docTypeLabel=isLease2?'АРЕНДЫ НЕЖИЛОГО ПОМЕЩЕНИЯ':'ПОСТАВКИ';
   const html=`<div class="${docClasses}" style="${ts}">
-  <div class="doc-header-bar"></div>
-  <div class="doc-header-inner">
-    <div class="dhi-num">${docTitle}</div>
-    <div class="dhi-title">№ ${esc(num)}</div>
-    <div class="dhi-meta">${esc(docCity)} &nbsp;·&nbsp; ${esc(docDate)}</div>
+  <div class="contract-doc">
+    <div class="c-title">ДОГОВОР ${docTypeLabel} №${esc(num)}</div>
+    <div class="c-city-date"><span>г. ${esc(docCity)}</span><span>${esc(docDate)} г.</span></div>
+    ${bodyHtml}
   </div>
-  <div class="contract-doc">${bodyHtml}</div>
 </div>`;
 
   document.getElementById('contract-preview').innerHTML=html;
@@ -1818,7 +1808,7 @@ function generateContract(){
 
 // ===== СКАЧАТЬ WORD (.doc) =====
 function downloadWord(){
-  const preview=document.getElementById('preview-doc');
+  const preview=document.getElementById('contract-preview');
   if(!preview||!preview.innerHTML.trim()){alert('Сначала сформируйте договор');return;}
 
   // Текущая тема
@@ -1840,74 +1830,54 @@ function downloadWord(){
   const fontFamily=fontMap[curFont]||fontMap.times;
   const fontSize=fontSizeMap[curFont]||'13pt';
 
-  // CSS шапки
-  const hdrCSS={
-    band:`
-      .doc-header-bar{height:5pt;background:${themeGrad};margin-bottom:0}
-      .doc-header-inner{padding:12pt 36pt 9pt;background:${themeBg};border-bottom:1pt solid ${themeBorder}}
-      .dhi-num{color:${themeColor};font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.8px}
-      .dhi-title{font-size:16pt;font-weight:bold;color:#111}
-      .dhi-meta{font-size:9pt;color:#555;margin-top:2pt}`,
-    minimal:`
-      .doc-header-bar{display:none}
-      .doc-header-inner{padding:10pt 36pt 9pt 16pt;background:white;border-left:5pt solid ${themeColor};border-bottom:1pt solid ${themeBorder}}
-      .dhi-num{color:${themeColor};font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.8px}
-      .dhi-title{font-size:14pt;font-weight:bold;color:#111}
-      .dhi-meta{font-size:9pt;color:#555;margin-top:2pt}`,
-    solid:`
-      .doc-header-bar{display:none}
-      .doc-header-inner{padding:16pt 36pt 12pt;background:${themeGrad};border-bottom:none}
-      .dhi-num{color:white;font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.8px;opacity:.85}
-      .dhi-title{font-size:16pt;font-weight:bold;color:white}
-      .dhi-meta{font-size:9pt;color:white;opacity:.85;margin-top:2pt}`,
-    frame:`
-      .doc-header-bar{display:none}
-      .doc-header-inner{background:white;border:2pt solid ${themeColor};margin:12pt 30pt 0;padding:12pt 24pt 10pt;text-align:center}
-      .dhi-num{color:${themeColor};font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.8px}
-      .dhi-title{font-size:15pt;font-weight:bold;color:#111}
-      .dhi-meta{font-size:9pt;color:#555;margin-top:2pt;text-align:center}`
-  }[curHdr]||'';
-
-  // CSS разделов
-  const sstCSS={
-    classic:`
-      .c-section{font-size:12pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin:14pt 0 5pt;color:#111}
-      hr.c-div{border:none;border-top:1pt solid #ccc;margin:10pt 0}`,
-    leftbar:`
-      .c-section{font-size:12pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin:12pt 0 5pt;color:${themeColor};border-left:4pt solid ${themeColor};padding-left:8pt}
-      hr.c-div{display:none}`,
-    filled:`
-      .c-section{font-size:12pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin:12pt 0 5pt;color:white;background:${themeGrad};padding:3pt 10pt}
-      hr.c-div{display:none}`,
-    underline:`
-      .c-section{font-size:12pt;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;margin:12pt 0 5pt;color:${themeColor};border-bottom:2pt solid ${themeColor};padding-bottom:2pt}
-      hr.c-div{border:none;border-top:1pt dashed #ddd;margin:6pt 0}`
-  }[curSst]||'';
-
-  // Базовый CSS договора
+  // CSS договора для Word-экспорта (профессиональный юридический стиль)
   const contractCSS=`
-    body{font-family:${fontFamily};font-size:${fontSize};color:#111;margin:0;padding:0}
-    .contract-doc{padding:20mm 25mm 22mm;max-width:none;font-family:${fontFamily};font-size:${fontSize};line-height:1.65}
-    .c-clause{margin:4pt 0;text-align:justify;line-height:1.6}
-    .c-clause-num{font-weight:bold;margin-right:4pt}
-    .c-total-words{font-style:italic;font-size:10pt;margin:3pt 0 8pt}
+    body{font-family:'Times New Roman',Times,serif;font-size:12pt;color:#000;margin:0;padding:0}
+    .doc-header-bar{display:none}
+    .doc-header-inner{display:none}
+    .c-title{text-align:center;font-weight:bold;font-size:14pt;text-transform:uppercase;margin-bottom:4pt;color:#000}
+    .c-city-date{display:table;width:100%;margin-bottom:14pt;font-size:12pt;color:#000}
+    .c-city-date span:first-child{display:table-cell;text-align:left}
+    .c-city-date span:last-child{display:table-cell;text-align:right}
+    .contract-doc{padding:0;max-width:none;font-family:'Times New Roman',Times,serif;font-size:12pt;line-height:1.4;color:#000}
+    .c-section{font-size:12pt;font-weight:bold;text-transform:uppercase;margin:14pt 0 5pt;color:#000;background:none;border:none;padding:0}
+    .c-clause{margin:4pt 0;text-align:justify;text-indent:1.25cm;line-height:1.4;color:#000}
+    .c-clause-num{font-weight:normal;margin-right:4pt;color:#000}
+    .c-preamble{font-size:12pt;margin-bottom:10pt;text-align:justify;text-indent:1.25cm;color:#000;background:none;border:none;padding:0;font-style:normal}
+    .c-intro{text-align:justify;text-indent:1.25cm;color:#000}
+    hr.c-div{display:none}
+    .c-total-words{font-style:italic;font-size:11pt;margin:3pt 0 8pt;color:#000}
+    .c-party-box{background:none;border:none;padding:0;margin-bottom:6pt}
+    .c-party-box-title{font-weight:bold;font-size:12pt;text-transform:uppercase;color:#000;margin-bottom:4pt}
+    .c-party-row{font-size:11pt;color:#000;line-height:1.4}
+    .c-party-table{width:100%;border-collapse:collapse;margin:6pt 0;font-size:11pt}
+    .c-party-table td{padding:1pt 4pt;border:none;vertical-align:top;color:#000}
+    .c-party-table td:first-child{font-weight:bold;background:none;color:#000;width:32%}
+    .c-defs-term{font-weight:bold;color:#000}
+    .c-toc{background:none;border:none;padding:0;margin-bottom:12pt}
+    .c-toc-title{font-weight:bold;text-align:center;color:#000;font-size:12pt;text-transform:uppercase;margin-bottom:6pt}
+    .c-toc-item{font-size:11pt;color:#000;margin:2pt 0}
+    .c-toc-num{font-weight:bold;color:#000}
+    .c-toc-dot{display:none}
     /* Word-совместимая разбивка подписей (grid→table) */
-    .c-sigs{width:100%;border-collapse:collapse;display:table;margin-top:16pt}
-    .sig-block{display:table-cell;vertical-align:top;width:50%;padding:0 8pt}
-    .sig-title{font-weight:bold;font-size:11pt;margin-bottom:6pt;text-transform:uppercase;color:${themeColor};border-bottom:1.5pt solid ${themeColor};padding-bottom:3pt}
-    .sig-line{margin-top:22pt;border-bottom:1pt solid #333;width:65%}
-    .sig-caption{font-size:8pt;color:#666;margin-top:2pt}
-    table.ct{width:100%;border-collapse:collapse;font-size:10.5pt;margin:6pt 0}
-    table.ct th{background:#f0f0f0;border:1pt solid #999;padding:4pt 6pt;font-weight:bold;font-size:9.5pt}
-    table.ct td{border:1pt solid #bbb;padding:3pt 6pt}
-    table.ct-pay th{background:#e8f4e8;border:1pt solid #88bb88}
-    table.ct-pay td{border:1pt solid #a8cca8}
-    table.ct-rent th{background:#e8f0f8;border:1pt solid #88aad0}
-    table.ct-rent td{border:1pt solid #a8c0da}
+    .c-sigs{width:100%;border-collapse:collapse;display:table;margin-top:20pt}
+    .sig-block{display:table-cell;vertical-align:top;width:50%;padding:0 8pt;font-size:11pt;color:#000}
+    .sig-table{width:100%;border-collapse:collapse;margin-top:20pt}
+    .sig-table th{background:none;padding:4pt 8pt;border:none;font-size:12pt;font-weight:bold;color:#000;text-align:left;text-transform:uppercase}
+    .sig-table td{padding:4pt 8pt;border:none;vertical-align:top;width:50%;color:#000;font-size:11pt}
+    .sig-title{font-weight:bold;font-size:12pt;margin-bottom:6pt;text-transform:uppercase;color:#000;border:none;padding:0}
+    .sig-line{margin-top:22pt;border-bottom:1pt solid #000;width:65%}
+    .sig-caption{font-size:8pt;color:#000;margin-top:2pt}
+    .sig-minimal .sig-label{font-weight:bold;font-size:12pt;text-transform:uppercase;color:#000}
+    table.ct{width:100%;border-collapse:collapse;font-size:10.5pt;margin:6pt 0;color:#000}
+    table.ct th{background:#f0f0f0;border:1pt solid #000;padding:4pt 6pt;font-weight:bold;font-size:9.5pt;color:#000}
+    table.ct td{border:1pt solid #000;padding:3pt 6pt;color:#000}
+    table.ct-pay th{background:#f0f0f0;border:1pt solid #000;color:#000}
+    table.ct-pay td{border:1pt solid #000;color:#000}
+    table.ct-rent th{background:#f0f0f0;border:1pt solid #000;color:#000}
+    table.ct-rent td{border:1pt solid #000;color:#000}
     .td-c{text-align:center}.td-r{text-align:right}
     .uniq-corner{display:none}
-    ${hdrCSS}
-    ${sstCSS}
   `;
 
   const num=document.getElementById('f-number')?.value||'Договор';
