@@ -24,11 +24,11 @@
     .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 
     /* ВЫБОР ТИПА ДОГОВОРА */
-    .type-selector{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:9px;overflow:hidden;border:2px solid #d0d7e2;margin-bottom:2px}
+    .type-selector{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-radius:9px;overflow:hidden;border:2px solid #d0d7e2;margin-bottom:2px}
     .type-btn{padding:11px 8px;background:#f7f8fa;border:none;cursor:pointer;font-size:13px;font-weight:600;color:#666;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
     .type-btn .tb-icon{font-size:22px}
     .type-btn .tb-label{font-size:11.5px}
-    .type-btn:first-child{border-right:2px solid #d0d7e2}
+    .type-btn:not(:last-child){border-right:2px solid #d0d7e2}
     .type-btn.active{background:var(--accent-grad,linear-gradient(135deg,#1a3a5c,#2d6aa0));color:white}
 
     /* УНИКАЛЬНОСТЬ */
@@ -206,12 +206,49 @@
     .sig-minimal .sig-label{font-weight:bold;font-size:12pt;text-transform:uppercase;color:#000}
 
     @media print{
-      body{background:white}
-      .form-panel,.preview-toolbar,header{display:none !important}
+      @page {
+        size: A4;
+        margin: 20mm 15mm 20mm 30mm;
+        @bottom-center {
+          content: counter(page);
+          font-family: 'Times New Roman', serif;
+          font-size: 10pt;
+          color: #000;
+        }
+      }
+
+      /* Prevent awkward page breaks */
+      .sig-block, .c-sigs { page-break-inside: avoid !important; break-inside: avoid !important; }
+      table.ct { page-break-inside: auto; }
+      table.ct tr { page-break-inside: avoid; break-inside: avoid; }
+      .c-section { page-break-after: avoid !important; break-after: avoid !important; }
+      .c-party-box { page-break-inside: avoid !important; break-inside: avoid !important; }
+      .c-toc { page-break-inside: avoid !important; break-inside: avoid !important; }
+
+      /* Hide UI chrome in print */
+      .app-header, .form-panel, .toolbar, .tab-bar, nav, .sidebar,
+      .opt-sections-panel, .skeleton-picker-section,
+      [class*="btn"]:not(.no-hide), button { display: none !important; }
+      .preview-toolbar, header { display: none !important; }
+
+      /* Preview panel */
       .preview-panel{background:white;padding:0;display:block}
       #contract-preview{box-shadow:none;max-width:100%;border-radius:0}
-      .contract-doc{padding:10mm 16mm}
+
+      /* Contract body styling for print */
+      .contract-body {
+        font-family: 'Times New Roman', Times, serif !important;
+        font-size: 12pt !important;
+        color: #000 !important;
+        background: #fff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .contract-doc{padding:0}
       .doc-header-inner{padding:7px 16mm}
+
+      /* Signature table never breaks */
+      .sig-table, .sig-table tr, .sig-table td { page-break-inside: avoid !important; break-inside: avoid !important; }
     }
 
     /* ══ ШАБЛОНЫ ДИЗАЙНА ══ */
@@ -253,14 +290,43 @@
     .tpl-sigbox .sig-block{background:none;border:none;border-radius:0;padding:0}
     .tpl-sigbox .sig-title{background:none;margin:0;padding:0;border-radius:0}
     .tpl-stamp .sig-block::after{content:'М.П.';display:block;width:50px;height:50px;border:2px solid #ccc;border-radius:50%;text-align:center;line-height:50px;font-size:9px;color:#bbb;margin-top:8px}
+
+    /* ══ ДОПОЛНИТЕЛЬНЫЕ РАЗДЕЛЫ ══ */
+    .opt-sections-panel { border-top: 1px solid var(--border,#d0d7e2); margin-top:10px; padding-top:8px; }
+    .opt-section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; padding: 4px 0; }
+    .opt-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; cursor: default; }
+    .opt-label { color: var(--text-muted, #555); flex: 1; font-size:11px; }
+    .opt-sel { font-size: 12px; padding: 2px 4px; border: 1px solid var(--border,#d0d7e2); border-radius: 4px; background: var(--input-bg, #fff); color: var(--text,#222); cursor: pointer; }
+
+    /* ══ СКЕЛЕТ ВЫБОР ══ */
+    .skeleton-picker-section { border-top: 1px solid var(--border,#d0d7e2); margin-top:10px; padding-top:8px; }
+    .skeleton-grid { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0; max-height: 120px; overflow-y: auto; }
+    .sk-chip { font-size: 11px; padding: 3px 7px; border: 1px solid var(--border,#d0d7e2); border-radius: 12px; background: var(--input-bg, #fff); color: var(--text,#222); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+    .sk-chip:hover { border-color: var(--accent, #4a90d9); color: var(--accent, #4a90d9); }
+    .sk-chip.active { background: var(--accent, #2d6aa0); color: #fff; border-color: var(--accent, #2d6aa0); }
+
+    /* ══ ИСТОРИЯ ДОГОВОРОВ ══ */
+    .btn-history{padding:7px 14px;background:#6a3fa0;color:white;border:none;border-radius:6px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s;box-shadow:0 2px 8px rgba(106,63,160,.3);white-space:nowrap}
+    .btn-history:hover{background:#5a2f90}
+    #history-panel{flex-direction:column}
+    .history-entry{display:flex;align-items:stretch;border-bottom:1px solid var(--border,#eee)}
+    .history-entry:last-child{border-bottom:none}
+    .history-entry-main{flex:1;padding:8px 12px;cursor:pointer;transition:background 0.1s}
+    .history-entry-main:hover{background:var(--hover-bg,#f5f7fa)}
+    .history-date{font-size:10px;color:var(--text-muted,#888);margin-bottom:2px}
+    .history-title{font-size:13px;font-weight:600;color:var(--text,#222)}
+    .history-parties{font-size:11px;color:var(--text-muted,#666);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+    .history-del{padding:0 10px;background:none;border:none;border-left:1px solid var(--border,#eee);cursor:pointer;color:var(--text-muted,#aaa);font-size:12px;transition:color 0.1s}
+    .history-del:hover{color:var(--danger,#c00)}
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.3.1/html-docx.js"></script>
 </head>
 <body>
 <header>
   <div class="logo">📄</div>
   <div>
     <h1>Генератор Договоров</h1>
-    <p>Договор поставки · Договор аренды помещения</p>
+    <p>Договор поставки · Договор аренды помещения · Договор оказания услуг</p>
   </div>
 </header>
 
@@ -287,6 +353,10 @@
     <button class="type-btn" data-type="lease" onclick="switchType('lease')">
       <span class="tb-icon">🏠</span>
       <span class="tb-label">Договор аренды</span>
+    </button>
+    <button class="type-btn" data-type="serv" onclick="switchType('serv')">
+      <span class="tb-icon">📋</span>
+      <span class="tb-label">Договор услуг</span>
     </button>
   </div>
 
@@ -362,6 +432,16 @@
       <button class="btn-rnd-tpl" onclick="randomTemplate()">🎲 Случайный</button>
     </div>
     <div class="tpl-grid" id="tpl-grid"></div>
+  </div>
+
+  <!-- СТРУКТУРА ДОКУМЕНТА (скелет) -->
+  <div class="sec-title" style="margin-top:16px">🏗 Структура документа</div>
+  <div class="form-section skeleton-picker-section">
+    <div class="sec-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:0;border:none;padding:0">
+      <span style="font-size:10.5px;color:#888">25 структурных шаблонов</span>
+      <button type="button" onclick="pickRandomSkeleton()" style="font-size:11px;padding:2px 8px;border:1.5px solid var(--accent,#2d6aa0);border-radius:4px;background:#fff;color:var(--accent,#2d6aa0);cursor:pointer;">🎲 Случайный</button>
+    </div>
+    <div class="skeleton-grid" id="skeleton-grid"></div>
   </div>
 
   <!-- ОБЩЕЕ (для обоих типов) -->
@@ -521,6 +601,18 @@
     </div>
     <label>Срок ответа на претензию (дней)</label><input type="number" id="f-claim" placeholder="10" min="1"/>
     <label>Суд</label><input type="text" id="f-court" placeholder="Арбитражный суд г. Москвы"/>
+
+    <div class="form-section opt-sections-panel">
+      <div class="sec-title" style="margin-top:0">⚙ Дополнительные разделы</div>
+      <div class="opt-section-grid" id="supply-opts">
+        <label class="opt-row"><span class="opt-label">Качество товара</span><select class="opt-sel" data-opt="sv-opt-quality"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Конфиденциальность</span><select class="opt-sel" data-opt="sv-opt-conf"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">ЭДО</span><select class="opt-sel" data-opt="sv-opt-edo"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Упаковка</span><select class="opt-sel" data-opt="sv-opt-pack"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Антикоррупция</span><select class="opt-sel" data-opt="sv-opt-anti"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Персональные данные</span><select class="opt-sel" data-opt="sv-opt-pd"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+      </div>
+    </div>
 
   </div><!-- /supply-form -->
 
@@ -705,7 +797,129 @@
     </div>
     <label>Суд</label><input type="text" id="la-court" placeholder="Арбитражный суд г. Москвы"/>
 
+    <div class="form-section opt-sections-panel">
+      <div class="sec-title" style="margin-top:0">⚙ Дополнительные разделы</div>
+      <div class="opt-section-grid" id="lease-opts">
+        <label class="opt-row"><span class="opt-label">Улучшения</span><select class="opt-sel" data-opt="la-opt-imp"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Страхование</span><select class="opt-sel" data-opt="la-opt-ins"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Конфиденциальность</span><select class="opt-sel" data-opt="la-opt-conf"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Расторжение</span><select class="opt-sel" data-opt="la-opt-term"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Возврат объекта</span><select class="opt-sel" data-opt="la-opt-ret"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Антикоррупция</span><select class="opt-sel" data-opt="la-opt-anti"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Персональные данные</span><select class="opt-sel" data-opt="la-opt-pd"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+      </div>
+    </div>
+
   </div><!-- /lease-form -->
+
+  <!-- ══════════ УСЛУГИ ══════════ -->
+  <div id="serv-form" style="display:none">
+
+    <!-- PARTY 1: ИСПОЛНИТЕЛЬ -->
+    <div class="sec-title" style="margin-top:18px">🏭 Исполнитель</div>
+    <div style="border-bottom:2px solid var(--accent-light,#d0e3f5);margin-bottom:8px"></div>
+    <div class="row2">
+      <div><label>Полное наименование</label><input type="text" id="svc-name1" placeholder="ООО «Исполнитель»"></div>
+      <div><label>ИНН</label><input type="text" id="svc-inn1" placeholder="7700000000" maxlength="12"></div>
+    </div>
+    <div class="row2">
+      <div><label>КПП</label><input type="text" id="svc-kpp1" placeholder="770000000" maxlength="9"></div>
+      <div><label>ОГРН</label><input type="text" id="svc-ogrn1" placeholder="1027700000000"></div>
+    </div>
+    <div class="row2">
+      <div><label>Юридический адрес</label><input type="text" id="svc-addr1" placeholder="г. Москва, ул. ..."></div>
+      <div><label>Должность подписанта</label><input type="text" id="svc-post1" placeholder="Генеральный директор"></div>
+    </div>
+    <div class="row2">
+      <div><label>ФИО подписанта</label><input type="text" id="svc-fio1" placeholder="Иванов И.И."></div>
+      <div><label>Основание</label><input type="text" id="svc-basis1" placeholder="Устава"></div>
+    </div>
+    <div class="row2">
+      <div><label>Банк</label><input type="text" id="svc-bank1" placeholder="ПАО Сбербанк"></div>
+      <div><label>БИК</label><input type="text" id="svc-bik1" placeholder="044525225" maxlength="9"></div>
+    </div>
+    <div class="row2">
+      <div><label>Расчётный счёт</label><input type="text" id="svc-rs1" placeholder="40702810000000000000" maxlength="20"></div>
+      <div><label>Корр. счёт</label><input type="text" id="svc-ks1" placeholder="30101810400000000225" maxlength="20"></div>
+    </div>
+
+    <!-- PARTY 2: ЗАКАЗЧИК -->
+    <div class="sec-title" style="margin-top:18px">🏢 Заказчик</div>
+    <div style="border-bottom:2px solid var(--accent-light,#d0e3f5);margin-bottom:8px"></div>
+    <div class="row2">
+      <div><label>Полное наименование</label><input type="text" id="svc-name2" placeholder="ООО «Заказчик»"></div>
+      <div><label>ИНН</label><input type="text" id="svc-inn2" placeholder="7700000001" maxlength="12"></div>
+    </div>
+    <div class="row2">
+      <div><label>КПП</label><input type="text" id="svc-kpp2" placeholder="770000001" maxlength="9"></div>
+      <div><label>ОГРН</label><input type="text" id="svc-ogrn2" placeholder="1027700000001"></div>
+    </div>
+    <div class="row2">
+      <div><label>Юридический адрес</label><input type="text" id="svc-addr2" placeholder="г. Москва, ул. ..."></div>
+      <div><label>Должность подписанта</label><input type="text" id="svc-post2" placeholder="Генеральный директор"></div>
+    </div>
+    <div class="row2">
+      <div><label>ФИО подписанта</label><input type="text" id="svc-fio2" placeholder="Петров П.П."></div>
+      <div><label>Основание</label><input type="text" id="svc-basis2" placeholder="Устава"></div>
+    </div>
+    <div class="row2">
+      <div><label>Банк</label><input type="text" id="svc-bank2" placeholder="ПАО Сбербанк"></div>
+      <div><label>БИК</label><input type="text" id="svc-bik2" placeholder="044525225" maxlength="9"></div>
+    </div>
+    <div class="row2">
+      <div><label>Расчётный счёт</label><input type="text" id="svc-rs2" placeholder="40702810000000000001" maxlength="20"></div>
+      <div><label>Корр. счёт</label><input type="text" id="svc-ks2" placeholder="30101810400000000225" maxlength="20"></div>
+    </div>
+
+    <!-- CONTRACT DETAILS -->
+    <div class="sec-title" style="margin-top:18px">📋 Реквизиты договора</div>
+    <div style="border-bottom:2px solid var(--accent-light,#d0e3f5);margin-bottom:8px"></div>
+    <div class="row2">
+      <div><label>Номер договора</label><input type="text" id="svc-docnum" placeholder="001/2026-У"></div>
+      <div><label>Город</label><input type="text" id="svc-city" placeholder="Москва"></div>
+    </div>
+    <div class="row2">
+      <div><label>Дата договора</label><input type="date" id="svc-date"></div>
+      <div><label>Срок действия (до)</label><input type="date" id="svc-dateend"></div>
+    </div>
+
+    <!-- SERVICES TABLE -->
+    <div class="sec-title" style="margin-top:18px">📦 Таблица услуг</div>
+    <div style="border-bottom:2px solid var(--accent-light,#d0e3f5);margin-bottom:8px"></div>
+    <table class="edit-tbl">
+      <thead><tr><th style="width:38%">Наименование услуги</th><th style="width:12%">Ед.</th><th style="width:13%">Кол-во</th><th style="width:17%">Цена, руб.</th><th style="width:8%"></th></tr></thead>
+      <tbody id="svc-services-rows">
+        <tr class="goods-row" data-idx="0">
+          <td><input type="text" class="svc-svc-name" placeholder="Наименование услуги"></td>
+          <td><input type="text" class="svc-svc-unit" placeholder="Ед." value="услуга"></td>
+          <td><input type="number" class="svc-svc-qty" placeholder="Кол-во" value="1" min="0.01" step="0.01"></td>
+          <td><input type="number" class="svc-svc-price" placeholder="Цена, руб." step="0.01"></td>
+          <td><button class="btn-del" type="button" onclick="removeServRow(this)">✕</button></td>
+        </tr>
+      </tbody>
+    </table>
+    <button type="button" class="btn-add" onclick="addServRow()">+ Добавить строку</button>
+    <div class="row2" style="margin-top:8px">
+      <div><label>НДС</label><select id="svc-vat"><option value="none">Без НДС</option><option value="20">20%</option><option value="10">10%</option></select></div>
+      <div><label>Оплата</label><select id="svc-pay"><option value="post">Постоплата</option><option value="pre">Предоплата 100%</option><option value="pre50">Предоплата 50%</option></select></div>
+    </div>
+    <div class="row2">
+      <div><label>Срок оплаты (дней)</label><input type="number" id="svc-paydays" value="10" min="1" max="90"></div>
+      <div><label>Срок оказания услуг</label><input type="text" id="svc-deadline" placeholder="30 календарных дней"></div>
+    </div>
+
+    <!-- OPTIONAL SECTIONS -->
+    <div class="form-section opt-sections-panel">
+      <div class="sec-title" style="margin-top:0">⚙ Дополнительные разделы</div>
+      <div class="opt-section-grid">
+        <label class="opt-row"><span class="opt-label">Конфиденциальность</span><select class="opt-sel" data-opt="svc-opt-conf"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Антикоррупция</span><select class="opt-sel" data-opt="svc-opt-anti"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">Персональные данные</span><select class="opt-sel" data-opt="svc-opt-pd"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+        <label class="opt-row"><span class="opt-label">ЭДО</span><select class="opt-sel" data-opt="svc-opt-edo"><option value="rnd">Случайно</option><option value="yes">Всегда</option><option value="no">Никогда</option></select></label>
+      </div>
+    </div>
+
+  </div><!-- /serv-form -->
 
   <!-- КАЛЬКУЛЯТОР ПЕНИ (общий) -->
   <div class="penalty-calc">
@@ -745,14 +959,15 @@
   <div class="preview-toolbar">
     <span id="preview-label">Выберите тип договора, заполните форму и нажмите «Сформировать»</span>
     <div class="uniq-badge" id="uniq-badge">✦ Уникален</div>
-    <button class="btn-word" id="btn-word" onclick="downloadWord()" disabled>📄 Скачать Word</button>
+    <button class="btn-history" type="button" onclick="toggleHistoryPanel()" id="btn-history" title="История договоров">📋 История</button>
+    <button class="btn-word" id="btn-word" onclick="downloadWord()" disabled title="Скачать договор в формате Word (.docx)">📄 Скачать .docx</button>
     <button class="btn-print" id="btn-print" onclick="window.print()" disabled>🖨️ Сохранить PDF</button>
   </div>
   <div id="contract-preview">
     <div class="placeholder-msg">
       <div class="big-icon">📄</div>
       <div>Предпросмотр появится здесь</div>
-      <div style="font-size:11px;opacity:.5">📦 Договор поставки &nbsp;·&nbsp; 🏠 Договор аренды</div>
+      <div style="font-size:11px;opacity:.5">📦 Договор поставки &nbsp;·&nbsp; 🏠 Договор аренды &nbsp;·&nbsp; 📋 Договор услуг</div>
     </div>
   </div>
 </div>
@@ -817,11 +1032,13 @@ function randomizeStyle(){
   curHdr   = hdrs[Math.floor(Math.random()*hdrs.length)];
   curSst   = ssts[Math.floor(Math.random()*ssts.length)];
   curSkeleton = Math.floor(Math.random()*SKELETONS.length);
+  window._skIdx = curSkeleton;
   // Обновляем кнопки в UI
   document.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active', b.dataset.theme===curTheme));
   document.querySelectorAll('#font-row .pill-btn').forEach(b=>b.classList.toggle('active', b.dataset.font===curFont));
   document.querySelectorAll('#hdr-row .pill-btn').forEach(b=>b.classList.toggle('active', b.dataset.hdr===curHdr));
   document.querySelectorAll('#sst-row .pill-btn').forEach(b=>b.classList.toggle('active', b.dataset.sst===curSst));
+  document.querySelectorAll('.sk-chip').forEach(function(c){ c.classList.toggle('active', +c.dataset.idx === curSkeleton); });
   applyTheme(curTheme);
 }
 
@@ -974,8 +1191,12 @@ function applyTemplate(idx){
     TPL_EXTRA_CLASSES.forEach(c=>pw.classList.remove(c));
     (t.extra||'').split(' ').forEach(c=>c&&pw.classList.add(c));
   }
-  // pick a random skeleton when template changes
-  curSkeleton=Math.floor(Math.random()*SKELETONS.length);
+  // pick a random skeleton when template changes (only if not locked)
+  if(!window._skeletonLocked){
+    curSkeleton=Math.floor(Math.random()*SKELETONS.length);
+    window._skIdx=curSkeleton;
+    document.querySelectorAll('.sk-chip').forEach(function(c){ c.classList.toggle('active', +c.dataset.idx === curSkeleton); });
+  }
   // refresh if contract is shown
   if(pw&&pw.querySelector('.contract-doc')) generateContract();
 }
@@ -996,6 +1217,7 @@ function switchType(t){
   document.querySelectorAll('.type-btn').forEach(b=>b.classList.toggle('active',b.dataset.type===t));
   document.getElementById('supply-form').style.display=t==='supply'?'block':'none';
   document.getElementById('lease-form').style.display=t==='lease'?'block':'none';
+  document.getElementById('serv-form').style.display=t==='serv'?'block':'none';
 }
 
 // ===== УТИЛИТЫ =====
@@ -1011,6 +1233,54 @@ function fmt(n){return Number(n).toLocaleString('ru-RU',{minimumFractionDigits:2
 function genNumber(){const y=new Date().getFullYear(),ts=Date.now().toString(36).toUpperCase().slice(-4),r=Math.floor(Math.random()*9000+1000);return `${y}-${contractType==='lease'?'А':'П'}-${ts}${r}`;}
 function genFP(){return Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,8).toUpperCase();}
 function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+
+// ===== УПРАВЛЕНИЕ ДОПОЛНИТЕЛЬНЫМИ РАЗДЕЛАМИ =====
+function getOpt(id, defaultRnd){
+  const el = document.getElementById(id) || document.querySelector('[data-opt="'+id+'"]');
+  if(!el) return defaultRnd;
+  const v = el.value;
+  if(v==='yes') return true;
+  if(v==='no') return false;
+  return defaultRnd; // 'rnd'
+}
+
+// ===== СКЕЛЕТ ВЫБОР =====
+function buildSkeletonGrid(){
+  const grid = document.getElementById('skeleton-grid');
+  if(!grid || !SKELETONS) return;
+  grid.innerHTML = '';
+  SKELETONS.forEach(function(sk, i){
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'sk-chip' + (i === (window._skIdx||0) ? ' active' : '');
+    chip.dataset.idx = i;
+    let label = '';
+    if(sk.hasToc) label += 'TOC ';
+    if(sk.hasDefs) label += 'Def ';
+    if(sk.hasPreamble) label += 'Pre ';
+    if(sk.numStyle === 'roman') label += 'I.II ';
+    else if(sk.numStyle === 'alpha') label += 'А.Б ';
+    else label += '1.2 ';
+    if(sk.hasPartiesTable) label += 'Tbl';
+    label = label.trim() || ('Стиль ' + (i+1));
+    chip.textContent = (i+1) + '. ' + label;
+    chip.title = sk.name + ': ' + JSON.stringify(sk).replace(/["{}]/g,'').replace(/,/g,', ');
+    chip.onclick = function(){
+      window._skIdx = i;
+      window._skeletonLocked = true;
+      document.querySelectorAll('.sk-chip').forEach(function(c){ c.classList.toggle('active', +c.dataset.idx === i); });
+    };
+    grid.appendChild(chip);
+  });
+}
+
+function pickRandomSkeleton(){
+  window._skeletonLocked = false;
+  if(SKELETONS){
+    window._skIdx = Math.floor(Math.random() * SKELETONS.length);
+    document.querySelectorAll('.sk-chip').forEach(function(c){ c.classList.toggle('active', +c.dataset.idx === window._skIdx); });
+  }
+}
 
 // ===== ЛОГИКА АРЕНДЫ =====
 function syncRentCalc(){
@@ -1463,6 +1733,53 @@ const V={
     'Стороны обязуются уведомить друг друга в течение 3 (трёх) рабочих дней в случае выявления инцидента, связанного с несанкционированным доступом к персональным данным, переданным в рамках исполнения настоящего Договора.',
   ],
 
+  // ── Предмет договора услуг ──
+  servSubj:[
+    'оказать услуги, перечень и содержание которых определены в Приложении №1 к настоящему Договору (далее — Услуги)',
+    'выполнить комплекс услуг в соответствии с Техническим заданием, являющимся неотъемлемой частью настоящего Договора',
+    'оказать Заказчику услуги в объёме и на условиях, предусмотренных настоящим Договором и Приложениями к нему',
+    'оказать услуги надлежащего качества в порядке и сроки, согласованные Сторонами в настоящем Договоре',
+    'оказывать услуги своевременно и в полном объёме согласно требованиям Заказчика, изложенным в Техническом задании',
+    'оказать Заказчику возмездные услуги, предусмотренные настоящим Договором, а Заказчик обязуется принять и оплатить оказанные Услуги',
+  ],
+  // ── Приёмка услуг ──
+  servAccept:[
+    'После оказания Услуг Исполнитель направляет Заказчику Акт об оказании услуг. Заказчик обязан подписать Акт или направить мотивированный отказ в течение 5 (пяти) рабочих дней с момента его получения. В случае непоступления ответа в указанный срок Услуги считаются принятыми.',
+    'Приёмка Услуг осуществляется путём подписания Акта об оказании услуг уполномоченными представителями Сторон. Акт составляется Исполнителем и передаётся Заказчику не позднее 3 (трёх) рабочих дней после завершения оказания Услуг.',
+    'Исполнитель уведомляет Заказчика о готовности к приёмке Услуг. Приёмка производится Заказчиком в течение 10 (десяти) рабочих дней. Результаты приёмки фиксируются в Акте об оказании услуг, подписываемом обеими Сторонами.',
+    'Услуги считаются оказанными с момента подписания Сторонами Акта об оказании услуг. Заказчик вправе предъявить замечания в течение 7 (семи) рабочих дней с даты получения Акта.',
+    'По итогам оказания Услуг Стороны подписывают двусторонний Акт. При наличии замечаний Стороны составляют Протокол разногласий и устанавливают срок их устранения.',
+  ],
+  // ── Срок оказания услуг ──
+  servDeadline:[
+    'Исполнитель обязуется приступить к оказанию Услуг в течение 3 (трёх) рабочих дней с момента получения аванса и завершить их в сроки, указанные в Техническом задании.',
+    'Срок оказания Услуг устанавливается Сторонами в Приложении №1. Исполнитель вправе досрочно завершить оказание Услуг при условии их надлежащего качества.',
+    'Оказание Услуг осуществляется в сроки, согласованные в Техническом задании. Срок может быть продлён по соглашению Сторон в случае форс-мажорных обстоятельств.',
+    'Исполнитель приступает к оказанию Услуг немедленно после подписания настоящего Договора и обязуется завершить их в согласованные Сторонами сроки.',
+    'Сроки оказания Услуг определяются Календарным планом (Приложение №2). Промежуточные этапы оформляются отдельными актами сдачи-приёмки.',
+  ],
+  // ── Ответственность услуги ──
+  servLiability:[
+    'За ненадлежащее оказание Услуг Исполнитель уплачивает Заказчику неустойку в размере 0,1% от стоимости несвоевременно или ненадлежаще оказанных Услуг за каждый день просрочки, но не более 10% от общей суммы Договора.',
+    'В случае нарушения сроков оказания Услуг Исполнитель уплачивает пеню в размере 0,05% от стоимости Договора за каждый день просрочки. Совокупный размер неустойки не может превышать 5% от цены Договора.',
+    'Стороны несут ответственность в соответствии с действующим законодательством РФ. За просрочку оплаты Заказчик уплачивает пени в размере 1/300 ставки рефинансирования ЦБ РФ от суммы долга за каждый день просрочки.',
+    'Исполнитель несёт ответственность за качество оказанных Услуг в течение гарантийного срока, установленного настоящим Договором. Гарантийный срок составляет 12 (двенадцать) месяцев с даты подписания Акта.',
+    'Ни одна из Сторон не несёт ответственности за косвенные убытки. Прямые убытки возмещаются в соответствии с нормами ГК РФ. Претензии предъявляются в письменной форме.',
+  ],
+  // ── Споры услуги ──
+  servDispute:[
+    'Все споры, возникающие из настоящего Договора, разрешаются путём переговоров. В случае недостижения соглашения спор передаётся на рассмотрение арбитражного суда по месту нахождения Исполнителя.',
+    'Споры и разногласия разрешаются в претензионном порядке. Срок рассмотрения претензии — 30 (тридцать) календарных дней. При неурегулировании — в Арбитражном суде г. Москвы.',
+    'Стороны обязуются разрешать разногласия путём переговоров. Срок рассмотрения письменной претензии — 15 (пятнадцать) рабочих дней. Неурегулированные споры передаются в компетентный арбитражный суд.',
+    'При возникновении споров Стороны принимают меры к их урегулированию путём переговоров. Срок ответа на претензию — 10 (десять) рабочих дней. Споры, не урегулированные в претензионном порядке, рассматриваются арбитражным судом.',
+  ],
+  // ── Заключительные положения услуги ──
+  servFinal:[
+    'Настоящий Договор вступает в силу с момента подписания Сторонами и действует до полного исполнения обязательств. Все изменения и дополнения к Договору оформляются в письменной форме и подписываются обеими Сторонами.',
+    'Договор составлен в двух экземплярах, имеющих одинаковую юридическую силу, по одному для каждой из Сторон. Договор вступает в силу с даты его подписания.',
+    'Настоящий Договор является полным соглашением Сторон по предмету Договора и отменяет все предшествующие договорённости. Любые изменения действительны только при оформлении в письменном виде.',
+    'Договор действует с момента подписания до исполнения Сторонами принятых обязательств. Односторонний отказ от исполнения Договора не допускается, за исключением случаев, предусмотренных законодательством РФ.',
+  ],
 };
 
 /// ===== ГЕНЕРАЦИЯ: ПОСТАВКА =====
@@ -1544,8 +1861,8 @@ function generateSupply(num,useRnd){
   const nPar=hasPar?++_sn:null;
   const nDef=sk.hasDefs?++_sn:null;
   const n1=++_sn,n2=++_sn,n3=++_sn,n4=++_sn,n5=++_sn,n6=++_sn;
-  const optQ=useRnd&&Math.random()>0.4,optC=useRnd&&Math.random()>0.5,optE=useRnd&&Math.random()>0.6;
-  const optPack=useRnd&&Math.random()>0.5,optAnti=useRnd&&Math.random()>0.7,optPD=useRnd&&Math.random()>0.7;
+  const optQ=getOpt('sv-opt-quality',useRnd&&Math.random()>0.4),optC=getOpt('sv-opt-conf',useRnd&&Math.random()>0.5),optE=getOpt('sv-opt-edo',useRnd&&Math.random()>0.6);
+  const optPack=getOpt('sv-opt-pack',useRnd&&Math.random()>0.5),optAnti=getOpt('sv-opt-anti',useRnd&&Math.random()>0.7),optPD=getOpt('sv-opt-pd',useRnd&&Math.random()>0.7);
   const nQ=optQ?++_sn:null,nC=optC?++_sn:null,nE=optE?++_sn:null;
   const nPack=optPack?++_sn:null,nAnti=optAnti?++_sn:null,nPD=optPD?++_sn:null;
   const nFin=++_sn,nSig=++_sn;
@@ -1682,8 +1999,8 @@ function generateLease(num,useRnd){
   const lnPar=hasPar?++_lsn:null;
   const lnDef=sk.hasDefs?++_lsn:null;
   const ln1=++_lsn,ln2=++_lsn,ln3=++_lsn,ln4=++_lsn,ln5=++_lsn,ln6=++_lsn,ln7=++_lsn,ln8=++_lsn;
-  const lOptI=useRnd&&Math.random()>0.5,lOptS=useRnd&&Math.random()>0.55,lOptC=useRnd&&Math.random()>0.6;
-  const lOptLT=useRnd&&Math.random()>0.5,lOptLR=useRnd&&Math.random()>0.4,lOptAnti=useRnd&&Math.random()>0.7,lOptPD=useRnd&&Math.random()>0.7;
+  const lOptI=getOpt('la-opt-imp',useRnd&&Math.random()>0.5),lOptS=getOpt('la-opt-ins',useRnd&&Math.random()>0.55),lOptC=getOpt('la-opt-conf',useRnd&&Math.random()>0.6);
+  const lOptLT=getOpt('la-opt-term',useRnd&&Math.random()>0.5),lOptLR=getOpt('la-opt-ret',useRnd&&Math.random()>0.4),lOptAnti=getOpt('la-opt-anti',useRnd&&Math.random()>0.7),lOptPD=getOpt('la-opt-pd',useRnd&&Math.random()>0.7);
   const lnI=lOptI?++_lsn:null,lnS=lOptS?++_lsn:null,lnC=lOptC?++_lsn:null;
   const lnLT=lOptLT?++_lsn:null,lnLR=lOptLR?++_lsn:null,lnAnti=lOptAnti?++_lsn:null,lnPD=lOptPD?++_lsn:null;
   const lnSig=++_lsn;
@@ -1755,6 +2072,220 @@ function generateLease(num,useRnd){
     ${skSigsBlock(sigBlock('ll','АРЕНДОДАТЕЛЬ'),sigBlock('lt','АРЕНДАТОР'),'АРЕНДОДАТЕЛЬ','АРЕНДАТОР')}`;
 }
 
+// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ УСЛУГ =====
+function numWords(n){
+  // Converts integer to Russian words (up to millions)
+  if(n===0) return 'ноль';
+  const ones=['','один','два','три','четыре','пять','шесть','семь','восемь','девять',
+    'десять','одиннадцать','двенадцать','тринадцать','четырнадцать','пятнадцать',
+    'шестнадцать','семнадцать','восемнадцать','девятнадцать'];
+  const tens=['','','двадцать','тридцать','сорок','пятьдесят','шестьдесят','семьдесят','восемьдесят','девяносто'];
+  const hundreds=['','сто','двести','триста','четыреста','пятьсот','шестьсот','семьсот','восемьсот','девятьсот'];
+  function chunk(num, fem){
+    let r='';
+    const h=Math.floor(num/100); if(h) r+=hundreds[h]+' ';
+    const t=num%100;
+    if(t<20){ if(t){ const w=ones[t]; r+=(fem&&t===1?'одна':fem&&t===2?'две':w)+' '; } }
+    else{ const d=Math.floor(t/10); const u=t%10; r+=tens[d]+' '; if(u){ const w=ones[u]; r+=(fem&&u===1?'одна':fem&&u===2?'две':w)+' '; } }
+    return r;
+  }
+  let result=''; const neg=n<0; n=Math.abs(n);
+  const mil=Math.floor(n/1000000); n=n%1000000;
+  const tho=Math.floor(n/1000); n=n%1000;
+  if(mil){ result+=chunk(mil,false); const m=mil%100; const mu=mil%10; result+=(m>=11&&m<=14)?'миллионов':(mu===1?'миллион':mu>=2&&mu<=4?'миллиона':'миллионов'); result+=' '; }
+  if(tho){ result+=chunk(tho,true); const t=tho%100; const tu=tho%10; result+=(t>=11&&t<=14)?'тысяч':(tu===1?'тысяча':tu>=2&&tu<=4?'тысячи':'тысяч'); result+=' '; }
+  if(n) result+=chunk(n,false);
+  return (neg?'минус ':'')+result.trim();
+}
+
+function addServRow(){
+  const cont = document.getElementById('svc-services-rows');
+  if(!cont) return;
+  const idx = cont.querySelectorAll('tr.goods-row').length;
+  const tr = document.createElement('tr');
+  tr.className = 'goods-row';
+  tr.dataset.idx = idx;
+  tr.innerHTML = '<td><input type="text" class="svc-svc-name" placeholder="Наименование услуги"></td><td><input type="text" class="svc-svc-unit" placeholder="Ед." value="услуга"></td><td><input type="number" class="svc-svc-qty" placeholder="Кол-во" value="1" min="0.01" step="0.01"></td><td><input type="number" class="svc-svc-price" placeholder="Цена, руб." step="0.01"></td><td><button class="btn-del" type="button" onclick="removeServRow(this)">✕</button></td>';
+  cont.appendChild(tr);
+}
+
+function removeServRow(btn){
+  const row = btn.closest('tr.goods-row');
+  const cont = document.getElementById('svc-services-rows');
+  if(cont && cont.querySelectorAll('tr.goods-row').length > 1) row.remove();
+}
+
+/// ===== ГЕНЕРАЦИЯ: УСЛУГИ =====
+function generateServices(num, useRnd){
+  const g = id => (document.getElementById(id)?.value||'').trim();
+
+  const name1 = esc(g('svc-name1')||'Исполнитель');
+  const inn1  = esc(g('svc-inn1'));
+  const kpp1  = esc(g('svc-kpp1'));
+  const ogrn1 = esc(g('svc-ogrn1'));
+  const addr1 = esc(g('svc-addr1'));
+  const post1 = esc(g('svc-post1')||'Генеральный директор');
+  const fio1  = esc(g('svc-fio1'));
+  const basis1= esc(g('svc-basis1')||'Устава');
+  const bank1 = esc(g('svc-bank1'));
+  const bik1  = esc(g('svc-bik1'));
+  const rs1   = esc(g('svc-rs1'));
+  const ks1   = esc(g('svc-ks1'));
+
+  const name2 = esc(g('svc-name2')||'Заказчик');
+  const inn2  = esc(g('svc-inn2'));
+  const kpp2  = esc(g('svc-kpp2'));
+  const ogrn2 = esc(g('svc-ogrn2'));
+  const addr2 = esc(g('svc-addr2'));
+  const post2 = esc(g('svc-post2')||'Генеральный директор');
+  const fio2  = esc(g('svc-fio2'));
+  const basis2= esc(g('svc-basis2')||'Устава');
+  const bank2 = esc(g('svc-bank2'));
+  const bik2  = esc(g('svc-bik2'));
+  const rs2   = esc(g('svc-rs2'));
+  const ks2   = esc(g('svc-ks2'));
+
+  const docNum  = esc(g('svc-docnum')||num||'___');
+  const city    = esc(g('svc-city')||'Москва');
+  const dateVal = g('svc-date');
+  const dateEndVal = g('svc-dateend');
+  const date    = dateVal ? fmtDate(dateVal) : fmtDate(new Date().toISOString().slice(0,10));
+  const dateEnd = dateEndVal ? fmtDate(dateEndVal) : '';
+
+  const vat     = document.getElementById('svc-vat')?.value||'none';
+  const pay     = document.getElementById('svc-pay')?.value||'post';
+  const payDays = g('svc-paydays')||'10';
+  const deadline= esc(g('svc-deadline')||'30 календарных дней');
+
+  const optConf = getOpt('svc-opt-conf', useRnd && Math.random()>0.5);
+  const optAnti = getOpt('svc-opt-anti', useRnd && Math.random()>0.4);
+  const optPD   = getOpt('svc-opt-pd',   useRnd && Math.random()>0.4);
+  const optEdo  = getOpt('svc-opt-edo',  useRnd && Math.random()>0.5);
+
+  // Build services table
+  const rows = document.querySelectorAll('#svc-services-rows tr.goods-row');
+  let totalNetto = 0;
+  let tableRows = '';
+  let rowNum = 1;
+  rows.forEach(function(row){
+    const svcName = esc(row.querySelector('.svc-svc-name')?.value||'Услуга');
+    const unit    = esc(row.querySelector('.svc-svc-unit')?.value||'услуга');
+    const qty     = parseFloat(row.querySelector('.svc-svc-qty')?.value)||1;
+    const price   = parseFloat(row.querySelector('.svc-svc-price')?.value)||0;
+    const sum     = qty * price;
+    totalNetto   += sum;
+    tableRows += '<tr><td class="c">'+rowNum+'</td><td>'+svcName+'</td><td class="c">'+unit+'</td><td class="c">'+qty.toLocaleString('ru')+'</td><td class="r">'+price.toLocaleString('ru',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td><td class="r">'+sum.toLocaleString('ru',{minimumFractionDigits:2,maximumFractionDigits:2})+'</td></tr>';
+    rowNum++;
+  });
+  let vatAmt = 0, totalBrutto = totalNetto;
+  if(vat==='20'){ vatAmt=totalNetto*0.2; totalBrutto=totalNetto+vatAmt; }
+  else if(vat==='10'){ vatAmt=totalNetto*0.1; totalBrutto=totalNetto+vatAmt; }
+  const vatStr = vat==='none'?'Без НДС':'НДС '+vat+'%: '+vatAmt.toLocaleString('ru',{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.';
+
+  // Payment text
+  const payDaysNum = parseInt(payDays)||10;
+  const payDaysWords = numWords(payDaysNum);
+  let payText = '';
+  if(pay==='pre') payText='Заказчик осуществляет предварительную оплату в размере 100% стоимости Услуг в течение '+payDays+' ('+payDaysWords+') банковских дней с момента подписания настоящего Договора.';
+  else if(pay==='pre50') payText='Заказчик осуществляет предварительную оплату в размере 50% стоимости Услуг в течение '+payDays+' ('+payDaysWords+') банковских дней с момента подписания Договора. Оставшиеся 50% оплачиваются в течение 5 (пяти) рабочих дней после подписания Акта об оказании услуг.';
+  else payText='Заказчик осуществляет оплату Услуг в течение '+payDays+' ('+payDaysWords+') банковских дней с момента подписания Акта об оказании услуг на основании выставленного счёта.';
+
+  // Skeleton
+  const sk = SKELETONS[curSkeleton];
+  const hasPar = sk.hasPartiesBox||sk.hasPartiesTable;
+  let _sn=0;
+  const snPar = hasPar?++_sn:null;
+  const snDef = sk.hasDefs?++_sn:null;
+  const sn1=++_sn, sn2=++_sn, sn3=++_sn, sn4=++_sn, sn5=++_sn, sn6=++_sn, sn7=++_sn, sn8=++_sn;
+  const snConf  = optConf?++_sn:null;
+  const snEdo   = optEdo?++_sn:null;
+  const snAnti  = optAnti?++_sn:null;
+  const snPD    = optPD?++_sn:null;
+  const snFin   = ++_sn;
+  const snSig   = ++_sn;
+
+  // Preamble
+  const preamble = name1+', ИНН '+inn1+(ogrn1?', ОГРН '+ogrn1:'')+', именуемое в дальнейшем «Исполнитель», в лице '+post1+' '+fio1+(fio1?', д':', д')+'ействующего на основании '+basis1+', с одной стороны, и '+name2+', ИНН '+inn2+(ogrn2?', ОГРН '+ogrn2:'')+', именуемое в дальнейшем «Заказчик», в лице '+post2+' '+fio2+(fio2?', д':' д')+'ействующего на основании '+basis2+', с другой стороны, совместно именуемые «Стороны», заключили настоящий Договор о нижеследующем:';
+
+  const sExecInfo = name1+'; ИНН '+inn1+(ogrn1?'; ОГРН '+ogrn1:'')+'; адрес: '+addr1;
+  const sCustInfo = name2+'; ИНН '+inn2+(ogrn2?'; ОГРН '+ogrn2:'')+'; адрес: '+addr2;
+
+  let tocTitles = [];
+  if(hasPar) tocTitles.push('Стороны договора');
+  if(sk.hasDefs) tocTitles.push('Термины и определения');
+  tocTitles.push('Предмет договора','Перечень и стоимость услуг','Порядок расчётов','Порядок приёмки услуг','Права и обязанности сторон','Ответственность сторон','Форс-мажор','Разрешение споров');
+  if(optConf) tocTitles.push('Конфиденциальность');
+  if(optEdo)  tocTitles.push('Электронный документооборот');
+  if(optAnti) tocTitles.push('Антикоррупционная оговорка');
+  if(optPD)   tocTitles.push('Персональные данные');
+  tocTitles.push('Заключительные положения','Реквизиты и подписи сторон');
+
+  let html = '';
+
+  html += skPreambleBlock('Договор оказания услуг', city, date);
+  html += '<p style="margin-bottom:11px;text-align:justify">'+preamble+'</p>';
+  html += skTocBlock(tocTitles);
+  if(snPar!==null) html += skPartiesBlock(snPar,{role:'ИСПОЛНИТЕЛЬ',info:sExecInfo},{role:'ЗАКАЗЧИК',info:sCustInfo});
+  if(snDef!==null) html += skDefsBlock(snDef,'Договор оказания услуг');
+
+  // 1. Subject
+  html += '<hr class="c-div"/>'+skST(sn1,'Предмет договора');
+  html += skCL(sn1,1,'Исполнитель обязуется '+rnd(V.servSubj)+', а Заказчик обязуется принять и оплатить оказанные Услуги на условиях настоящего Договора.');
+  html += skCL(sn1,2,'Срок оказания Услуг: '+deadline+'.');
+  if(dateEnd) html += skCL(sn1,3,'Настоящий Договор действует до '+dateEnd+' или до полного исполнения Сторонами принятых обязательств.');
+
+  // 2. Services table
+  html += '<hr class="c-div"/>'+skST(sn2,'Перечень и стоимость услуг');
+  html += '<table class="ct"><thead><tr><th style="width:4%">№</th><th>Наименование услуги</th><th style="width:8%">Ед.</th><th style="width:8%">Кол-во</th><th style="width:12%">Цена, руб.</th><th style="width:14%">Сумма, руб.</th></tr></thead><tbody>'+tableRows+'</tbody><tfoot><tr><td colspan="5" class="r"><b>Итого'+(vat!=='none'?' (без НДС)':'')+':</b></td><td class="r"><b>'+totalNetto.toLocaleString('ru',{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.</b></td></tr>'+(vat!=='none'?'<tr><td colspan="5" class="r">'+vatStr+'</td><td class="r">'+vatAmt.toLocaleString('ru',{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.</td></tr>':'')+'<tr><td colspan="5" class="r"><b>ИТОГО:</b></td><td class="r"><b>'+totalBrutto.toLocaleString('ru',{minimumFractionDigits:2,maximumFractionDigits:2})+' руб.</b></td></tr></tfoot></table>';
+  const kopecks = Math.round((totalBrutto % 1)*100);
+  html += skCL(sn2,1,'Общая стоимость Услуг по настоящему Договору составляет '+totalBrutto.toLocaleString('ru',{minimumFractionDigits:2,maximumFractionDigits:2})+' руб. ('+numWords(Math.floor(totalBrutto))+' '+(Math.floor(totalBrutto)%10===1&&Math.floor(totalBrutto)%100!==11?'рубль':Math.floor(totalBrutto)%10>=2&&Math.floor(totalBrutto)%10<=4&&(Math.floor(totalBrutto)%100<10||Math.floor(totalBrutto)%100>=20)?'рубля':'рублей')+' '+kopecks+' коп.), '+vatStr+'.');
+
+  // 3. Payment
+  html += '<hr class="c-div"/>'+skST(sn3,'Порядок расчётов');
+  html += skCL(sn3,1,payText);
+
+  // 4. Acceptance
+  html += '<hr class="c-div"/>'+skST(sn4,'Порядок приёмки услуг');
+  html += skCL(sn4,1,rnd(V.servAccept));
+
+  // 5. Obligations
+  html += '<hr class="c-div"/>'+skST(sn5,'Права и обязанности сторон');
+  html += skCL(sn5,1,'Исполнитель обязан: оказать Услуги в сроки, предусмотренные настоящим Договором; обеспечить надлежащее качество оказываемых Услуг; незамедлительно информировать Заказчика об обстоятельствах, препятствующих надлежащему исполнению обязательств.');
+  html += skCL(sn5,2,'Заказчик обязан: своевременно производить оплату Услуг; предоставить Исполнителю необходимую информацию и документы; принять оказанные Услуги или направить мотивированный отказ в установленные настоящим Договором сроки.');
+
+  // 6. Liability
+  html += '<hr class="c-div"/>'+skST(sn6,'Ответственность сторон');
+  html += skCL(sn6,1,rnd(V.servLiability));
+
+  // 7. Force majeure
+  html += '<hr class="c-div"/>'+skST(sn7,'Форс-мажор');
+  html += skCL(sn7,1,rnd(V.fm));
+
+  // 8. Dispute
+  html += '<hr class="c-div"/>'+skST(sn8,'Разрешение споров');
+  html += skCL(sn8,1,rnd(V.servDispute));
+
+  // Optional sections
+  if(optConf){ html += '<hr class="c-div"/>'+skST(snConf,'Конфиденциальность'); html += skCL(snConf,1,rnd(V.confidential)); }
+  if(optEdo){  html += '<hr class="c-div"/>'+skST(snEdo,'Электронный документооборот'); html += skCL(snEdo,1,rnd(V.edo)); }
+  if(optAnti){ html += '<hr class="c-div"/>'+skST(snAnti,'Антикоррупционная оговорка'); html += skCL(snAnti,1,rnd(V.anticorruption)); }
+  if(optPD){   html += '<hr class="c-div"/>'+skST(snPD,'Персональные данные'); html += skCL(snPD,1,rnd(V.personalData)); }
+
+  // Final provisions
+  html += '<hr class="c-div"/>'+skST(snFin,'Заключительные положения');
+  html += skCL(snFin,1,rnd(V.servFinal));
+  html += skCL(snFin,2,'Настоящий Договор составлен в двух экземплярах, имеющих равную юридическую силу, по одному для каждой из Сторон.');
+
+  // Signatures
+  const sig1 = '<div class="sig-block"><div class="sig-title">ИСПОЛНИТЕЛЬ</div><div><b>'+name1+'</b></div><div>ИНН: '+inn1+(kpp1?', КПП: '+kpp1:'')+'</div>'+(ogrn1?'<div>ОГРН: '+ogrn1+'</div>':'')+'<div>Адрес: '+addr1+'</div><div>Банк: '+bank1+'</div><div>БИК: '+bik1+'</div><div>Р/с: '+rs1+'</div><div>К/с: '+ks1+'</div><div class="sig-line"></div><div class="sig-caption">'+post1+' / '+fio1+' /</div></div>';
+  const sig2 = '<div class="sig-block"><div class="sig-title">ЗАКАЗЧИК</div><div><b>'+name2+'</b></div><div>ИНН: '+inn2+(kpp2?', КПП: '+kpp2:'')+'</div>'+(ogrn2?'<div>ОГРН: '+ogrn2+'</div>':'')+'<div>Адрес: '+addr2+'</div><div>Банк: '+bank2+'</div><div>БИК: '+bik2+'</div><div>Р/с: '+rs2+'</div><div>К/с: '+ks2+'</div><div class="sig-line"></div><div class="sig-caption">'+post2+' / '+fio2+' /</div></div>';
+
+  html += '<hr class="c-div"/>'+skST(snSig,'Реквизиты и подписи сторон');
+  html += skSigsBlock(sig1, sig2, 'ИСПОЛНИТЕЛЬ', 'ЗАКАЗЧИК');
+
+  return html;
+}
+
 // ===== ГЛАВНАЯ ФУНКЦИЯ =====
 function generateContract(){
   const useNum=document.getElementById('opt-num').checked;
@@ -1762,6 +2293,16 @@ function generateContract(){
 
   // При рандоме — случайный визуальный стиль
   if(useRnd) randomizeStyle();
+
+  // Скелет: использовать зафиксированный, если пользователь выбрал вручную
+  if(!window._skeletonLocked){
+    const skIdx = Math.floor(Math.random() * SKELETONS.length);
+    window._skIdx = skIdx;
+    curSkeleton = skIdx;
+    document.querySelectorAll('.sk-chip').forEach(function(c){ c.classList.toggle('active', +c.dataset.idx === skIdx); });
+  } else {
+    curSkeleton = window._skIdx || 0;
+  }
 
   let num=v('f-number');
   if(useNum&&!num){num=genNumber();document.getElementById('f-number').value=num;}
@@ -1773,22 +2314,34 @@ function generateContract(){
   const docClasses=`doc-wrapper hdr-${curHdr} sst-${curSst} font-${curFont}`;
 
   const isLease=contractType==='lease';
-  const docTitle=isLease?'Договор аренды нежилого помещения':'Договор поставки';
-  const docCity=v('f-city')||'________________', docDate=fmtDate(v('f-date'));
-  const bodyHtml=isLease?generateLease(num,useRnd):generateSupply(num,useRnd);
-
-  const isLease2=contractType==='lease';
-  const docTypeLabel=isLease2?'АРЕНДЫ НЕЖИЛОГО ПОМЕЩЕНИЯ':'ПОСТАВКИ';
+  const isServ=contractType==='serv';
+  let docTitle, docTypeLabel, bodyHtml;
+  if(isServ){
+    docTitle='Договор оказания услуг';
+    docTypeLabel='ОКАЗАНИЯ УСЛУГ';
+    bodyHtml=generateServices(num,useRnd);
+  } else if(isLease){
+    docTitle='Договор аренды нежилого помещения';
+    docTypeLabel='АРЕНДЫ НЕЖИЛОГО ПОМЕЩЕНИЯ';
+    bodyHtml=generateLease(num,useRnd);
+  } else {
+    docTitle='Договор поставки';
+    docTypeLabel='ПОСТАВКИ';
+    bodyHtml=generateSupply(num,useRnd);
+  }
+  const docCity=isServ?(document.getElementById('svc-city')?.value||'Москва'):(v('f-city')||'________________');
+  const docDate=isServ?(document.getElementById('svc-date')?.value?fmtDate(document.getElementById('svc-date').value):fmtDate(new Date().toISOString().slice(0,10))):fmtDate(v('f-date'));
+  const docNum=isServ?(document.getElementById('svc-docnum')?.value||num):num;
   const html=`<div class="${docClasses}" style="${ts}">
   <div class="contract-doc">
-    <div class="c-title">ДОГОВОР ${docTypeLabel} №${esc(num)}</div>
-    <div class="c-city-date"><span>г. ${esc(docCity)}</span><span>${esc(docDate)} г.</span></div>
+    <div class="c-title">ДОГОВОР ${docTypeLabel} №${esc(isServ?docNum:num)}</div>
+    <div class="c-city-date"><span>г. ${esc(docCity)}</span><span>${esc(docDate)}</span></div>
     ${bodyHtml}
   </div>
 </div>`;
 
   document.getElementById('contract-preview').innerHTML=html;
-  document.getElementById('preview-label').textContent=`${docTitle} № ${num}`;
+  document.getElementById('preview-label').textContent=`${docTitle} № ${isServ?docNum:num}`;
   const fontNames={times:'Times',calibri:'Calibri',georgia:'Georgia',arial:'Arial',pt:'PT Serif'};
   const hdrNames={band:'Полоса',minimal:'Минимал',solid:'Заливка',frame:'Рамка'};
   const sstNames={classic:'Классика',leftbar:'Полоса',filled:'Блоки',underline:'Линия'};
@@ -1804,118 +2357,164 @@ function generateContract(){
   document.getElementById('btn-print').disabled=false;
   document.getElementById('btn-word').disabled=false;
   document.getElementById('contract-preview').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Capture to history
+  (function(){
+    var type = contractType; // 'supply', 'lease', or 'serv'
+    var typeLabel = isServ ? 'Услуги' : isLease ? 'Аренда' : 'Поставка';
+    var hNum = '', hP1 = '', hP2 = '';
+    if(type === 'supply'){
+      hNum = document.getElementById('f-number') ? document.getElementById('f-number').value : '';
+      hP1  = document.getElementById('s-name')   ? document.getElementById('s-name').value   : '';
+      hP2  = document.getElementById('b-name')   ? document.getElementById('b-name').value   : '';
+    } else if(type === 'lease'){
+      hNum = document.getElementById('f-number') ? document.getElementById('f-number').value : '';
+      hP1  = document.getElementById('ll-name')  ? document.getElementById('ll-name').value  : '';
+      hP2  = document.getElementById('lt-name')  ? document.getElementById('lt-name').value  : '';
+    } else if(type === 'serv'){
+      hNum = document.getElementById('svc-docnum') ? document.getElementById('svc-docnum').value : '';
+      hP1  = document.getElementById('svc-name1')  ? document.getElementById('svc-name1').value  : '';
+      hP2  = document.getElementById('svc-name2')  ? document.getElementById('svc-name2').value  : '';
+    }
+    historyAdd(type, typeLabel, hNum, hP1, hP2);
+  })();
 }
 
-// ===== СКАЧАТЬ WORD (.doc) =====
+// ===== СКАЧАТЬ WORD (.docx) =====
 function downloadWord(){
-  const preview=document.getElementById('contract-preview');
-  if(!preview||!preview.innerHTML.trim()){alert('Сначала сформируйте договор');return;}
+  const preview = document.getElementById('contract-preview');
+  if(!preview || !preview.innerHTML.trim() || preview.innerHTML.includes('Предпросмотр появится здесь')){
+    alert('Сначала сформируйте договор');
+    return;
+  }
 
-  // Текущая тема
-  const t=THEMES[curTheme]||THEMES.blue;
-  const themeColor=t.color;
-  const themeGrad=t.grad;
-  const themeBg=t.bg;
-  const themeBorder=t.border;
+  const contractHtml = preview.innerHTML;
+  const num = document.getElementById('f-docnum')?.value || document.getElementById('sv-docnum')?.value || document.getElementById('la-docnum')?.value || document.getElementById('f-number')?.value || '';
 
-  // Шрифт по текущему выбору
-  const fontMap={
-    times:   '"Times New Roman",Times,serif',
-    calibri: 'Calibri,"Trebuchet MS",Arial,sans-serif',
-    georgia: 'Georgia,"Book Antiqua",serif',
-    arial:   'Arial,Helvetica,sans-serif',
-    pt:      '"PT Serif","Palatino Linotype",serif'
-  };
-  const fontSizeMap={times:'13pt',calibri:'13pt',georgia:'12.5pt',arial:'12pt',pt:'13pt'};
-  const fontFamily=fontMap[curFont]||fontMap.times;
-  const fontSize=fontSizeMap[curFont]||'13pt';
-
-  // CSS договора для Word-экспорта (профессиональный юридический стиль)
-  const contractCSS=`
-    body{font-family:'Times New Roman',Times,serif;font-size:12pt;color:#000;margin:0;padding:0}
-    .doc-header-bar{display:none}
-    .doc-header-inner{display:none}
-    .c-title{text-align:center;font-weight:bold;font-size:14pt;text-transform:uppercase;margin-bottom:4pt;color:#000}
-    .c-city-date{display:table;width:100%;margin-bottom:14pt;font-size:12pt;color:#000}
-    .c-city-date span:first-child{display:table-cell;text-align:left}
-    .c-city-date span:last-child{display:table-cell;text-align:right}
-    .contract-doc{padding:0;max-width:none;font-family:'Times New Roman',Times,serif;font-size:12pt;line-height:1.4;color:#000}
-    .c-section{font-size:12pt;font-weight:bold;text-transform:uppercase;margin:14pt 0 5pt;color:#000;background:none;border:none;padding:0}
-    .c-clause{margin:4pt 0;text-align:justify;text-indent:1.25cm;line-height:1.4;color:#000}
-    .c-clause-num{font-weight:normal;margin-right:4pt;color:#000}
-    .c-preamble{font-size:12pt;margin-bottom:10pt;text-align:justify;text-indent:1.25cm;color:#000;background:none;border:none;padding:0;font-style:normal}
-    .c-intro{text-align:justify;text-indent:1.25cm;color:#000}
-    hr.c-div{display:none}
-    .c-total-words{font-style:italic;font-size:11pt;margin:3pt 0 8pt;color:#000}
-    .c-party-box{background:none;border:none;padding:0;margin-bottom:6pt}
-    .c-party-box-title{font-weight:bold;font-size:12pt;text-transform:uppercase;color:#000;margin-bottom:4pt}
-    .c-party-row{font-size:11pt;color:#000;line-height:1.4}
-    .c-party-table{width:100%;border-collapse:collapse;margin:6pt 0;font-size:11pt}
-    .c-party-table td{padding:1pt 4pt;border:none;vertical-align:top;color:#000}
-    .c-party-table td:first-child{font-weight:bold;background:none;color:#000;width:32%}
-    .c-defs-term{font-weight:bold;color:#000}
-    .c-toc{background:none;border:none;padding:0;margin-bottom:12pt}
-    .c-toc-title{font-weight:bold;text-align:center;color:#000;font-size:12pt;text-transform:uppercase;margin-bottom:6pt}
-    .c-toc-item{font-size:11pt;color:#000;margin:2pt 0}
-    .c-toc-num{font-weight:bold;color:#000}
-    .c-toc-dot{display:none}
-    /* Word-совместимая разбивка подписей (grid→table) */
-    .c-sigs{width:100%;border-collapse:collapse;display:table;margin-top:20pt}
-    .sig-block{display:table-cell;vertical-align:top;width:50%;padding:0 8pt;font-size:11pt;color:#000}
-    .sig-table{width:100%;border-collapse:collapse;margin-top:20pt}
-    .sig-table th{background:none;padding:4pt 8pt;border:none;font-size:12pt;font-weight:bold;color:#000;text-align:left;text-transform:uppercase}
-    .sig-table td{padding:4pt 8pt;border:none;vertical-align:top;width:50%;color:#000;font-size:11pt}
-    .sig-title{font-weight:bold;font-size:12pt;margin-bottom:6pt;text-transform:uppercase;color:#000;border:none;padding:0}
-    .sig-line{margin-top:22pt;border-bottom:1pt solid #000;width:65%}
-    .sig-caption{font-size:8pt;color:#000;margin-top:2pt}
-    .sig-minimal .sig-label{font-weight:bold;font-size:12pt;text-transform:uppercase;color:#000}
-    table.ct{width:100%;border-collapse:collapse;font-size:10.5pt;margin:6pt 0;color:#000}
-    table.ct th{background:#f0f0f0;border:1pt solid #000;padding:4pt 6pt;font-weight:bold;font-size:9.5pt;color:#000}
-    table.ct td{border:1pt solid #000;padding:3pt 6pt;color:#000}
-    table.ct-pay th{background:#f0f0f0;border:1pt solid #000;color:#000}
-    table.ct-pay td{border:1pt solid #000;color:#000}
-    table.ct-rent th{background:#f0f0f0;border:1pt solid #000;color:#000}
-    table.ct-rent td{border:1pt solid #000;color:#000}
-    .td-c{text-align:center}.td-r{text-align:right}
-    .uniq-corner{display:none}
-  `;
-
-  const num=document.getElementById('f-number')?.value||'Договор';
-  const isLease=contractType==='lease';
-  const docTitle=isLease?'Договор аренды нежилого помещения':'Договор поставки';
-
-  const wordHTML=`<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office"
-      xmlns:w="urn:schemas-microsoft-com:office:word"
-      xmlns="http://www.w3.org/TR/REC-html40">
+  // Build complete HTML document for docx conversion
+  const fullHtml = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
-<meta charset="utf-8">
-<title>${docTitle} №${num}</title>
-<!--[if gte mso 9]><xml>
-<w:WordDocument>
-  <w:View>Print</w:View><w:Zoom>100</w:Zoom>
-  <w:DoNotOptimizeForBrowser/>
-</w:WordDocument>
-</xml><![endif]-->
+<meta charset="UTF-8">
 <style>
-  @page{margin:2cm 2.5cm}
-  ${contractCSS}
+body {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 12pt;
+  color: #000000;
+  background: #ffffff;
+  margin: 0;
+  padding: 0;
+}
+.c-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 14pt;
+  text-transform: uppercase;
+  margin: 0 0 6pt 0;
+}
+.c-city-date {
+  display: table;
+  width: 100%;
+  margin-bottom: 12pt;
+  font-size: 12pt;
+}
+.c-city-date span:first-child { display: table-cell; text-align: left; }
+.c-city-date span:last-child { display: table-cell; text-align: right; }
+.c-intro {
+  text-align: justify;
+  text-indent: 1.25cm;
+  margin-bottom: 8pt;
+}
+.c-section {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 12pt;
+  margin: 10pt 0 4pt 0;
+  text-align: left;
+}
+.c-clause {
+  text-align: justify;
+  text-indent: 1.25cm;
+  margin: 3pt 0;
+}
+.c-clause-num { font-weight: normal; }
+hr.c-div { display: none; }
+.c-preamble { text-align: justify; text-indent: 1.25cm; margin-bottom: 8pt; font-style: normal; }
+.c-party-box { margin-bottom: 4pt; }
+.c-party-box-title { font-weight: bold; text-transform: uppercase; font-size: 11pt; }
+.c-party-table { width: 100%; border-collapse: collapse; margin-bottom: 6pt; }
+.c-party-table td { padding: 1pt 4pt; font-size: 11pt; vertical-align: top; border: none; }
+.c-party-table td:first-child { font-weight: bold; width: 32%; }
+.c-toc { margin-bottom: 10pt; }
+.c-toc-title { font-weight: bold; text-align: center; margin-bottom: 4pt; }
+.c-toc-item { margin: 2pt 0; }
+.c-defs-term { font-weight: bold; }
+/* Tables */
+table.ct {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+  margin: 6pt 0;
+}
+table.ct th {
+  background: #f0f0f0;
+  font-weight: bold;
+  border: 1pt solid #000;
+  padding: 3pt;
+  text-align: center;
+}
+table.ct td {
+  border: 1pt solid #000;
+  padding: 2pt 4pt;
+}
+table.ct .c { text-align: center; }
+table.ct .r { text-align: right; }
+table.ct tfoot td { font-weight: bold; background: #f0f0f0; }
+/* Signature block */
+.sig-block { margin-top: 16pt; }
+.sig-table { width: 100%; border-collapse: collapse; }
+.sig-table td, .sig-table th { border: none; padding: 3pt 6pt; vertical-align: top; font-size: 11pt; }
+.sig-table th { font-weight: bold; text-transform: uppercase; font-size: 12pt; padding-bottom: 5pt; }
+.sig-label { font-weight: bold; text-transform: uppercase; font-size: 12pt; }
+.sig-line { display: inline-block; width: 100pt; border-bottom: 1pt solid #000; margin-right: 4pt; }
+.sig-line-wrap { margin-top: 14pt; }
 </style>
 </head>
 <body>
-${preview.innerHTML}
+${contractHtml}
 </body>
 </html>`;
 
-  const blob=new Blob(['\ufeff'+wordHTML],{type:'application/msword'});
-  const url=URL.createObjectURL(blob);
-  const link=document.createElement('a');
-  link.href=url;
-  link.download=`${docTitle}_${num}.doc`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  // Use html-docx-js if available
+  if(typeof htmlDocx !== 'undefined'){
+    try {
+      const blob = htmlDocx.asBlob(fullHtml, {
+        orientation: 'portrait',
+        margins: { top: 1134, right: 851, bottom: 1134, left: 1701 }
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dogovor' + (num ? '_' + num.replace(/[^a-zA-Z0-9_]/g,'_') : '') + '.docx';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); document.body.removeChild(a); }, 1000);
+      return;
+    } catch(e) {
+      console.error('html-docx-js error:', e);
+      // fall through to legacy
+    }
+  }
+
+  // Fallback: legacy .doc download
+  const blob = new Blob(['\ufeff' + fullHtml], {type:'application/msword'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'dogovor' + (num ? '_' + num : '') + '.doc';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); document.body.removeChild(a); }, 1000);
 }
 
 // ===== ИМПОРТ ИЗ EXCEL =====
@@ -2055,6 +2654,125 @@ function dismissImport(){
   _prefillData=null;
 }
 
+// ===== CONTRACT HISTORY =====
+var HISTORY_KEY = 'dogovor_history_v1';
+var MAX_HISTORY = 20;
+
+function historyLoad(){
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]'); } catch(e){ return []; }
+}
+
+function historySave(entries){
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(entries)); } catch(e){}
+}
+
+function historyCaptureFormState(){
+  var state = {};
+  document.querySelectorAll('input[id], select[id], textarea[id]').forEach(function(el){
+    if(el.type === 'checkbox') state[el.id] = el.checked;
+    else state[el.id] = el.value;
+  });
+  document.querySelectorAll('[data-opt]').forEach(function(el){
+    state['__opt__'+el.dataset.opt] = el.value;
+  });
+  return state;
+}
+
+function historyRestoreFormState(state){
+  if(!state) return;
+  Object.keys(state).forEach(function(key){
+    if(key.startsWith('__opt__')){
+      var optKey = key.replace('__opt__','');
+      var el = document.querySelector('[data-opt="'+optKey+'"]');
+      if(el) el.value = state[key];
+    } else {
+      var el = document.getElementById(key);
+      if(!el) return;
+      if(el.type === 'checkbox') el.checked = !!state[key];
+      else el.value = state[key]||'';
+    }
+  });
+}
+
+function historyAdd(type, typeLabel, num, party1, party2){
+  var entries = historyLoad();
+  var entry = {
+    id: Date.now(),
+    ts: new Date().toISOString(),
+    type: type,
+    typeLabel: typeLabel,
+    num: num||'',
+    party1: party1||'',
+    party2: party2||'',
+    formState: historyCaptureFormState()
+  };
+  entries.unshift(entry);
+  if(entries.length > MAX_HISTORY) entries = entries.slice(0, MAX_HISTORY);
+  historySave(entries);
+  historyRenderPanel();
+}
+
+function historyDelete(id){
+  var entries = historyLoad().filter(function(e){ return e.id !== id; });
+  historySave(entries);
+  historyRenderPanel();
+}
+
+function historyClear(){
+  if(!confirm('Очистить всю историю договоров?')) return;
+  historySave([]);
+  historyRenderPanel();
+}
+
+function historyRestore(id){
+  var entries = historyLoad();
+  var entry = entries.find(function(e){ return e.id === id; });
+  if(!entry) return;
+  if(typeof switchType === 'function') switchType(entry.type);
+  historyRestoreFormState(entry.formState);
+  document.getElementById('history-panel').style.display = 'none';
+  window.scrollTo(0,0);
+}
+
+function historyFormatDate(iso){
+  try {
+    var d = new Date(iso);
+    return d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  } catch(e){ return iso; }
+}
+
+function historyRenderPanel(){
+  var panel = document.getElementById('history-list');
+  if(!panel) return;
+  var entries = historyLoad();
+  if(entries.length === 0){
+    panel.innerHTML = '<div style="color:var(--text-muted,#888);font-size:13px;padding:12px;text-align:center;">История пуста</div>';
+    return;
+  }
+  panel.innerHTML = entries.map(function(e){
+    var dateStr = historyFormatDate(e.ts);
+    var typeIcon = e.type==='supply'?'📦':e.type==='lease'?'🏢':'📋';
+    var numStr = e.num ? ' №'+e.num : '';
+    var partiesStr = [e.party1, e.party2].filter(Boolean).join(' → ');
+    return '<div class="history-entry" data-id="'+e.id+'">'
+      +'<div class="history-entry-main" onclick="historyRestore('+e.id+')">'
+      +'<div class="history-date">'+dateStr+'</div>'
+      +'<div class="history-title">'+typeIcon+' '+e.typeLabel+numStr+'</div>'
+      +(partiesStr?'<div class="history-parties">'+partiesStr+'</div>':'')
+      +'</div>'
+      +'<button class="history-del" onclick="historyDelete('+e.id+')" title="Удалить">✕</button>'
+      +'</div>';
+  }).join('');
+}
+
+function toggleHistoryPanel(){
+  var panel = document.getElementById('history-panel');
+  if(!panel) return;
+  var isVisible = panel.style.display === 'flex';
+  panel.style.display = isVisible ? 'none' : 'flex';
+  if(!isVisible) historyRenderPanel();
+}
+
 // ===== INIT =====
 (function init(){
   const d=new Date();
@@ -2068,8 +2786,24 @@ function dismissImport(){
   onPayModeChange();
   onDepositChange();
   applyTheme('blue');
+  window._skIdx = 0;
+  window._skeletonLocked = false;
+  buildSkeletonGrid();
   checkImportData();
 })();
 </script>
+
+<!-- ИСТОРИЯ ДОГОВОРОВ -->
+<div id="history-panel" style="display:none;position:fixed;top:60px;right:16px;width:340px;max-height:70vh;background:var(--card-bg,#fff);border:1px solid var(--border,#ddd);border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,0.15);z-index:9999;overflow:hidden;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border,#ddd);background:var(--card-bg,#fff);">
+    <span style="font-weight:600;font-size:14px;">📋 История договоров</span>
+    <div style="display:flex;gap:6px;">
+      <button type="button" onclick="historyClear()" style="font-size:11px;padding:2px 8px;color:var(--danger,#c00);border:1px solid currentColor;border-radius:4px;background:none;cursor:pointer;">Очистить</button>
+      <button type="button" onclick="toggleHistoryPanel()" style="font-size:14px;background:none;border:none;cursor:pointer;color:var(--text-muted,#666);">✕</button>
+    </div>
+  </div>
+  <div id="history-list" style="overflow-y:auto;flex:1;padding:4px 0;max-height:calc(70vh - 50px);"></div>
+</div>
+
 </body>
 </html>
